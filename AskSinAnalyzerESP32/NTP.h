@@ -71,11 +71,12 @@ boolean summertime(time_t t, byte tzHours) {
 }
 
 String getUhrzeit(time_t t) {
-  byte Stunde = hour(t) + 1;
-  Stunde = (summertime(t, 0)) ? Stunde + 1 : Stunde;
+  byte stunde = hour(t) + 1;
+  stunde = (summertime(t, 0)) ? stunde + 1 : stunde;
+  String Stunde = (stunde < 10) ? "0" + String(stunde) : String(stunde);
   String Minute = (minute(t) < 10) ? "0" + String(minute(t)) : String(minute(t));
   String Sekunde = (second(t) < 10) ? "0" + String(second(t)) : String(second(t));
-  return String(Stunde) + ":" + Minute + ":" + Sekunde;
+  return Stunde + ":" + Minute + ":" + Sekunde;
 }
 
 String getDatum(time_t t) {
