@@ -4,7 +4,9 @@
 
 const char HTTP_JS[] PROGMEM = R"=====(
 <script>
-    var loglen = 0;
+  var loglen = 0;
+  var first = 1;
+  var cnt = 0;
 
   function Get(u){ 
     var h = new XMLHttpRequest(); 
@@ -15,20 +17,24 @@ const char HTTP_JS[] PROGMEM = R"=====(
 
   function refreshState(rekursiv) { 
     var i;
-    var json_obj = JSON.parse(Get('/getLog?start='+loglen)); 
+    var json_obj = JSON.parse(Get('/getLog?start='+loglen+'&first='+first)); 
+    first = 0;
     loglen = json_obj.loglength;
     
     var table = document.getElementById("logtable");
      for (i in json_obj.logentries) {
+       cnt++;
        var row = table.insertRow(1);
-       var cellTime = row.insertCell(0);
-       var cellRSSI = row.insertCell(1);
-       var cellFrom = row.insertCell(2);
-       var cellTo = row.insertCell(3);
-       var cellLen = row.insertCell(4);
-       var cellCnt = row.insertCell(5);
-       var cellTyp = row.insertCell(6);
-       var cellFlags = row.insertCell(7);
+       var cellNum = row.insertCell(0);
+       var cellTime = row.insertCell(1);
+       var cellRSSI = row.insertCell(2);
+       var cellFrom = row.insertCell(3);
+       var cellTo = row.insertCell(4);
+       var cellLen = row.insertCell(5);
+       var cellCnt = row.insertCell(6);
+       var cellTyp = row.insertCell(7);
+       var cellFlags = row.insertCell(8);
+       cellNum.innerHTML = cnt;
        cellTime.innerHTML = json_obj.logentries[i].time;
        cellRSSI.innerHTML = json_obj.logentries[i].rssi;
        cellFrom.innerHTML = json_obj.logentries[i].from;
