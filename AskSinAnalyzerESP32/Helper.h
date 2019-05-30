@@ -54,9 +54,10 @@ String getSerialFromAddress(String in) {
   if (in != "000000") {
     for (uint16_t c = 0; c < ADDRESSTABLE_LENGTH; c++) {
       if (AddressTable[c].Address == in) {
-        Serial.println("FOUND LOCAL");
+        String s = (AddressTable[c].Serial).substring(0, 10);
+        Serial.println("FOUND LOCAL: " + in + " / " + s);
         drawStatusCircle(ILI9341_GREEN);
-        return (AddressTable[c].Serial).substring(0, 10);
+        return s;
       }
     }
 
@@ -71,7 +72,7 @@ String getSerialFromAddress(String in) {
           AddressTable[AddressTableCount].Address = in;
           res = res.substring(res.indexOf(","));
           res = res.substring(1);
-          res.replace("BidCoS-RF", "<ZENTRALE>");
+          res.replace("BidCoS-RF", "-ZENTRALE-");
 
           Serial.println("SERIAL = " + res);
           AddressTable[AddressTableCount].Serial = res;
@@ -85,7 +86,7 @@ String getSerialFromAddress(String in) {
       }
     }
   } else {
-    out = "<ALLE>";
+    out = "-ALLE-";
   }
   out.trim();
   if (out.length() == 6) out = "  " + out + "  ";
