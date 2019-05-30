@@ -14,6 +14,12 @@ void receiveMessages() {
       msgBuffer[msgBufferCount] = inStr;
       inStr = "";
       msgBufferCount++;
+      if (msgBufferCount > 1) {
+        Serial.println(F("****************"));
+        Serial.print(F("!message Buffer = "));
+        Serial.println(String(msgBufferCount));
+        Serial.println(F("****************"));
+      }
       allCount++;
     }
   }
@@ -34,7 +40,7 @@ void fillLogTable(String in) {
   String flags = getFlags(in.substring(7, 9));
   String typ = getTyp(in.substring(9, 11));
 
-#ifdef ONLINE_MODE
+#if defined ONLINE_MODE && defined RESOLVE_ADDRESS
   String fromStr = getSerialFromAddress(in.substring(11, 17));
   String toStr = getSerialFromAddress(in.substring(17, 23));
 #else
@@ -55,14 +61,48 @@ void fillLogTable(String in) {
     }
   }
 
+  LogTable[0].time = ((timeOK == true)  ? now() : 0);
+  LogTable[0].rssi = rssi;
   memcpy(LogTable[0].from, fromStr.c_str(), 10);
   memcpy(LogTable[0].to, toStr.c_str(), 10);
-  LogTable[0].rssi = rssi;
   LogTable[0].len = len;
   LogTable[0].cnt = cnt;
   memcpy(LogTable[0].typ, typ.c_str(), 30);
   memcpy(LogTable[0].flags, flags.c_str(), 30);
-  LogTable[0].time = ((timeOK == true)  ? now() : 0);
+
+  // Write to CSV
+  String csvLine = "";
+  String temp = "";
+  csvLine += String(allCount);
+  csvLine += ";";
+  csvLine += getDatum(LogTable[0].time) + " " + getUhrzeit(LogTable[0].time);
+  csvLine += ";";
+  csvLine += String(LogTable[0].rssi);
+  csvLine += ";";
+  temp = LogTable[0].from;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+  temp = LogTable[0].to;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+  csvLine += String(LogTable[0].len);
+  csvLine += ";";
+  csvLine += String(LogTable[0].cnt);
+  csvLine += ";";
+  temp = LogTable[0].typ;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+  temp = LogTable[0].flags;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+
+  writeCSV(CSV_FILENAME, csvLine);
+
+  if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
   Serial.println(F("Added to LogTable:"));
   Serial.print(F("  - from : ")); Serial.println(LogTable[0].from);
@@ -72,10 +112,12 @@ void fillLogTable(String in) {
   Serial.print(F("  - cnt  : ")); Serial.println(LogTable[0].cnt);
   Serial.print(F("  - typ  : ")); Serial.println(LogTable[0].typ);
   Serial.print(F("  - flags: ")); Serial.println(LogTable[0].flags);
-  Serial.print(F("  - time : ")); Serial.println(getDatum(LogTable[0].time)+ " "+getUhrzeit(LogTable[0].time));
+  Serial.print(F("  - time : ")); Serial.println(getDatum(LogTable[0].time) + " " + getUhrzeit(LogTable[0].time));
+  Serial.println("allCount         = " + String(allCount));
+  Serial.println("logLength        = " + String(logLength));
+  Serial.println("logLengthDisplay = " + String(logLengthDisplay));
   Serial.println();
 
-  if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 }
 
 #endif

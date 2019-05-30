@@ -10,16 +10,26 @@ AsyncWebServer webServer(80);
 void getLog(AsyncWebServerRequest *request) {
 
   uint16_t start = 0;
+  bool first = false;
+
+  if (request->hasParam("first")) {
+    AsyncWebParameter* p = request->getParam("first");
+    first = (p->value() == "1");
+  }
+
   if (request->hasParam("start")) {
     AsyncWebParameter* p = request->getParam("start");
-    start =  p->value().toInt();
+    start = (first == true) ? allCount - 200 : p->value().toInt();
   }
-  uint16_t jsonlogLength = ((start) <= logLength) ? logLength - start : logLength;
 
-  String json = "{\"loglength\":\"" + String(logLength) + "\", \"logentries\": [";
+
+
+  uint16_t jsonlogLength = ((start) <= allCount) ? allCount - start : allCount;
+
+  String json = "{\"loglength\":\"" + String(allCount) + "\", \"logentries\": [";
 
   if (jsonlogLength > 0) {
-    
+
     for (int16_t l = jsonlogLength - 1; l >= 0; l--) {
       json += "{";
       json += "\"time\": \"" + getDatum(LogTable[l].time) + " " + getUhrzeit(LogTable[l].time) + "\", ";
@@ -67,6 +77,31 @@ void initWebServer() {
 
   webServer.on("/getLog", HTTP_GET, [](AsyncWebServerRequest * request) {
     getLog(request);
+  });
+
+  webServer.on("/deletecsv", HTTP_GET, [](AsyncWebServerRequest * request) {
+    bool backup = false;
+    if (request->hasParam("backup")) {
+      AsyncWebParameter* p = request->getParam("backup");
+      backup = (p->value() == "1");
+    }
+    deleteCSV(CSV_FILENAME, backup);
+    request->send(200, "text/plain", "csv deleted, " + (String)((backup == true) ? "with" : "without") + " backup");
+  });
+
+  webServer.on("/dl", HTTP_GET, [](AsyncWebServerRequest * request) {
+    if (request->hasArg("filename")) {
+      String fileName =  request->arg("filename");
+      if (!fileName.startsWith("/"))
+        fileName = "/" + fileName;
+      if (SPIFFS.exists(fileName)) {
+        AsyncWebServerResponse *response = request->beginResponse(SPIFFS, fileName, String());
+        response->addHeader("Server", "AskSinAnalyzer");
+        request->send(response);
+      } else {
+        request->send(404, "text/plain", "file " + fileName + " not found");
+      }
+    }
   });
 
   webServer.onNotFound([](AsyncWebServerRequest * request) {

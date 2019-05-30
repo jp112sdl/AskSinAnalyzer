@@ -3,14 +3,17 @@
 #include <ESPAsyncWebServer.h>
 #include <TimeLib.h>
 #include <WiFiUdp.h>
+#include "FS.h"
+#include "SPIFFS.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
 #include <U8g2_for_Adafruit_GFX.h>
 #include "settings.h"
 
-#define SHOW_DISPLAY_LINES
-#define SHOW_DETAILS
-#define ONLINE_MODE
+#define SHOW_DISPLAY_LINES  //show lines between rows on the tft display
+#define SHOW_DETAILS        //show 5 lines with packet details or 15 lines with short info
+#define ONLINE_MODE         //connect to wifi
+#define RESOLVE_ADDRESS     //...and resolve addresses from ccu 
 
 #ifdef SHOW_DETAILS
 #define LOG_BLOCK_SIZE  3
@@ -33,6 +36,9 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 #define EXTSERIALRX_PIN     16
 #define EXTSERIALBAUDRATE   57600
 
+#define CSV_FILENAME                "/log.csv"
+#define CSV_HEADER                  "num;time;rssi;from;to;len;cnt;typ;flags;"
+
 #define ADDRESSTABLE_LENGTH 512
 struct _AddressTable {
   String Address = "";
@@ -54,12 +60,14 @@ struct _LogTable {
 uint16_t logLength = 0;
 uint16_t logLengthDisplay = 0;
 
-String msgBuffer[255];
-uint8_t msgBufferCount = 0;
-uint32_t allCount = 0;
-bool isOnline = false;
-bool timeOK = false;
+String  msgBuffer[255];
+uint8_t  msgBufferCount  = 0;
+uint32_t allCount        = 0;
+bool     isOnline        = false;
+bool     timeOK          = false;
+bool     spiffsAvailable = false;
 
+#include "File.h"
 #include "Display.h"
 #include "Wifi.h"
 #include "NTP.h"
@@ -69,7 +77,7 @@ bool timeOK = false;
 #include "Web.h"
 
 void setup() {
-#ifdef ONLINE_MODE
+#if defined ONLINE_MODE && defined RESOLVE_ADDRESS
   for (uint16_t c = 0; c < ADDRESSTABLE_LENGTH; c++) {
     AddressTable[c].Address = "";
     AddressTable[c].Serial = "";
@@ -85,6 +93,7 @@ void setup() {
   timeOK = doNTPinit();
   initWebServer();
 #endif
+  spiffsAvailable = initSPIFFS();
   drawStatusCircle(ILI9341_GREEN);
 }
 
