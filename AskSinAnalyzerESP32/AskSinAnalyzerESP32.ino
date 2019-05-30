@@ -1,5 +1,8 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <ESPAsyncWebServer.h>
+#include <TimeLib.h>
+#include <WiFiUdp.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
 #include <U8g2_for_Adafruit_GFX.h>
@@ -46,6 +49,7 @@ struct _LogTable {
   uint8_t cnt = 0;
   char typ[32];
   char flags[32];
+  time_t time = 0;
 } LogTable[MAX_LOG_ENTRIES];
 uint16_t logLength = 0;
 uint16_t logLengthDisplay = 0;
@@ -54,12 +58,15 @@ String msgBuffer[255];
 uint8_t msgBufferCount = 0;
 uint32_t allCount = 0;
 bool isOnline = false;
+bool timeOK = false;
 
 #include "Display.h"
 #include "Wifi.h"
+#include "NTP.h"
 #include "CCUFunctions.h"
 #include "Helper.h"
 #include "SerialIn.h"
+#include "Web.h"
 
 void setup() {
 #ifdef ONLINE_MODE
@@ -75,6 +82,8 @@ void setup() {
   initLogTable();
 #ifdef ONLINE_MODE
   isOnline = wifiConnect();
+  timeOK = doNTPinit();
+  initWebServer();
 #endif
   drawStatusCircle(ILI9341_GREEN);
 }
@@ -84,20 +93,9 @@ void loop() {
 
   if (msgBufferCount > 0) {
     for (uint8_t b = 0; b < msgBufferCount; b++) {
-
       fillLogTable(msgBuffer[b]);
 
       refreshDisplayLog();
-
-
-
-      //Serial.println("FROM: " + String(fromStr));
-      //Serial.println("TO  : " + String(toStr));
-      //Serial.println("RSSI: " + rssiStr);
-      //Serial.println("LEN : " + String(lengthStr));
-      //Serial.println("CNT : " + String(countStr));
-      //Serial.println("TYP : " + String(typ));
-      //Serial.println("FLG : " + String(flags));
     }
     msgBufferCount = 0;
   }
