@@ -51,6 +51,7 @@ void fillLogTable(String in) {
       LogTable[c].cnt = LogTable[c - 1].cnt;
       memcpy(LogTable[c].typ, LogTable[c - 1].typ, 30);
       memcpy(LogTable[c].flags, LogTable[c - 1].flags, 30);
+      LogTable[c].time = LogTable[c - 1].time;
     }
   }
 
@@ -61,6 +62,19 @@ void fillLogTable(String in) {
   LogTable[0].cnt = cnt;
   memcpy(LogTable[0].typ, typ.c_str(), 30);
   memcpy(LogTable[0].flags, flags.c_str(), 30);
+  LogTable[0].time = ((timeOK == true)  ? now() : 0);
+
+  Serial.println(F("Added to LogTable:"));
+  Serial.print(F("  - from : ")); Serial.println(LogTable[0].from);
+  Serial.print(F("  - to   : ")); Serial.println(LogTable[0].to);
+  Serial.print(F("  - rssi : ")); Serial.println(LogTable[0].rssi);
+  Serial.print(F("  - len  : ")); Serial.println(LogTable[0].len);
+  Serial.print(F("  - cnt  : ")); Serial.println(LogTable[0].cnt);
+  Serial.print(F("  - typ  : ")); Serial.println(LogTable[0].typ);
+  Serial.print(F("  - flags: ")); Serial.println(LogTable[0].flags);
+  Serial.print(F("  - time : ")); Serial.println(getDatum(LogTable[0].time)+ " "+getUhrzeit(LogTable[0].time));
+  Serial.println();
+
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 }
 
