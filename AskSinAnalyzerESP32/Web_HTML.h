@@ -14,7 +14,7 @@ const char HTTP_DEFAULT[] PROGMEM = R"=====(
   <body>
     <div> 
     <table id='logtable' class='tdc' >
-    <tr><td>Uhrzeit</td><td>RSSI</td><td>FROM</td><td>TO</td><td>LEN</td><td>CNT</td><td>TYP</td><td>FLAGS</td>
+    <tr><td>#</td><td>Uhrzeit</td><td>RSSI</td><td>FROM</td><td>TO</td><td>LEN</td><td>CNT</td><td>TYP</td><td>FLAGS</td>
     </tr>
     </table>
     </div> 
