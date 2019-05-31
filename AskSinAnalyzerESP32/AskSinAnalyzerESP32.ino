@@ -46,7 +46,7 @@ struct _AddressTable {
 } AddressTable[ADDRESSTABLE_LENGTH];
 uint16_t AddressTableCount = 0;
 
-#define MAX_LOG_ENTRIES 256
+#define MAX_LOG_ENTRIES 200
 struct _LogTable {
   char from[11];
   char to[11];
