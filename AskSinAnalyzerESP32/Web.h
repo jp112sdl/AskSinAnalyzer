@@ -7,6 +7,46 @@
 
 AsyncWebServer webServer(80);
 
+void getLogByTimestamp (AsyncWebServerRequest *request) {
+  time_t ts = 0;
+  if (request->hasParam("ts")) {
+    AsyncWebParameter* p = request->getParam("ts");
+    ts = strtol(p->value().c_str(), 0, 10);
+  }
+
+  String json = "{\"logentries\": [";
+
+  for (uint16_t l = 0; l < logLength; l++) {
+    if (LogTable[l].time > ts && l < 200) {
+      json += "{";
+      json += "\"time\": \"" + String(LogTable[l].time) + "\", ";
+      json += "\"rssi\": \"" + String(LogTable[l].rssi) + "\", ";
+      json += "\"from\": \"" + String(LogTable[l].from) + "\", ";
+      json += "\"to\": \"" + String(LogTable[l].to) + "\", ";
+      json += "\"len\": \"" + String(LogTable[l].len) + "\", ";
+      json += "\"cnt\": \"" + String(LogTable[l].cnt) + "\", ";
+      String t = String(LogTable[l].typ);
+      t.trim();
+      json += "\"typ\": \"" + t + "\", ";
+      String fl = String(LogTable[l].flags);
+      fl.trim();
+      json += "\"flags\": \"" + fl + "\"";
+      json += "}";
+      json += ",";
+    }
+    if (l == 200) break;
+  }
+
+  json += "]";
+  json += "}";
+  json.replace("},]}","}]}");
+
+  AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Content-Length", String(json.length()));
+  request->send(200, "text/json", json);
+
+}
+
 void getLog(AsyncWebServerRequest *request) {
 
   uint16_t start = 0;
@@ -21,8 +61,6 @@ void getLog(AsyncWebServerRequest *request) {
     AsyncWebParameter* p = request->getParam("start");
     start = (first == true) ? allCount - 200 : p->value().toInt();
   }
-
-
 
   uint16_t jsonlogLength = ((start) <= allCount) ? allCount - start : allCount;
 
@@ -79,6 +117,10 @@ void initWebServer() {
     getLog(request);
   });
 
+  webServer.on("/getLogByTimestamp", HTTP_GET, [](AsyncWebServerRequest * request) {
+    getLogByTimestamp(request);
+  });
+  
   webServer.on("/deletecsv", HTTP_GET, [](AsyncWebServerRequest * request) {
     bool backup = false;
     if (request->hasParam("backup")) {
