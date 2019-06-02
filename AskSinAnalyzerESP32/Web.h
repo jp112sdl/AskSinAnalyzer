@@ -7,6 +7,28 @@
 
 AsyncWebServer webServer(80);
 
+void getConfig (AsyncWebServerRequest *request) {
+  String json = "{";
+  json += "\"staticip\":\"" + String(NetConfig.ip) + "\"";
+  json += ",";
+  json += "\"staticnetmask\":\"" + String(NetConfig.netmask) + "\"";
+  json += ",";
+  json += "\"staticgateway\":\"" + String(NetConfig.gw) + "\"";
+  json += ",";
+  json += "\"ccuip\":\"" + String(HomeMaticConfig.ccuIP) + "\"";
+  json += ",";
+  json += "\"svanalyzeinput\":\"" + String(HomeMaticConfig.SVAnalyzeInput) + "\"";
+  json += ",";
+  json += "\"svanalyzeoutput\":\"" + String(HomeMaticConfig.SVAnalyzeOutput) + "\"";
+  json += ",";
+  json += "\"resolve\":\"" + String(RESOLVE_ADDRESS) + "\"";
+  json += "}";
+
+  AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Content-Length", String(json.length()));
+  request->send(200, "text/json", json);
+}
+
 void getLogByTimestamp (AsyncWebServerRequest *request) {
   time_t ts = 0;
   if (request->hasParam("ts")) {
@@ -19,12 +41,16 @@ void getLogByTimestamp (AsyncWebServerRequest *request) {
   for (uint16_t l = 0; l < logLength; l++) {
     if (LogTable[l].time > ts && l < 200) {
       json += "{";
-      json += "\"time\": \"" + String(LogTable[l].time) + "\", ";
-      json += "\"rssi\": \"" + String(LogTable[l].rssi) + "\", ";
-      json += "\"from\": \"" + String(LogTable[l].from) + "\", ";
-      json += "\"to\": \"" + String(LogTable[l].to) + "\", ";
-      json += "\"len\": \"" + String(LogTable[l].len) + "\", ";
-      json += "\"cnt\": \"" + String(LogTable[l].cnt) + "\", ";
+      json += "\"tstamp\": " + String(LogTable[l].time) + ", ";
+      json += "\"rssi\": " + String(LogTable[l].rssi) + ", ";
+      String from = String(LogTable[l].from);
+      from.trim();
+      json += "\"from\": \"" + from + "\", ";
+      String to = String(LogTable[l].to);
+      to.trim();
+      json += "\"to\": \"" + to + "\", ";
+      json += "\"len\": " + String(LogTable[l].len) + ", ";
+      json += "\"cnt\": " + String(LogTable[l].cnt) + ", ";
       String t = String(LogTable[l].typ);
       t.trim();
       json += "\"typ\": \"" + t + "\", ";
@@ -39,12 +65,11 @@ void getLogByTimestamp (AsyncWebServerRequest *request) {
 
   json += "]";
   json += "}";
-  json.replace("},]}","}]}");
+  json.replace("},]}", "}]}");
 
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(json.length()));
   request->send(200, "text/json", json);
-
 }
 
 void getLog(AsyncWebServerRequest *request) {
@@ -106,6 +131,25 @@ void defaultHtml(AsyncWebServerRequest *request) {
   request->send(200, "text/html", page);
 }
 
+void setBootConfigMode(AsyncWebServerRequest *request) {
+  if (SPIFFS.begin()) {
+    Serial.println(F("setBootConfigMode mounted file system"));
+    if (!SPIFFS.exists(BOOTCONFIGMODE_FILENAME)) {
+      File bootConfigModeFile = SPIFFS.open(BOOTCONFIGMODE_FILENAME, "w");
+      bootConfigModeFile.print("0");
+      bootConfigModeFile.close();
+      SPIFFS.end();
+      Serial.println(F("Boot to ConfigMode requested. Restarting..."));
+      request->send(200, "text/plain", F("<state>enableBootConfigMode - Rebooting</state>"));
+      delay(500);
+      ESP.restart();
+    } else {
+      request->send(200, "text/plain", F("<state>enableBootConfigMode - FAILED!</state>"));
+      SPIFFS.end();
+    }
+  }
+}
+
 void initWebServer() {
   webServer.on("/restart", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(200, "text/plain", "rebooting");
@@ -117,10 +161,18 @@ void initWebServer() {
     getLog(request);
   });
 
+  webServer.on("/getConfig", HTTP_GET, [](AsyncWebServerRequest * request) {
+    getConfig(request);
+  });
+
+  webServer.on("/rebootconfig", HTTP_GET, [](AsyncWebServerRequest * request) {
+    setBootConfigMode(request);
+  });
+
   webServer.on("/getLogByTimestamp", HTTP_GET, [](AsyncWebServerRequest * request) {
     getLogByTimestamp(request);
   });
-  
+
   webServer.on("/deletecsv", HTTP_GET, [](AsyncWebServerRequest * request) {
     bool backup = false;
     if (request->hasParam("backup")) {

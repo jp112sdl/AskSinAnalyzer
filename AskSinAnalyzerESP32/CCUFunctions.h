@@ -1,12 +1,17 @@
 #ifndef CCUFUNCTIONS_H_
 #define CCUFUNCTIONS_H_
 
-bool setCCURequest(String SV, String val) {
+
+//http://CCU_IP:8181/cuxd.exe?ret=dom.GetObject((xmlrpc.GetObjectByHSSAddress(interfaces.Get("BidCos-RF"),"<SERIAL>:0")).Name())
+
+bool setCCURequest(String val) {
   if (WiFi.status() == WL_CONNECTED) {
+    #ifdef USE_DISPLAY
     drawStatusCircle(ILI9341_BLUE);
+    #endif
     HTTPClient http;
     //http.setTimeout(HTTPTimeOut);
-    String url = "http://" + CCU_IP + ":8181/a.exe?ret=dom.GetObject(%22" + SV + "%22).State(%22" + val + "%22)";
+    String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + String(HomeMaticConfig.SVAnalyzeInput) + "%22).State(%22" + val + "%22)";
     Serial.println("setCCURequest url: " + url);
     http.begin(url);
     int httpCode = http.GET();
@@ -29,12 +34,14 @@ bool setCCURequest(String SV, String val) {
   } else return false;
 }
 
-String getCCURequestResult(String SV) {
+String getCCURequestResult() {
   if (WiFi.status() == WL_CONNECTED) {
+    #ifdef USE_DISPLAY
     drawStatusCircle(ILI9341_BLUE);
+    #endif
     HTTPClient http;
     //http.setTimeout(HTTPTimeOut);
-    String url = "http://" + CCU_IP + ":8181/a.exe?ret=dom.GetObject(%22" + SV + "%22).State()";
+    String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + String(HomeMaticConfig.SVAnalyzeOutput) + "%22).State()";
     Serial.println("getCCURequestResult url: " + url);
     http.begin(url);
     int httpCode = http.GET();

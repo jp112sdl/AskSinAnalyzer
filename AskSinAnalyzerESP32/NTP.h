@@ -42,23 +42,25 @@ time_t getNtpTime() {
 }
 
 bool doNTPinit() {
-  udp.begin(localPort);
-  setSyncProvider(getNtpTime);
-  setSyncInterval(3600);
-  byte timeSetRetries = 0;
-  while (timeStatus() == timeNotSet) {
-    Serial.println("Waiting for Time set");
-    delay(2000);
-    if (timeSetRetries > 5) {
-      Serial.println("Timeout!"); 
-      //Serial.println("Rebooting");
-      //delay(2000);
-      //ESP.restart();
-      return false;
+  if (isOnline) {
+    udp.begin(localPort);
+    setSyncProvider(getNtpTime);
+    setSyncInterval(3600);
+    byte timeSetRetries = 0;
+    while (timeStatus() == timeNotSet) {
+      Serial.println("Waiting for Time set");
+      delay(2000);
+      if (timeSetRetries > 5) {
+        Serial.println("Timeout!");
+        //Serial.println("Rebooting");
+        //delay(2000);
+        //ESP.restart();
+        return false;
+      }
+      timeSetRetries++;
     }
-    timeSetRetries++;
-  }
-  return true;
+    return true;
+  } else return false;
 }
 
 boolean summertime(time_t t, byte tzHours) {

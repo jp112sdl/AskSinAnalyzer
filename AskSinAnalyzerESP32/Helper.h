@@ -1,6 +1,17 @@
 #ifndef HELPER_H_
 #define HELPER_H_
 
+void parseBytes(const char* str, char sep, byte* bytes, int maxBytes, int base) {
+  for (int i = 0; i < maxBytes; i++) {
+    bytes[i] = strtoul(str, NULL, base);
+    str = strchr(str, sep);
+    if (str == NULL || *str == '\0') {
+      break;
+    }
+    str++;
+  }
+}
+
 String getFlags(String in) {
   int flagsInt =  (strtol(&in[0], NULL, 16) & 0xFF);
   String flags = "";
@@ -56,19 +67,25 @@ String getSerialFromAddress(String in) {
       if (AddressTable[c].Address == in) {
         String s = (AddressTable[c].Serial).substring(0, 10);
         Serial.println("FOUND LOCAL: " + in + " / " + s);
+#ifdef USE_DISPLAY
         drawStatusCircle(ILI9341_GREEN);
+#endif
         return s;
       }
     }
 
     if  (WiFi.status() == WL_CONNECTED) {
-      if (setCCURequest(INPUT_SV, in) == true) {
+      if (setCCURequest(in) == true) {
+#ifdef USE_DISPLAY
         drawStatusCircle(ILI9341_GREEN);
+#endif
         delay(250);
-        String res = getCCURequestResult(OUTPUT_SV);
+        String res = getCCURequestResult();
         if (res.length() > 7 && res.substring(0, 6) == in) {
+#ifdef USE_DISPLAY
           drawStatusCircle(ILI9341_GREEN);
-          Serial.println("FOUND VALID RESULT");
+#endif
+          Serial.println(F("FOUND VALID RESULT"));
           AddressTable[AddressTableCount].Address = in;
           res = res.substring(res.indexOf(","));
           res = res.substring(1);
@@ -79,10 +96,17 @@ String getSerialFromAddress(String in) {
           out = res;
           AddressTableCount++;
         } else {
+          if (res == "null")
+            Serial.println(F("getCCURequest failed! Check config parameters for CCU IP and SV Analyzer name"));
+#ifdef USE_DISPLAY
           drawStatusCircle(ILI9341_RED);
+#endif
         }
       } else {
+#ifdef USE_DISPLAY
         drawStatusCircle(ILI9341_RED);
+#endif
+        Serial.println(F("setCCURequest failed! Check config parameters for CCU IP and SV Analyzer name"));
       }
     }
   } else {

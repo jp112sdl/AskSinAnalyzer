@@ -26,6 +26,13 @@ bool initSPIFFS() {
     }
   }
   Serial.println("SPIFFS: Mount OK");
+  Serial.print("SPIFFS: Total Bytes: ");
+  Serial.println(SPIFFS.totalBytes());
+  Serial.print("SPIFFS: Used Bytes : ");
+  Serial.println(SPIFFS.usedBytes());
+  Serial.print("SPIFFS: Free Bytes : ");
+  Serial.println(SPIFFS.totalBytes() - SPIFFS.usedBytes());
+
   return true;
 }
 

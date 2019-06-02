@@ -25,8 +25,8 @@ void receiveMessages() {
   }
 }
 
-void fillLogTable(String in) {
-  Serial.println("I " + in);
+void fillLogTable(String in, uint8_t b) {
+  Serial.println("I #" + String(b) + ": " + in);
 
   String rssiIn = in.substring(1, 3);
   int rssi = -1 * (strtol(&rssiIn[0], NULL, 16) & 0xFF);
@@ -40,13 +40,15 @@ void fillLogTable(String in) {
   String flags = getFlags(in.substring(7, 9));
   String typ = getTyp(in.substring(9, 11));
 
-#if defined ONLINE_MODE && defined RESOLVE_ADDRESS
-  String fromStr = getSerialFromAddress(in.substring(11, 17));
-  String toStr = getSerialFromAddress(in.substring(17, 23));
-#else
-  String fromStr = "  " + in.substring(11, 17) + "  ";
-  String toStr = "  " + in.substring(17, 23) + "  ";
-#endif
+  String fromStr = "";
+  String toStr = "";
+  if (ONLINE_MODE && RESOLVE_ADDRESS) {
+    fromStr = getSerialFromAddress(in.substring(11, 17));
+    toStr = getSerialFromAddress(in.substring(17, 23));
+  } else {
+    fromStr = "  " + in.substring(11, 17) + "  ";
+    toStr = "  " + in.substring(17, 23) + "  ";
+  }
 
   if (logLength > 0) {
     for (uint16_t c = logLength; c > 0; c--) {
@@ -74,37 +76,41 @@ void fillLogTable(String in) {
   String csvLine = "";
   String temp = "";
   csvLine += String(allCount);
-  csvLine += ";";
+  csvLine += "; ";
   csvLine += getDatum(LogTable[0].time) + " " + getUhrzeit(LogTable[0].time);
-  csvLine += ";";
+  csvLine += "; ";
   csvLine += String(LogTable[0].rssi);
-  csvLine += ";";
+  csvLine += "; ";
   temp = LogTable[0].from;
   temp.trim();
   csvLine += temp;
-  csvLine += ";";
+  csvLine += "; ";
   temp = LogTable[0].to;
   temp.trim();
   csvLine += temp;
-  csvLine += ";";
+  csvLine += "; ";
   csvLine += String(LogTable[0].len);
-  csvLine += ";";
+  csvLine += "; ";
   csvLine += String(LogTable[0].cnt);
-  csvLine += ";";
+  csvLine += "; ";
   temp = LogTable[0].typ;
   temp.trim();
   csvLine += temp;
-  csvLine += ";";
+  csvLine += "; ";
   temp = LogTable[0].flags;
   temp.trim();
   csvLine += temp;
-  csvLine += ";";
+  csvLine += "; ";
 
-  writeCSV(CSV_FILENAME, csvLine);
+  if (SPIFFS.totalBytes() - SPIFFS.usedBytes() > csvLine.length())
+    writeCSV(CSV_FILENAME, csvLine);
+  else
+    Serial.println(F("writeCSV failed - not enough space"));
+  //
 
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
-  Serial.println(F("Added to LogTable:"));
+  Serial.println(F("Added to LogTable: "));
   Serial.print(F("  - from : ")); Serial.println(LogTable[0].from);
   Serial.print(F("  - to   : ")); Serial.println(LogTable[0].to);
   Serial.print(F("  - rssi : ")); Serial.println(LogTable[0].rssi);
