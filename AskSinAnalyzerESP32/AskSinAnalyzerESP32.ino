@@ -15,11 +15,19 @@
 #include <U8g2_for_Adafruit_GFX.h>
 #endif
 
+//Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15
 #define SHOW_DISPLAY_LINES_PIN   13
 #define SHOW_DISPLAY_DETAILS_PIN 12
 #define ONLINE_MODE_PIN          14
+
+//Pin definition for LED
 #define AP_MODE_LED_PIN          32
+
+//Pin definitions for serial connection to AskSinSniffer
+#define EXTSERIALTX_PIN          17
+#define EXTSERIALRX_PIN          16
+#define EXTSERIALBAUDRATE        57600
 
 #ifdef USE_DISPLAY
 #define TFT_LED                 33
@@ -32,10 +40,6 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 #define DISPLAY_LOG_LINE_HEIGHT  15
 #define DISPLAY_LOG_OFFSET_TOP   27
 #endif
-
-#define EXTSERIALTX_PIN     17
-#define EXTSERIALRX_PIN     16
-#define EXTSERIALBAUDRATE   57600
 
 #define CSV_FILENAME                "/log.csv"
 #define CONFIG_FILENAME             "/config.json"
@@ -90,7 +94,6 @@ bool     ONLINE_MODE       = false;
 bool     RESOLVE_ADDRESS   = true;
 uint8_t  DISPLAY_LOG_LINES = 15;
 
-
 #include "Config.h"
 #include "File.h"
 #include "Display.h"
@@ -140,7 +143,6 @@ void setup() {
     } else {
       Serial.println(F("-> Nein, SPIFFS mount fail!"));
     }
-
 
     if (!loadSystemConfig()) startWifiManager = true;
     //Serial.println("startWifiManager = " + String(startWifiManager));
