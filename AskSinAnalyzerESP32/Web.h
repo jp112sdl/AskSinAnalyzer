@@ -37,7 +37,7 @@ void getLogByLogNumber (AsyncWebServerRequest *request) {
     lognum = p->value().toInt();
   }
 
-  String json = "{\"logentries\": [";
+  String json = "[";
 
   for (uint16_t l = 0; l < logLength; l++) {
     if (LogTable[l].lognumber > lognum && l < 200) {
@@ -66,8 +66,7 @@ void getLogByLogNumber (AsyncWebServerRequest *request) {
   }
 
   json += "]";
-  json += "}";
-  json.replace("},]}", "}]}");
+  json.replace("},]", "}]");
 
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(json.length()));
@@ -81,7 +80,7 @@ void getLogByTimestamp (AsyncWebServerRequest *request) {
     ts = strtol(p->value().c_str(), 0, 10);
   }
 
-  String json = "{\"logentries\": [";
+  String json = "[";
 
   for (uint16_t l = 0; l < logLength; l++) {
     if (LogTable[l].time > ts && l < 200) {
@@ -109,8 +108,7 @@ void getLogByTimestamp (AsyncWebServerRequest *request) {
   }
 
   json += "]";
-  json += "}";
-  json.replace("},]}", "}]}");
+  json.replace("},]", "}]");
 
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(json.length()));
