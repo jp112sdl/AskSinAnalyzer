@@ -174,6 +174,14 @@ void defaultHtml(AsyncWebServerRequest *request) {
   request->send(200, "text/html", page);
 }
 
+void indexHtml(AsyncWebServerRequest *request) {
+  String page = FPSTR(HTTP_INDEX);
+
+  AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Content-Length", String(page.length()));
+  request->send(200, "text/html", page);
+}
+
 void setBootConfigMode(AsyncWebServerRequest *request) {
   if (SPIFFS.begin()) {
     Serial.println(F("setBootConfigMode mounted file system"));
@@ -216,7 +224,7 @@ void initWebServer() {
     getLogByTimestamp(request);
   });
 
-    webServer.on("/getLogByLogNumber", HTTP_GET, [](AsyncWebServerRequest * request) {
+  webServer.on("/getLogByLogNumber", HTTP_GET, [](AsyncWebServerRequest * request) {
     getLogByLogNumber(request);
   });
 
@@ -246,7 +254,7 @@ void initWebServer() {
   });
 
   webServer.onNotFound([](AsyncWebServerRequest * request) {
-    defaultHtml(request);
+    indexHtml(request);
   });
 
   webServer.begin();
