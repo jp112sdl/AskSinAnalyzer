@@ -9,7 +9,7 @@ const char HTTP_STYLE[] PROGMEM = R"=====(
     font-size:1em;
   } 
   
-  input[type=text]{
+  input[type=text],input[type=password]{
     width:95%;
   } 
   
