@@ -29,6 +29,51 @@ void getConfig (AsyncWebServerRequest *request) {
   request->send(200, "text/json", json);
 }
 
+
+void getLogByLogNumber (AsyncWebServerRequest *request) {
+  uint32_t lognum = 0;
+  if (request->hasParam("lognum")) {
+    AsyncWebParameter* p = request->getParam("lognum");
+    lognum = p->value().toInt();
+  }
+
+  String json = "{\"logentries\": [";
+
+  for (uint16_t l = 0; l < logLength; l++) {
+    if (LogTable[l].lognumber > lognum && l < 200) {
+      json += "{";
+      json += "\"lognumber\": " + String(LogTable[l].lognumber) + ", ";
+      json += "\"tstamp\": " + String(LogTable[l].time) + ", ";
+      json += "\"rssi\": " + String(LogTable[l].rssi) + ", ";
+      String from = String(LogTable[l].from);
+      from.trim();
+      json += "\"from\": \"" + from + "\", ";
+      String to = String(LogTable[l].to);
+      to.trim();
+      json += "\"to\": \"" + to + "\", ";
+      json += "\"len\": " + String(LogTable[l].len) + ", ";
+      json += "\"cnt\": " + String(LogTable[l].cnt) + ", ";
+      String t = String(LogTable[l].typ);
+      t.trim();
+      json += "\"typ\": \"" + t + "\", ";
+      String fl = String(LogTable[l].flags);
+      fl.trim();
+      json += "\"flags\": \"" + fl + "\"";
+      json += "}";
+      json += ",";
+    }
+    if (l == 200) break;
+  }
+
+  json += "]";
+  json += "}";
+  json.replace("},]}", "}]}");
+
+  AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Content-Length", String(json.length()));
+  request->send(200, "text/json", json);
+}
+
 void getLogByTimestamp (AsyncWebServerRequest *request) {
   time_t ts = 0;
   if (request->hasParam("ts")) {
@@ -171,6 +216,10 @@ void initWebServer() {
 
   webServer.on("/getLogByTimestamp", HTTP_GET, [](AsyncWebServerRequest * request) {
     getLogByTimestamp(request);
+  });
+
+    webServer.on("/getLogByLogNumber", HTTP_GET, [](AsyncWebServerRequest * request) {
+    getLogByLogNumber(request);
   });
 
   webServer.on("/deletecsv", HTTP_GET, [](AsyncWebServerRequest * request) {

@@ -66,6 +66,7 @@ uint16_t AddressTableCount = 0;
 
 #define MAX_LOG_ENTRIES 200
 struct _LogTable {
+  uint32_t lognumber = 0;
   char from[11];
   char to[11];
   int rssi = -255;

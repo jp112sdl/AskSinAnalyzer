@@ -60,9 +60,11 @@ void fillLogTable(String in, uint8_t b) {
       memcpy(LogTable[c].typ, LogTable[c - 1].typ, 30);
       memcpy(LogTable[c].flags, LogTable[c - 1].flags, 30);
       LogTable[c].time = LogTable[c - 1].time;
+      LogTable[c].lognumber = LogTable[c - 1].lognumber;
     }
   }
 
+  LogTable[0].lognumber = allCount;
   LogTable[0].time = ((timeOK == true)  ? now() : 0);
   LogTable[0].rssi = rssi;
   memcpy(LogTable[0].from, fromStr.c_str(), 10);
