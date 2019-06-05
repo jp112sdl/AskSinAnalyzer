@@ -15,7 +15,18 @@
 
     <div class="q-mb-md">
       <div class="text-bold">Device-Serial ist rot</div>
-      <div>Es wird die Adresse des Telegrams angezeigt da die Seriennummer nicht über die CCU aufgelöst werden konnte. Der Sender ist nicht an die CCU angelernt. Können gar keine Seriennummern ermittelt werden ist die CCU-IP sowie die Systemvariablen zu prüfen.</div>
+      <div class="q-mb-md">Es wird die Adresse des Telegrams angezeigt da die Seriennummer nicht über die CCU aufgelöst werden konnte. Der Sender ist nicht an die CCU angelernt. Können gar keine Seriennummern ermittelt werden ist die CCU-IP sowie die Systemvariablen zu prüfen.
+      </div>
+      <div class="text-bold">Network Error! Verify Analyzer IP</div>
+      <div class="q-mb-md">
+        Es kann keine Verbindung zum ESP hergestellt werden.<br/>
+        Dies kann mehrere Ursachen haben. Zuerst prüft man ob die Config direkt abgerufen werden:
+        <code>http://&lt;EspIp&gt;/getConfig</code>. Funktioniert dies kann die Developer-Console des Browser
+        zur weiteren Fehleranalyse herangezogen werden. <br/>
+        Wird die WebUI über eine sichere Verbindung (http<strong>s</strong>) ausgeliefert,
+        dann blockieren die meisten Browser eine unserichere Verbindung (http). Man muss dies für die
+        WebUI zulassen, oft ist in der Adressbar ein Icon was darauf hinweist.
+      </div>
     </div>
 
     <h2 class="q-mt-xl">Authors</h2>

@@ -24,6 +24,7 @@
     </div>
   </div>
 
+  <% if (NODE_ENV==='production') { %>
   <script>
     function logErr() {
       var el = document.getElementById('err');
@@ -44,5 +45,6 @@
     cssEl.onerror = logErr;
     document.head.append(cssEl);
   </script>
+  <% } %>
   </body>
 </html>

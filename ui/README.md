@@ -1,6 +1,8 @@
 # AskSin Analyzer WebUI
 
-![WebUI](../Images/WebUI.png)
+Built with [Vue.js](http://vuejs.org) and [Qasar](https://quasar.dev).
+
+![WebUI](../Images/web_main.png)
 
 ## Project setup
 ```
@@ -14,5 +16,6 @@ npm run dev
 
 ### Compiles and minifies for production
 ```
+export CDN=https://user.github.io/AskSinAnalyzer
 npm run build
 ```

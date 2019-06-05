@@ -11,14 +11,6 @@ module.exports = {
     /[\\\/]node_modules[\\\/]quasar[\\\/]/
   ],
 
-  devServer: {
-    proxy: {
-      '^/getLog': {
-        target: 'http://localhost:3000',
-      },
-    }
-  },
-
   chainWebpack: config => {
     config.plugins.delete('preload');
     config.plugins.delete('prefetch');
@@ -26,10 +18,11 @@ module.exports = {
 
     config.plugin('html')
       .tap(args => {
-        args[0].inject = false;
+        args[0].inject = process.env.NODE_ENV !== 'production';
         args[0].minify = false;
         args[0].templateParameters = {
-          CDN: process.env.CDN_URL || ''
+          CDN: process.env.CDN_URL || '',
+          NODE_ENV: process.env.NODE_ENV,
         };
         return args;
       });
