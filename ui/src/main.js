@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { Quasar } from 'quasar';
+import { Quasar, Ripple } from 'quasar';
 import lang from 'quasar/lang/de.js'
 import './styles/quasar.styl'
 import '@quasar/extras/material-icons/material-icons.css'
@@ -24,9 +24,10 @@ const espService = new EspService(
   settings.maxTelegrams,
   settings.refreshInterval
 );
+Vue.prototype.$espService = espService;
 
 // Init Vue
-Vue.use(Quasar, { lang });
+Vue.use(Quasar, { lang, directives: { Ripple } });
 Vue.config.productionTip = false;
 
 const vm = new Vue({

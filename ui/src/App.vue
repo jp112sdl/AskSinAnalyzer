@@ -19,7 +19,7 @@
         <q-space/>
 
         <q-btn icon="warning" color="red" flat dense v-if="errors.length">
-          <q-menu auto-close>
+          <q-menu auto-close transition-show="jump-down" transition-hide="jump-up">
             <q-list style="min-width: 250px">
               <q-item v-for="(err,i) in errors" :key="i">
                 <q-item-section class="text-red">{{ err }}</q-item-section>
@@ -30,7 +30,7 @@
 
         <q-btn flat dense>
           <q-icon name="more_vert"/>
-          <q-menu auto-close>
+          <q-menu auto-close transition-show="jump-down" transition-hide="jump-up">
             <q-list style="min-width: 100px">
               <q-item clickable to="/settings">
                 <q-item-section>Einstellungen</q-item-section>

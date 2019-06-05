@@ -44,17 +44,31 @@ export default class EspService {
     try {
       const res = await this._fetch(`${ this.baseUrl }/getConfig`);
       return await res.json();
-    } catch(err) {
-      err.message = `API Error getConfig: ${err.message}`;
+    }
+    catch (err) {
+      err.message = `API Error getConfig: ${ err.message }`;
       this.errors.unshift(err.message);
       this.errorCnt++;
       throw err;
     }
   }
 
-  async _fetch(opts) {
+  async postCommand(cmd) {
+    return this._fetch(`${ this.baseUrl }/${ cmd }`, { method: 'post' });
+  }
+
+  async ping() {
     try {
-      const res = await fetch(opts);
+      await this._fetch(this.baseUrl + '/index.html'); // TODO: better endpoint?
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  async _fetch(opts, init = {}) {
+    try {
+      const res = await fetch(opts, init);
       if (!res.ok) {
         const err = new Error(`${ res.status }: ${ res.statusText }`);
         err.response = res;

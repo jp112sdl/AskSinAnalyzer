@@ -5,9 +5,9 @@
 </template>
 
 <script>
-import TelegramList from '@/components/TelegramList.vue'
+  import TelegramList from '@/components/TelegramList.vue'
 
-export default {
+  export default {
   name: 'home',
   components: {
     TelegramList
