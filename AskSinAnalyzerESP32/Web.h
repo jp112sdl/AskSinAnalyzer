@@ -25,6 +25,7 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "}";
 
   AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Access-Control-Allow-Origin", "*");
   response->addHeader("Content-Length", String(json.length()));
   request->send(200, "text/json", json);
 }
@@ -69,6 +70,7 @@ void getLogByLogNumber (AsyncWebServerRequest *request) {
   json.replace("},]", "}]");
 
   AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Access-Control-Allow-Origin", "*");
   response->addHeader("Content-Length", String(json.length()));
   request->send(200, "text/json", json);
 }
@@ -111,6 +113,7 @@ void getLogByTimestamp (AsyncWebServerRequest *request) {
   json.replace("},]", "}]");
 
   AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Access-Control-Allow-Origin", "*");
   response->addHeader("Content-Length", String(json.length()));
   request->send(200, "text/json", json);
 }
