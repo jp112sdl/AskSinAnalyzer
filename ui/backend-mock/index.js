@@ -51,19 +51,21 @@ setInterval(() => {
 }, 5000);
 
 
-http.createServer(function(req, res) {
+const server = http.createServer(function(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const url = parseUrl(req.url, true);
-  const offset = url.query && url.query.lognum;
   {
     switch (url.pathname) {
+
       case '/getLogByLogNumber':
+        const offset = url.query && url.query.lognum;
         res.write(JSON.stringify(
           data.filter(item => offset ? item.lognumber > offset : true),
           null, 2)
         ); //write a response
         res.end(); //end the response
         break;
+
       case '/getConfig':
         res.write(JSON.stringify({
             "staticip": "0.0.0.0",
@@ -76,10 +78,28 @@ http.createServer(function(req, res) {
         );
         res.end();
         break;
+
+      case '/reboot':
+      case '/rebootconfig':
+        console.log('Simulate ESP reboot, closing listener');
+        res.writeHead(200);
+        res.end();
+        setTimeout(() => server.close(),1000);
+        setTimeout(() => server.listen(3000,() => console.log('Listener opened')),10*1000);
+        break;
+
+      case '/deletecsv':
+      case '/index.html':
+        res.write(':)');
+        res.end();
+        break;
+
       default:
         res.writeHead(404);
         res.write('Not found');
         res.end();
     }
   }
-}).listen(3000, () => console.log("Server start at port 3000"));
+});
+
+server.listen(3000, () => console.log("Server start at port 3000"));
