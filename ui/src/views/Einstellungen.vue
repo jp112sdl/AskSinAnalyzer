@@ -36,8 +36,6 @@
         type="text"
         label="Analyzer IP:Port"
         hint="IP Adresse und Port des Analyzers. Sollte normalerweise leer gelassen werden."
-        :rules="espIpRules"
-        lazy-rules
       />
       <div class="q-mt-lg">
         <q-btn label="speichern" type="submit" color="primary" icon="save"/>
@@ -91,10 +89,6 @@
       return {
         settings: { ...this.$root.settings },
         overwriteEspIp: this.$root.settings.espIp.length > 0,
-        ipRgxp: /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{2,5})?$/,
-        espIpRules: [
-          v => !v || this.ipRgxp.test(v) || 'Keine gültige IPv4-Adresse mit Port (Bsp: 192.168.0.32:8080)'
-        ],
       }
     },
 
