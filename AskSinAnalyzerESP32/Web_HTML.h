@@ -33,11 +33,11 @@ const char HTTP_INDEX[] PROGMEM = R"=====(
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <meta name="msapplication-TileColor" content="#027be3">
     <meta name="theme-color" content="#027be3">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#027be3">
+    <link rel="apple-touch-icon" sizes="180x180" href="http://jp112sdl.github.io/AskSinAnalyzer/master/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="http://jp112sdl.github.io/AskSinAnalyzer/master/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="http://jp112sdl.github.io/AskSinAnalyzer/master/favicon-16x16.png">
+    <link rel="manifest" href="http://jp112sdl.github.io/AskSinAnalyzer/master/site.webmanifest">
+    <link rel="mask-icon" href="http://jp112sdl.github.io/AskSinAnalyzer/master/safari-pinned-tab.svg" color="#027be3">
   </head>
   <body>
   <noscript>
@@ -59,11 +59,11 @@ const char HTTP_INDEX[] PROGMEM = R"=====(
         + "Internet Einstellungen und Werbeblocker überprüfen.</p>"
     }
     var scriptEl = document.createElement('script');
-    scriptEl.src = "http://jp112sdl.github.io/AskSinAnalyzer/prod/js/app.js";
+    scriptEl.src = "http://jp112sdl.github.io/AskSinAnalyzer/master/js/app.js";
     scriptEl.onerror = logErr;
     document.head.append(scriptEl);
     var cssEl = document.createElement('link');
-    cssEl.href = "http://jp112sdl.github.io/AskSinAnalyzer/prod/css/app.css";
+    cssEl.href = "http://jp112sdl.github.io/AskSinAnalyzer/master/css/app.css";
     cssEl.rel = "stylesheet";
     cssEl.onerror = logErr;
     document.head.append(cssEl);
