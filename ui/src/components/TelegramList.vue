@@ -92,11 +92,25 @@
       </tbody>
     </q-markup-table>
 
-    <q-pagination
-      v-model="currPage"
-      :max="pages"
-      :input="true"
-    />
+    <div class="q-mt-md flex">
+      <q-pagination
+        style="display: inline-flex; margin-right: 2rem"
+        v-model="currPage"
+        :max="pages"
+        :input="true"
+      />
+      <label>
+        Telegrame pro Seite:
+      <q-select
+        v-model="perPage"
+        filled
+        dense
+        :options="[10, 25,50,100,500]"
+        style="display: inline-flex; margin-left: 0.3rem"
+      />
+      </label>
+    </div>
+
   </div>
 </template>
 
@@ -127,7 +141,7 @@
     data() {
       return {
         currPage: 1,
-        perPage: 12,
+        perPage: 25,
         stopAtLognumber: null,
         filter: {
           start: null,
