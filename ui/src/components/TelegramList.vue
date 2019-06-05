@@ -193,7 +193,7 @@
         this.stopAtLognumber = this.value[0].lognumber;
       },
       getDeviceColor(v) {
-        return (v.length === 6 && v !== '-ALLE_') ? 'red' : 'black';
+        return (v.length === 6 && v !== '-ALLE-') ? 'red' : 'black';
       },
     }
   }
