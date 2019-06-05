@@ -205,7 +205,7 @@ void setBootConfigMode(AsyncWebServerRequest *request) {
 }
 
 void initWebServer() {
-  webServer.on("/reboot", HTTP_GET, [](AsyncWebServerRequest * request) {
+  webServer.on("/reboot", HTTP_POST, [](AsyncWebServerRequest * request) {
     request->send(200, "text/plain", "rebooting");
     delay(100);
     ESP.restart();
@@ -219,7 +219,7 @@ void initWebServer() {
     getConfig(request);
   });
 
-  webServer.on("/rebootconfig", HTTP_GET, [](AsyncWebServerRequest * request) {
+  webServer.on("/rebootconfig", HTTP_POST, [](AsyncWebServerRequest * request) {
     setBootConfigMode(request);
   });
 
@@ -231,7 +231,7 @@ void initWebServer() {
     getLogByLogNumber(request);
   });
 
-  webServer.on("/deletecsv", HTTP_GET, [](AsyncWebServerRequest * request) {
+  webServer.on("/deletecsv", HTTP_POST, [](AsyncWebServerRequest * request) {
     bool backup = false;
     if (request->hasParam("backup")) {
       AsyncWebParameter* p = request->getParam("backup");
