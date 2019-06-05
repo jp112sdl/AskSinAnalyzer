@@ -205,7 +205,7 @@ void setBootConfigMode(AsyncWebServerRequest *request) {
 }
 
 void initWebServer() {
-  webServer.on("/restart", HTTP_GET, [](AsyncWebServerRequest * request) {
+  webServer.on("/reboot", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(200, "text/plain", "rebooting");
     delay(100);
     ESP.restart();
@@ -239,6 +239,12 @@ void initWebServer() {
     }
     deleteCSV(CSV_FILENAME, backup);
     request->send(200, "text/plain", "csv deleted, " + (String)((backup == true) ? "with" : "without") + " backup");
+  });
+
+  webServer.on("/downloadcsv", HTTP_GET, [](AsyncWebServerRequest * request) {
+    AsyncWebServerResponse *response = request->beginResponse(SPIFFS, CSV_FILENAME, String());
+    response->addHeader("Server", "AskSinAnalyzer");
+    request->send(response);
   });
 
   webServer.on("/dl", HTTP_GET, [](AsyncWebServerRequest * request) {
