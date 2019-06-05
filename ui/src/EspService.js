@@ -70,6 +70,8 @@ export default class EspService {
   }
 
   addTelegrams(telegrams) {
+    telegrams.forEach(t => t.flags = t.flags.split(' '));
+
     // Add telegrams
     this.telegrams.splice(0, 0, ...telegrams);
 

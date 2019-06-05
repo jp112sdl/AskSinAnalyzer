@@ -17,6 +17,8 @@ const typs = [
   'ACTION',
 ];
 
+const flags = ['WKUP', 'WKMEUP', 'BCAST', 'BURST', 'BIDI', 'RPTED', 'RPTEN'];
+
 let lognumber = 0;
 
 function genTelegram() {
@@ -30,7 +32,7 @@ function genTelegram() {
     "len": Math.round(Math.random() * 100),
     "cnt": Math.round(Math.random() * 100),
     "typ": typs[Math.floor(Math.random() * typs.length)],
-    "flags": "WKMEUP BCAST RPTEN"
+    "flags": flags.sort(() => Math.random() - 0.5).slice(Math.floor(Math.random()*3 +1)).join(' ')
   }
 }
 

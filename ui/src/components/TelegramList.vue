@@ -87,7 +87,9 @@
         <td class="text-right">{{ v.len }}</td>
         <td class="text-right">{{ v.cnt }}</td>
         <td class="text-left">{{ v.typ }}</td>
-        <td class="text-left">{{ v.flags }}</td>
+        <td class="text-left">
+          <flag-chip v-for="flag in v.flags" :key="flag" :value="flag" />
+        </td>
       </tr>
       </tbody>
     </q-markup-table>
@@ -120,6 +122,7 @@
 <script>
   import { QBtn, QBtnGroup, QMarkupTable, QMenu, QPage, QPagination, QSelect } from 'quasar';
   import RssiValue from './RssiValue';
+  import FlagChip from './FlagChip';
   import TimeFilter from './filters/TimeFilter';
   import SelectFilter from './filters/SelectFilter';
 
@@ -127,7 +130,7 @@
     name: 'TelegramList',
     components: {
       QPage, QMarkupTable, QPagination, QBtn, QBtnGroup, QMenu, QSelect,
-      RssiValue, TimeFilter, SelectFilter
+      RssiValue, FlagChip, TimeFilter, SelectFilter
     },
 
     props: {
