@@ -165,6 +165,9 @@ void setup() {
 void loop() {
   receiveMessages();
 
+  if (ONLINE_MODE)
+    checkWifi();
+
   if (msgBufferCount > 0) {
     for (uint8_t b = 0; b < msgBufferCount; b++) {
       fillLogTable(msgBuffer[b], b);

@@ -22,6 +22,14 @@ void printWifiStatus() {
   Serial.print(rssi);
   Serial.println(" dBm");
 }
+
+void checkWifi() {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("Wifi disconnected. Reconnect initiated.");
+    WiFi.reconnect();
+  }
+}
+
 bool doWifiConnect() {
   preferences.begin("wifi", false);
   String _ssid =  preferences.getString("ssid", "none");           //NVS key ssid
