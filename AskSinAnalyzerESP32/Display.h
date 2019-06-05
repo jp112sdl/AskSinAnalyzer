@@ -18,7 +18,7 @@ void drawStatusCircle(uint16_t color) {
 void initTFT() {
   pinMode(TFT_LED, OUTPUT);
   digitalWrite(TFT_LED, HIGH);
-  showDisplayDetails =  digitalRead(SHOW_DISPLAY_LINES_PIN) == LOW;
+  showDisplayDetails =  digitalRead(SHOW_DISPLAY_DETAILS_PIN) == LOW;
   showDisplayLines = digitalRead(SHOW_DISPLAY_LINES_PIN) == LOW;
   Serial.print(F("showDisplayDetails = "));
   Serial.println(String(showDisplayDetails));
