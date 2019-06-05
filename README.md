@@ -32,8 +32,7 @@
   ...
   
 ### Konfiguration (AP-Modus) des ESP32
-  ...
-  ![apmode](Images/apmode.png)
+<img src="Images/apmode.png" height=600 />
 
 ### Prototyp
 
