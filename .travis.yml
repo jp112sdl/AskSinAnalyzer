@@ -1,0 +1,30 @@
+language: node_js
+
+node_js:
+  - '10'
+
+branches:
+  except:
+    - gh-pages
+
+before_script:
+  - export OWNER="$(echo $TRAVIS_REPO_SLUG | cut -d/ -f1)"
+  - export REPO="$(echo $TRAVIS_REPO_SLUG | cut -d/ -f2)"
+  - export CDN_URL="https://$OWNER.github.io/$REPO/$TRAVIS_BRANCH"
+
+script:
+  - cd ui
+  - npm ci
+  - npm run build
+  - cd ..
+
+before_deploy:
+  - git clone --branch=gh-pages https://$GITHUB_TOKEN@github.com/$TRAVIS_REPO_SLUG.git gh-pages
+  - cd gh-pages
+  - mv ../ui/dist $TRAVIS_BRANCH
+  - git add $TRAVIS_BRANCH
+  - git commit -m "Build $TRAVIS_BRANCH"
+
+deploy:
+  provider: script
+  script: git push
