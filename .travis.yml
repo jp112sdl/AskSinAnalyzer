@@ -23,6 +23,7 @@ before_deploy:
   - cd gh-pages
   - rm -rf $TRAVIS_BRANCH
   - mv ../ui/dist $TRAVIS_BRANCH
+  - [ -z "$(git status --porcelain)" ] && travis_terminate 0
   - git add $TRAVIS_BRANCH
   - git commit -m "Build $TRAVIS_BRANCH"
 
