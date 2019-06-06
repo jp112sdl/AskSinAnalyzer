@@ -46,6 +46,7 @@
   span
     margin-right: 0.2rem
     margin-bottom: 0.1rem
-    border-radius 8px
-    padding 0.15rem 0.5rem
+    border-radius 4px
+    padding 0.15rem 0.3rem
+    font-size: 90%
 </style>

@@ -32,7 +32,7 @@ function genTelegram() {
     "len": Math.round(Math.random() * 100),
     "cnt": Math.round(Math.random() * 100),
     "typ": typs[Math.floor(Math.random() * typs.length)],
-    "flags": flags.sort(() => Math.random() - 0.5).slice(Math.floor(Math.random()*3 +1)).join(' ')
+    "flags": flags.sort(() => Math.random() - 0.5).slice(0, Math.floor(Math.random()*3)+1).join(' ')
   }
 }
 
