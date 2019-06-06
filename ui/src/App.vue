@@ -32,12 +32,8 @@
           <q-icon name="more_vert"/>
           <q-menu auto-close transition-show="jump-down" transition-hide="jump-up">
             <q-list style="min-width: 100px">
-              <q-item clickable to="/settings">
-                <q-item-section>Einstellungen</q-item-section>
-              </q-item>
-              <q-item clickable to="/info">
-                <q-item-section>Info</q-item-section>
-              </q-item>
+              <q-item clickable to="/settings">Einstellungen</q-item>
+              <q-item clickable to="/info">Info</q-item>
             </q-list>
           </q-menu>
         </q-btn>
@@ -64,7 +60,6 @@
     QSpace,
     QMenu,
     QList, QItem,
-    QItemSection,
   } from 'quasar';
 
   export default {
@@ -82,7 +77,6 @@
       QSpace,
       QMenu,
       QList, QItem,
-      QItemSection,
     },
 
     data() {

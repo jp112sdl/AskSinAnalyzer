@@ -51,18 +51,9 @@
           </q-btn>
         </td>
         <td class="text-right">
-          <q-btn label="RSSI" unelevated no-caps :color="filter.rssi ? 'secondary' : 'grey-7'" title="RSSI Filter">
+          <q-btn label="RSSI" unelevated no-caps :color="filter.rssi.length ? 'secondary' : 'grey-7'" title="RSSI Filter">
             <q-menu transition-show="jump-down" transition-hide="jump-up">
-              <div class="q-pa-sm">
-                <q-select
-                  :options="['OK', 'Warnung', 'Kritisch']"
-                  v-model="filter.rssi"
-                  clearable
-                  autofocus
-                  label="RSSI"
-                  style="min-width: 150px"
-                />
-              </div>
+              <rssi-filter v-model="filter.rssi"/>
             </q-menu>
           </q-btn>
         </td>
@@ -125,12 +116,13 @@
   import FlagChip from './FlagChip';
   import TimeFilter from './filters/TimeFilter';
   import SelectFilter from './filters/SelectFilter';
+  import RssiFilter from './filters/RssiFilter';
 
   export default {
     name: 'TelegramList',
     components: {
       QPage, QMarkupTable, QPagination, QBtn, QBtnGroup, QMenu, QSelect,
-      RssiValue, FlagChip, TimeFilter, SelectFilter
+      RssiValue, FlagChip, TimeFilter, SelectFilter, RssiFilter,
     },
 
     props: {
@@ -151,7 +143,7 @@
           stop: null,
           from: [],
           to: [],
-          rssi: null,
+          rssi: [],
         }
       }
     },
@@ -164,22 +156,15 @@
         if (this.filter.stop) result = result.filter(v => v.tstamp <= this.filter.stop);
         if (this.filter.from.length) result = result.filter(v => this.filter.from.includes(v.from));
         if (this.filter.to.length) result = result.filter(v => this.filter.to.includes(v.to));
-        if (this.filter.rssi) {
-          let range;
-          switch (this.filter.rssi) {
-            case 'OK':
-              range = [0, -89];
-              break;
-            case 'Warnung':
-              range = [-90, -109];
-              break;
-            case 'Kritisch':
-              range = [-110, Number.MIN_SAFE_INTEGER];
-              break;
-            default:
-              console.error('Unkown RSSI Filter value', this.filter.rssi)
-          }
-          result = result.filter(v => v.rssi <= range[0] && v.rssi >= range[1]);
+        if (this.filter.rssi.length) {
+          const ok = this.filter.rssi.includes('ok');
+          const warn = this.filter.rssi.includes('warn');
+          const crit = this.filter.rssi.includes('crit');
+          result = result.filter(v => {
+            if(ok && v.rssi >= -89) return true;
+            if(warn && v.rssi <= -90 && v.rssi >= -109) return true;
+            return crit && v.rssi <= -110;
+          });
         }
         return result;
       },
