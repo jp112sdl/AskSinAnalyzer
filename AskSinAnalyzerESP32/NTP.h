@@ -1,3 +1,6 @@
+#ifndef NTP_H_
+#define NTP_H_
+
 const int NTP_PACKET_SIZE = 48;
 byte packetBuffer[ NTP_PACKET_SIZE];
 unsigned int localPort = 2390;
@@ -88,4 +91,4 @@ String getDatum(time_t t) {
   return Tag + "." + Monat + "." + Jahr;
 }
 
-
+#endif
