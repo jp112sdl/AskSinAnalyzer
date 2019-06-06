@@ -22,7 +22,6 @@
     props: {
       value: {
         type: Array,
-        required: true
       }
     },
 

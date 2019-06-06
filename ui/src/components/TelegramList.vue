@@ -60,7 +60,15 @@
         <td class="text-right">Len</td>
         <td class="text-right">Cnt</td>
         <td class="text-left">
-          <q-btn label="Type" flat no-caps></q-btn>
+          <q-btn label="Typ" unelevated no-caps :color="filter.types.length ? 'secondary' : 'grey-7'" title="RSSI Filter">
+            <q-menu transition-show="jump-down" transition-hide="jump-up">
+              <q-list dense>
+                <q-item tag="label" v-for="v in types" :key="v">
+                  <q-checkbox v-model="filter.types" :val="v" :label="v" />
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
         </td>
         <td class="text-left">
           <q-btn label="Flags" flat no-caps></q-btn>
@@ -79,7 +87,7 @@
         <td class="text-right">{{ v.cnt }}</td>
         <td class="text-left">{{ v.typ }}</td>
         <td class="text-left">
-          <flag-chip v-for="flag in v.flags" :key="flag" :value="flag" />
+          <flag-chip v-for="flag in v.flags" :key="flag" :value="flag"/>
         </td>
       </tr>
       </tbody>
@@ -94,13 +102,13 @@
       />
       <label>
         Telegrame pro Seite:
-      <q-select
-        v-model="perPage"
-        filled
-        dense
-        :options="[10, 25,50,100,500]"
-        style="display: inline-flex; margin-left: 0.3rem"
-      />
+        <q-select
+          v-model="perPage"
+          filled
+          dense
+          :options="[10, 25,50,100,500]"
+          style="display: inline-flex; margin-left: 0.3rem"
+        />
       </label>
     </div>
 
@@ -111,7 +119,7 @@
 </style>
 
 <script>
-  import { QBtn, QBtnGroup, QMarkupTable, QMenu, QPage, QPagination, QSelect } from 'quasar';
+  import { QBtn, QBtnGroup, QMarkupTable, QMenu, QPage, QPagination, QSelect, QList, QItem, QCheckbox } from 'quasar';
   import RssiValue from './RssiValue';
   import FlagChip from './FlagChip';
   import TimeFilter from './filters/TimeFilter';
@@ -121,7 +129,7 @@
   export default {
     name: 'TelegramList',
     components: {
-      QPage, QMarkupTable, QPagination, QBtn, QBtnGroup, QMenu, QSelect,
+      QPage, QMarkupTable, QPagination, QBtn, QBtnGroup, QMenu, QSelect, QList, QItem, QCheckbox,
       RssiValue, FlagChip, TimeFilter, SelectFilter, RssiFilter,
     },
 
@@ -144,6 +152,7 @@
           from: [],
           to: [],
           rssi: [],
+          types: []
         }
       }
     },
@@ -161,11 +170,12 @@
           const warn = this.filter.rssi.includes('warn');
           const crit = this.filter.rssi.includes('crit');
           result = result.filter(v => {
-            if(ok && v.rssi >= -89) return true;
-            if(warn && v.rssi <= -90 && v.rssi >= -109) return true;
+            if (ok && v.rssi >= -89) return true;
+            if (warn && v.rssi <= -90 && v.rssi >= -109) return true;
             return crit && v.rssi <= -110;
           });
         }
+        if (this.filter.types.length) result = result.filter(v => this.filter.types.includes(v.typ));
         return result;
       },
       paginated() {
@@ -173,6 +183,9 @@
       },
       pages() {
         return Math.ceil(this.filtered.length / this.perPage);
+      },
+      types() {
+        return [...new Set(this.value.map(v => v.typ))].sort()
       }
     },
 
