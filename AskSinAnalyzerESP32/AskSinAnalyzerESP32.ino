@@ -9,6 +9,8 @@
 #include <WiFiUdp.h>
 #include "FS.h"
 #include "SPIFFS.h"
+#include <SD.h>
+#include <Wire.h>
 #ifdef USE_DISPLAY
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
@@ -23,6 +25,8 @@
 
 //Pin definition for LED
 #define AP_MODE_LED_PIN          32
+
+#define SD_CS                    27
 
 //Pin definitions for serial connection to AskSinSniffer
 #define EXTSERIALTX_PIN          17
@@ -89,6 +93,7 @@ uint32_t allCount          = 0;
 bool     isOnline          = false;
 bool     timeOK            = false;
 bool     spiffsAvailable   = false;
+bool     sdAvailable       = false;
 bool     startWifiManager  = false;
 bool     ONLINE_MODE       = false;
 bool     RESOLVE_ADDRESS   = true;
@@ -103,10 +108,12 @@ uint8_t  DISPLAY_LOG_LINES = 15;
 #include "SerialIn.h"
 #include "Web.h"
 #include "WManager.h"
+#include "SDFunctions.h"
 
 void setup() {
   Serial.begin(57600);
   Serial.println();
+  pinMode(SD_CS, OUTPUT);
   Serial1.begin(EXTSERIALBAUDRATE, SERIAL_8N1, EXTSERIALRX_PIN, EXTSERIALTX_PIN);
 
   pinMode(START_WIFIMANAGER_PIN, INPUT_PULLUP);
@@ -121,6 +128,8 @@ void setup() {
     AddressTable[c].Address = "";
     AddressTable[c].Serial = "";
   }
+
+  sdAvailable = SdInit();
 
 #ifdef USE_DISPLAY
   initTFT();
