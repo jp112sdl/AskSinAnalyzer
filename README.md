@@ -7,6 +7,4 @@
 
 ### Prototyp
 
-<img src="Images/proto1.jpg" width=400 /> 
-<img src="Images/proto2.jpg" width=400 /> 
-<img src="Images/proto3.jpg" width=400 />
+<img src="Images/proto1.jpg" height=200 /> <img src="Images/proto2.jpg" height=200 /> <img src="Images/proto3.jpg" height=200 />
