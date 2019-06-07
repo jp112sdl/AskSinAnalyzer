@@ -1,5 +1,8 @@
 # AskSinAnalyzer
 
+<img src="Images/sample1.jpg" width=400 /><br/>
+
+### Der Funktelegramm-Dekodierer für den Einsatz in HomeMatic Umgebungen!
 ### Nähere Informationen findet ihr im [Wiki](https://github.com/jp112sdl/AskSinAnalyzer/wiki)
 
 ### Prototyp
