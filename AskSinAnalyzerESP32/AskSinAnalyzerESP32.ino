@@ -1,6 +1,8 @@
 #define USE_DISPLAY
 
 #include <Preferences.h>
+#include <esp_bt_main.h>
+#include <esp_bt.h>
 #include "WM.h"
 #include <HTTPClient.h>
 #include <ESPAsyncWebServer.h>
@@ -100,6 +102,7 @@ bool     RESOLVE_ADDRESS   = true;
 uint8_t  DISPLAY_LOG_LINES = 15;
 
 #include "Config.h"
+#include "SDFunctions.h"
 #include "File.h"
 #include "Display.h"
 #include "NTP.h"
@@ -108,7 +111,6 @@ uint8_t  DISPLAY_LOG_LINES = 15;
 #include "SerialIn.h"
 #include "Web.h"
 #include "WManager.h"
-#include "SDFunctions.h"
 
 void setup() {
   Serial.begin(57600);
