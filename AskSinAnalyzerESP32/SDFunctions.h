@@ -1,6 +1,18 @@
 #ifndef SDFUNCTIONS_H_
 #define SDFUNCTIONS_H_
 
+uint32_t getSDCardSizeMB() {
+  return (uint32_t)SD.cardSize() / (1024 * 1024UL);
+}
+
+uint32_t getSDCardTotalSpaceMB() {
+  return (uint32_t)SD.totalBytes() / (1024 * 1024UL);
+}
+
+uint32_t getSDCardUsedSpaceMB() {
+  return (uint32_t)SD.usedBytes() / (1024 * 1024UL);
+}
+
 bool SdInit() {
   if (!SD.begin(SD_CS)) {
     delay(250);
@@ -27,9 +39,12 @@ bool SdInit() {
     Serial.println(F("UNKNOWN"));
   }
 
-  Serial.println("SD Card Size: " + String((int)SD.cardSize() / (1024 * 1024UL)) + "MB");
-  Serial.println("Total space:  " + String((int)SD.totalBytes() / (1024 * 1024UL)) + "MB");
-  Serial.println("Used space:   " + String((int)SD.usedBytes() / (1024 * 1024UL)  ) + "MB");
+  Serial.print(F("SD Card Size MB: "));
+  Serial.println(getSDCardSizeMB());
+  Serial.print(F("Total space  MB: "));
+  Serial.println(getSDCardTotalSpaceMB());
+  Serial.print(F("Used space   MB: "));
+  Serial.println(getSDCardUsedSpaceMB());
 
   return true;
 }
@@ -134,21 +149,25 @@ void appendFile(fs::FS &fs, const char * path, const char * message) {
   file.close();
 }
 
-void renameFile(fs::FS &fs, const char * path1, const char * path2) {
+bool renameFile(fs::FS &fs, const char * path1, const char * path2) {
   Serial.printf("Renaming file %s to %s\n", path1, path2);
   if (fs.rename(path1, path2)) {
-    Serial.println("File renamed");
+    Serial.println(F("SD File renamed"));
+    return true;
   } else {
-    Serial.println("Rename failed");
+    Serial.println(F("SD Rename failed"));
+    return false;
   }
 }
 
-void deleteFile(fs::FS &fs, const char * path) {
+bool deleteFile(fs::FS &fs, const char * path) {
   Serial.printf("Deleting file: %s\n", path);
   if (fs.remove(path)) {
-    Serial.println("File deleted");
+    Serial.println(F("SD File deleted"));
+    return true;
   } else {
-    Serial.println("Delete failed");
+    Serial.println(F("SD Delete failed"));
+    return false;
   }
 }
 

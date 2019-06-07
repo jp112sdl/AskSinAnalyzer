@@ -21,7 +21,21 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"svanalyzeoutput\":\"" + String(HomeMaticConfig.SVAnalyzeOutput) + "\"";
   json += ",";
-  json += "\"resolve\":\"" + String(RESOLVE_ADDRESS) + "\"";
+  json += "\"resolve\":" + String(RESOLVE_ADDRESS);
+
+  json += "\"sdcardavailable\":" + String(sdAvailable);
+  json += ",";
+  json += "\"sdcardsizemb\":" + String(getSDCardSizeMB());
+  json += ",";
+  json += "\"sdcardtotalspacemb\":\"" + String(getSDCardTotalSpaceMB()) + "\"";
+  json += ",";
+  json += "\"sdcardusedspacemb\":\"" + String(getSDCardUsedSpaceMB()) + "\"";
+  json += ",";
+
+  json += "\"spiffssizekb\":" + String(getSPIFFSSizeKB());
+  json += ",";
+  json += "\"spiffsusedkb\":" + String(getSPIFFSUsedKB());
+
   json += "}";
 
   AsyncWebServerResponse *response = request->beginResponse(200);
@@ -242,7 +256,11 @@ void initWebServer() {
   });
 
   webServer.on("/downloadcsv", HTTP_GET, [](AsyncWebServerRequest * request) {
-    AsyncWebServerResponse *response = request->beginResponse(SPIFFS, CSV_FILENAME, String());
+    AsyncWebServerResponse *response;
+    if (sdAvailable)
+      response = request->beginResponse(SD, CSV_FILENAME, String());
+    else
+      response = request->beginResponse(SPIFFS, CSV_FILENAME, String());
     response->addHeader("Server", "AskSinAnalyzer");
     request->send(response);
   });
