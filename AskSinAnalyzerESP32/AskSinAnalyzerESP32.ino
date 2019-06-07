@@ -160,6 +160,7 @@ void setup() {
     //Serial.println("startWifiManager = " + String(startWifiManager));
     RESOLVE_ADDRESS = (HomeMaticConfig.ccuIP != "" && HomeMaticConfig.SVAnalyzeInput != "" && HomeMaticConfig.SVAnalyzeOutput != "");
 
+    deInitBLE();
     isOnline = doWifiConnect();
     timeOK = doNTPinit();
     initWebServer();
