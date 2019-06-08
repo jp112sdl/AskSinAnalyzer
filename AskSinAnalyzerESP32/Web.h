@@ -255,10 +255,14 @@ void initWebServer() {
 
   webServer.on("/downloadcsv", HTTP_GET, [](AsyncWebServerRequest * request) {
     AsyncWebServerResponse *response;
-    if (sdAvailable)
+    if (sdAvailable) {
+      Serial.println(F("Downloading CSV from SD Card"));
       response = request->beginResponse(SD, CSV_FILENAME, String());
-    else
+    }
+    else {
+      Serial.println(F("Downloading CSV from SPIFFS"));
       response = request->beginResponse(SPIFFS, CSV_FILENAME, String());
+    }
     response->addHeader("Server", "AskSinAnalyzer");
     request->send(response);
   });
