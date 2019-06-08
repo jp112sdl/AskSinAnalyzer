@@ -22,7 +22,7 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "\"svanalyzeoutput\":\"" + String(HomeMaticConfig.SVAnalyzeOutput) + "\"";
   json += ",";
   json += "\"resolve\":" + String(RESOLVE_ADDRESS);
-
+  json += ",";
   json += "\"sdcardavailable\":" + String(sdAvailable);
   json += ",";
   json += "\"sdcardsizemb\":" + String(getSDCardSizeMB());
@@ -31,11 +31,9 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"sdcardusedspacemb\":\"" + String(getSDCardUsedSpaceMB()) + "\"";
   json += ",";
-
   json += "\"spiffssizekb\":" + String(getSPIFFSSizeKB());
   json += ",";
   json += "\"spiffsusedkb\":" + String(getSPIFFSUsedKB());
-
   json += "}";
 
   AsyncWebServerResponse *response = request->beginResponse(200);
