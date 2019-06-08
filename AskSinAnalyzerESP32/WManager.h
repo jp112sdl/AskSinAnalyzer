@@ -1,6 +1,8 @@
 #ifndef WIFIFUNCTIONS_H_
 #define WIFIFUNCTIONS_H_
 
+unsigned long lastReconnectMillis = 0;
+
 Preferences preferences;
 
 //flag for saving data
@@ -25,8 +27,11 @@ void printWifiStatus() {
 
 void checkWifi() {
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("Wifi disconnected. Reconnect initiated.");
-    WiFi.reconnect();
+    if (millis() - lastReconnectMillis > 10000) {
+      Serial.println("Wifi disconnected. Reconnect initiated.");
+      WiFi.reconnect();
+      lastReconnectMillis = millis();
+    }
   }
 }
 
