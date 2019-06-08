@@ -88,16 +88,17 @@ uint16_t logLength = 0;
 uint16_t logLengthDisplay = 0;
 
 String   msgBuffer[255];
-uint8_t  msgBufferCount    = 0;
-uint32_t allCount          = 0;
-bool     isOnline          = false;
-bool     timeOK            = false;
-bool     spiffsAvailable   = false;
-bool     sdAvailable       = false;
-bool     startWifiManager  = false;
-bool     ONLINE_MODE       = false;
-bool     RESOLVE_ADDRESS   = true;
-uint8_t  DISPLAY_LOG_LINES = 15;
+uint8_t  msgBufferCount        = 0;
+uint32_t allCount              = 0;
+bool     showInfoDisplayActive = false;
+bool     isOnline              = false;
+bool     timeOK                = false;
+bool     spiffsAvailable       = false;
+bool     sdAvailable           = false;
+bool     startWifiManager      = false;
+bool     ONLINE_MODE           = false;
+bool     RESOLVE_ADDRESS       = true;
+uint8_t  DISPLAY_LOG_LINES     = 15;
 
 #include "Config.h"
 #include "SDFunctions.h"
@@ -177,11 +178,28 @@ void loop() {
   if (ONLINE_MODE)
     checkWifi();
 
+#ifdef USE_DISPLAY
+  if (ONLINE_MODE && (digitalRead(START_WIFIMANAGER_PIN) == LOW)) {
+    if (showInfoDisplayActive == false) {
+      showInfoDisplayActive = true;
+      showInfoDisplay();
+    }
+  } else if (showInfoDisplayActive == true && digitalRead(START_WIFIMANAGER_PIN) == HIGH) {
+    showInfoDisplayActive = false;
+    tft.fillRect(0, 15, tft.width(), tft.height(), ILI9341_BLACK);
+    drawRowLines();
+    refreshDisplayLog();
+  }
+#endif
+
   if (msgBufferCount > 0) {
     for (uint8_t b = 0; b < msgBufferCount; b++) {
       fillLogTable(msgBuffer[b], b);
 #ifdef USE_DISPLAY
-      refreshDisplayLog();
+      if (logLengthDisplay < DISPLAY_LOG_LINES) logLengthDisplay++;
+      if (showInfoDisplayActive == false) {
+        refreshDisplayLog();
+      }
 #endif
     }
     msgBufferCount = 0;

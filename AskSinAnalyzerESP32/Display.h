@@ -15,6 +15,14 @@ void drawStatusCircle(uint16_t color) {
 #endif
 }
 
+void drawRowLines() {
+  if (showDisplayLines == true) {
+    tft.drawLine(0, 14, tft.width(), 14, ILI9341_WHITE);
+    for (uint8_t c = 0; c < DISPLAY_LOG_LINES; c++)
+      tft.drawLine(0, DISPLAY_LOG_OFFSET_TOP + (2 * DISPLAY_LOG_LINE_HEIGHT) + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c) + 2, tft.width(), DISPLAY_LOG_OFFSET_TOP + (2 * DISPLAY_LOG_LINE_HEIGHT) + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c) + 2, ILI9341_WHITE);
+  }
+}
+
 void initTFT() {
   pinMode(TFT_LED, OUTPUT);
   digitalWrite(TFT_LED, HIGH);
@@ -39,15 +47,11 @@ void initTFT() {
   u8g.setFont(u8g2_font_9x15B_mr);
   u8g.setCursor(0, 10);
   u8g.println("   FROM        TO      RSSI LEN CNT");
-  if (showDisplayLines == true) {
-    tft.drawLine(0, 14, tft.width(), 14, ILI9341_WHITE);
-    for (uint8_t c = 0; c < DISPLAY_LOG_LINES; c++)
-      tft.drawLine(0, DISPLAY_LOG_OFFSET_TOP + (2 * DISPLAY_LOG_LINE_HEIGHT) + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c) + 2, tft.width(), DISPLAY_LOG_OFFSET_TOP + (2 * DISPLAY_LOG_LINE_HEIGHT) + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c) + 2, ILI9341_WHITE);
-  }
+  drawRowLines();
 }
 
 void refreshDisplayLog() {
-  for (uint8_t c = 0; c <= logLengthDisplay; c++) {
+  for (uint8_t c = 0; c < logLengthDisplay; c++) {
     u8g.setCursor(0, DISPLAY_LOG_OFFSET_TOP + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c));
     u8g.setFont(u8g2_font_9x15_mr);
     u8g.setForegroundColor(ILI9341_WHITE);
@@ -92,8 +96,27 @@ void refreshDisplayLog() {
   u8g.setForegroundColor(ILI9341_WHITE);
   u8g.setFont(u8g2_font_7x13_mr);
   u8g.print("(#" + String(allCount) + ")");
-
-  if (logLengthDisplay < DISPLAY_LOG_LINES - 1) logLengthDisplay++;
 }
+
+
+void showInfoDisplay() {
+
+  tft.fillRect(0, 15, tft.width(), tft.height(), ILI9341_BLACK);
+
+  u8g.setFont(u8g2_font_7x14_mr);
+  u8g.setForegroundColor(ILI9341_WHITE);
+  u8g.setCursor(0, 40);
+
+  u8g.print(F("       SSID: ")); u8g.println(WiFi.SSID()); u8g.println();
+  u8g.print(F("       RSSI: ")); u8g.print(WiFi.RSSI()); u8g.println(F(" dBm")); u8g.println();
+  u8g.println();
+  u8g.print(F("         IP: ")); u8g.println(WiFi.localIP()); u8g.println();
+  u8g.println();
+  u8g.print(F("     CCU IP: ")); u8g.println(HomeMaticConfig.ccuIP); u8g.println();
+
+  u8g.print(F("  SV Input : ")); u8g.println(HomeMaticConfig.SVAnalyzeInput); u8g.println();
+  u8g.print(F("  SV Output: ")); u8g.println(HomeMaticConfig.SVAnalyzeOutput); u8g.println();
+}
+
 #endif
 #endif
