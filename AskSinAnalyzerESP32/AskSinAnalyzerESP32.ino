@@ -1,8 +1,6 @@
 #define USE_DISPLAY
 
 #include <Preferences.h>
-#include <esp_bt_main.h>
-#include <esp_bt.h>
 #include "WM.h"
 #include <HTTPClient.h>
 #include <ESPAsyncWebServer.h>
@@ -162,7 +160,6 @@ void setup() {
     //Serial.println("startWifiManager = " + String(startWifiManager));
     RESOLVE_ADDRESS = (HomeMaticConfig.ccuIP != "" && HomeMaticConfig.SVAnalyzeInput != "" && HomeMaticConfig.SVAnalyzeOutput != "");
 
-    deInitBLE();
     isOnline = doWifiConnect();
     timeOK = doNTPinit();
     initWebServer();
