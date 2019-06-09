@@ -37,7 +37,7 @@ time_t getNtpTime() {
       secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
       secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
       secsSince1900 |= (unsigned long)packetBuffer[43];
-      Serial.println("NTP time was set");
+      DPRINTLN("NTP time was set");
       return secsSince1900 - 2208988800UL;
     }
   }
@@ -51,11 +51,11 @@ bool doNTPinit() {
     setSyncInterval(3600);
     byte timeSetRetries = 0;
     while (timeStatus() == timeNotSet) {
-      Serial.println("Waiting for Time set");
+      DPRINTLN("Waiting for Time set");
       delay(2000);
       if (timeSetRetries > 5) {
-        Serial.println("Timeout!");
-        //Serial.println("Rebooting");
+        DPRINTLN("Timeout!");
+        //DPRINTLN("Rebooting");
         //delay(2000);
         //ESP.restart();
         return false;

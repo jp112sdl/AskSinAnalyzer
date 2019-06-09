@@ -42,18 +42,20 @@ void getConfig (AsyncWebServerRequest *request) {
   request->send(200, "text/json", json);
 }
 
-
 void getLogByLogNumber (AsyncWebServerRequest *request) {
   uint32_t lognum = 0;
   if (request->hasParam("lognum")) {
     AsyncWebParameter* p = request->getParam("lognum");
     lognum = p->value().toInt();
   }
-
-  String json = "[";
+  AsyncResponseStream *response = request->beginResponseStream("text/json");
+  response->addHeader("Access-Control-Allow-Origin", "*");
+  response->print("[");
 
   for (uint16_t l = 0; l < logLength; l++) {
-    if (LogTable[l].lognumber > lognum && l < 200) {
+    if (LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
+      String json = "";
+      if (l > 0) json += ",";
       json += "{";
       json += "\"lognumber\": " + String(LogTable[l].lognumber) + ", ";
       json += "\"tstamp\": " + String(LogTable[l].time) + ", ";
@@ -73,18 +75,13 @@ void getLogByLogNumber (AsyncWebServerRequest *request) {
       fl.trim();
       json += "\"flags\": \"" + fl + "\"";
       json += "}";
-      json += ",";
+      response->print(json);
     }
-    if (l == 200) break;
+    if (l == MAX_LOG_ENTRIES) break;
   }
+  response->print("]");
 
-  json += "]";
-  json.replace("},]", "}]");
-
-  AsyncWebServerResponse *response = request->beginResponse(200);
-  response->addHeader("Access-Control-Allow-Origin", "*");
-  response->addHeader("Content-Length", String(json.length()));
-  request->send(200, "text/json", json);
+  request->send(response);
 }
 
 void getLogByTimestamp (AsyncWebServerRequest *request) {
@@ -97,7 +94,7 @@ void getLogByTimestamp (AsyncWebServerRequest *request) {
   String json = "[";
 
   for (uint16_t l = 0; l < logLength; l++) {
-    if (LogTable[l].time > ts && l < 200) {
+    if (LogTable[l].time > ts && l < MAX_LOG_ENTRIES) {
       json += "{";
       json += "\"tstamp\": " + String(LogTable[l].time) + ", ";
       json += "\"rssi\": " + String(LogTable[l].rssi) + ", ";
@@ -118,7 +115,7 @@ void getLogByTimestamp (AsyncWebServerRequest *request) {
       json += "}";
       json += ",";
     }
-    if (l == 200) break;
+    if (l == MAX_LOG_ENTRIES) break;
   }
 
   json += "]";
@@ -142,7 +139,7 @@ void getLog(AsyncWebServerRequest *request) {
 
   if (request->hasParam("start")) {
     AsyncWebParameter* p = request->getParam("start");
-    start = (first == true) ? allCount - 200 : p->value().toInt();
+    start = (first == true) ? allCount - MAX_LOG_ENTRIES : p->value().toInt();
   }
 
   uint16_t jsonlogLength = ((start) <= allCount) ? allCount - start : allCount;
@@ -199,13 +196,13 @@ void indexHtml(AsyncWebServerRequest *request) {
 
 void setBootConfigMode(AsyncWebServerRequest *request) {
   if (SPIFFS.begin()) {
-    Serial.println(F("setBootConfigMode mounted file system"));
+    DPRINTLN(F("setBootConfigMode mounted file system"));
     if (!SPIFFS.exists(BOOTCONFIGMODE_FILENAME)) {
       File bootConfigModeFile = SPIFFS.open(BOOTCONFIGMODE_FILENAME, "w");
       bootConfigModeFile.print("0");
       bootConfigModeFile.close();
       SPIFFS.end();
-      Serial.println(F("Boot to ConfigMode requested. Restarting..."));
+      DPRINTLN(F("Boot to ConfigMode requested. Restarting..."));
       request->send(200, "text/plain", F("<state>enableBootConfigMode - Rebooting</state>"));
       delay(500);
       ESP.restart();
@@ -256,11 +253,11 @@ void initWebServer() {
   webServer.on("/downloadcsv", HTTP_GET, [](AsyncWebServerRequest * request) {
     AsyncWebServerResponse *response;
     if (sdAvailable) {
-      Serial.println(F("Downloading CSV from SD Card"));
+      DPRINTLN(F("Downloading CSV from SD Card"));
       response = request->beginResponse(SD, CSV_FILENAME, String());
     }
     else {
-      Serial.println(F("Downloading CSV from SPIFFS"));
+      DPRINTLN(F("Downloading CSV from SPIFFS"));
       response = request->beginResponse(SPIFFS, CSV_FILENAME, String());
     }
     response->addHeader("Server", "AskSinAnalyzer");

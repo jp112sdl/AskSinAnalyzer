@@ -66,7 +66,7 @@ String getSerialFromAddress(String in) {
     for (uint16_t c = 0; c < ADDRESSTABLE_LENGTH; c++) {
       if (AddressTable[c].Address == in) {
         String s = (AddressTable[c].Serial).substring(0, 10);
-        Serial.println("FOUND LOCAL: " + in + " / " + s);
+        DPRINTLN("FOUND LOCAL: " + in + " / " + s);
 #ifdef USE_DISPLAY
         drawStatusCircle(ILI9341_GREEN);
 #endif
@@ -85,19 +85,19 @@ String getSerialFromAddress(String in) {
 #ifdef USE_DISPLAY
           drawStatusCircle(ILI9341_GREEN);
 #endif
-          Serial.println(F("FOUND VALID RESULT"));
+          DPRINTLN(F("FOUND VALID RESULT"));
           AddressTable[AddressTableCount].Address = in;
           res = res.substring(res.indexOf(","));
           res = res.substring(1);
           res.replace("BidCoS-RF", "-ZENTRALE-");
 
-          Serial.println("SERIAL = " + res);
+          DPRINTLN("SERIAL = " + res);
           AddressTable[AddressTableCount].Serial = res;
           out = res;
           AddressTableCount++;
         } else {
           if (res == "null")
-            Serial.println(F("getCCURequest failed! Check config parameters for CCU IP and SV Analyzer name"));
+            DPRINTLN(F("getCCURequest failed! Check config parameters for CCU IP and SV Analyzer name"));
 #ifdef USE_DISPLAY
           drawStatusCircle(ILI9341_RED);
 #endif
@@ -106,7 +106,7 @@ String getSerialFromAddress(String in) {
 #ifdef USE_DISPLAY
         drawStatusCircle(ILI9341_RED);
 #endif
-        Serial.println(F("setCCURequest failed! Check config parameters for CCU IP and SV Analyzer name"));
+        DPRINTLN(F("setCCURequest failed! Check config parameters for CCU IP and SV Analyzer name"));
       }
     }
   } else {
@@ -117,7 +117,16 @@ String getSerialFromAddress(String in) {
   return out;
 }
 
+void initAddressTable() {
+  memset(AddressTable, 0, ADDRESSTABLE_LENGTH);
+  for (uint16_t c = 0; c < ADDRESSTABLE_LENGTH; c++) {
+    AddressTable[c].Address = "";
+    AddressTable[c].Serial = "";
+  }
+}
+
 void initLogTable() {
+  memset(LogTable, 0, MAX_LOG_ENTRIES);
   for (uint16_t c = 0; c < MAX_LOG_ENTRIES; c++) {
     memset(LogTable[c].from, 0, 11);
     memset(LogTable[c].to, 0, 11);

@@ -24,22 +24,22 @@ uint32_t getSPIFFSUsedKB() {
 
 bool initSPIFFS() {
   if (!SPIFFS.begin(true)) {
-    Serial.println(F("SPIFFS: Mount Failed. Trying to format..."));
+    DPRINTLN(F("SPIFFS: Mount Failed. Trying to format..."));
     SPIFFS.format();
     if (SPIFFS.begin(true)) {
-      Serial.println(F("SPIFFS: Now it is working! "));
+      DPRINTLN(F("SPIFFS: Now it is working! "));
     } else {
-      Serial.println(F("SPIFFS: FATAL: SPIFFS NOT MOUNTABLE!"));
+      DPRINTLN(F("SPIFFS: FATAL: SPIFFS NOT MOUNTABLE!"));
       return false;
     }
   }
-  Serial.println("SPIFFS: Mount OK");
-  Serial.print("SPIFFS: Total kB: ");
-  Serial.println(getSPIFFSSizeKB());
-  Serial.print("SPIFFS: Used  kB: ");
-  Serial.println(getSPIFFSUsedKB());
-  Serial.print("SPIFFS: Free  kb: ");
-  Serial.println(getSPIFFSSizeKB() - getSPIFFSUsedKB());
+  DPRINTLN("SPIFFS: Mount OK");
+  DPRINT("SPIFFS: Total kB: ");
+  DPRINTLN(getSPIFFSSizeKB());
+  DPRINT("SPIFFS: Used  kB: ");
+  DPRINTLN(getSPIFFSUsedKB());
+  DPRINT("SPIFFS: Free  kb: ");
+  DPRINTLN(getSPIFFSSizeKB() - getSPIFFSUsedKB());
 
   return true;
 }
@@ -52,26 +52,26 @@ uint8_t IRAM_ATTR deleteCSV(const char * fileName, bool createBackup) {
           String bakFile = String(fileName) + ".bak";
           deleteFile(SD, bakFile.c_str());
           if (renameFile(SD, fileName, bakFile.c_str())) {
-            Serial.println(F(" - SD created backup of CSV"));
+            DPRINTLN(F(" - SD created backup of CSV"));
             return RENAME_SUCCESSFUL;
           } else {
-            Serial.println(F(" - SD create backup of CSV failed"));
+            DPRINTLN(F(" - SD create backup of CSV failed"));
             return RENAME_FAILED;
           }
         } else {
-          Serial.println(F(" - SD file does not exist no need to rename"));
+          DPRINTLN(F(" - SD file does not exist no need to rename"));
           return FILE_DOES_NOT_EXIST;
         }
       }
       if (deleteFile(SD, fileName)) {
-        Serial.println(F(" - SD file deleted"));
+        DPRINTLN(F(" - SD file deleted"));
         return NO_ERROR;
       } else {
-        Serial.println(F(" - SD delete failed"));
+        DPRINTLN(F(" - SD delete failed"));
         return DELETE_FAILED;
       }
     } else {
-      Serial.println(F(" - SD file does not exist. no need to delete or rename"));
+      DPRINTLN(F(" - SD file does not exist. no need to delete or rename"));
       return FILE_DOES_NOT_EXIST;
     }
   }
@@ -83,48 +83,48 @@ uint8_t IRAM_ATTR deleteCSV(const char * fileName, bool createBackup) {
             String bakFile = String(fileName) + ".bak";
             SPIFFS.remove(bakFile);
             if (SPIFFS.rename(fileName, bakFile)) {
-              Serial.println(F(" - SPIFFS created backup of CSV"));
+              DPRINTLN(F(" - SPIFFS created backup of CSV"));
               return RENAME_SUCCESSFUL;
             } else {
-              Serial.println(F(" - SPIFFS create backup of CSV failed"));
+              DPRINTLN(F(" - SPIFFS create backup of CSV failed"));
               return RENAME_FAILED;
             }
           } else {
-            Serial.println(F(" - SPIFFS file does not exist no need to rename"));
+            DPRINTLN(F(" - SPIFFS file does not exist no need to rename"));
             return FILE_DOES_NOT_EXIST;
           }
         }
         if (SPIFFS.remove(fileName)) {
-          Serial.println(F(" - SPIFFS file deleted"));
+          DPRINTLN(F(" - SPIFFS file deleted"));
           return NO_ERROR;
         } else {
-          Serial.println(F(" - SPIFFS delete failed"));
+          DPRINTLN(F(" - SPIFFS delete failed"));
           return DELETE_FAILED;
         }
       } else {
-        Serial.println(F(" - SPIFFS file does not exist. no need to delete or rename"));
+        DPRINTLN(F(" - SPIFFS file does not exist. no need to delete or rename"));
         return FILE_DOES_NOT_EXIST;
       }
     } else {
-      Serial.println(F("SPIFFS deleteCSV not done; SPIFFS not available!"));
+      DPRINTLN(F("SPIFFS deleteCSV not done; SPIFFS not available!"));
       return SPIFFS_NOT_AVAILABLE;
     }
   }
 }
 
 void IRAM_ATTR writeCSV(const char * fileName, String &csvLine) {
-  Serial.println(F(" - writing CSV file"));
+  DPRINTLN(F(" - writing CSV file"));
   if (sdAvailable) {
     if (!SD.exists(fileName)) {
-      Serial.println(F(" - SD failed to open file - creating new"));
+      DPRINTLN(F(" - SD failed to open file - creating new"));
       File file = SD.open(fileName, FILE_WRITE);
       if (!file) {
-        Serial.println(F(" - SD failed to open file for writing"));
+        DPRINTLN(F(" - SD failed to open file for writing"));
         return;
       } else {
         if (file.println(CSV_HEADER)) {
         } else {
-          Serial.println(F(" - SD failed to write line into file"));
+          DPRINTLN(F(" - SD failed to write line into file"));
         }
         file.close();
       }
@@ -132,27 +132,27 @@ void IRAM_ATTR writeCSV(const char * fileName, String &csvLine) {
 
     File file = SD.open(fileName, FILE_APPEND);
     if (!file) {
-      Serial.println(F(" - SD csv : failed to open file for appending"));
+      DPRINTLN(F(" - SD csv : failed to open file for appending"));
     }
     if (file.println(csvLine)) {
-      Serial.println(F(" - SD csv : message appended"));
+      DPRINTLN(F(" - SD csv : message appended"));
       file.close();
     } else {
-      Serial.println(F(" - SD csv : append failed"));
+      DPRINTLN(F(" - SD csv : append failed"));
     }
   }
   else {
     if (spiffsAvailable) {
       if (!SPIFFS.exists(fileName)) {
-        Serial.println(F(" - failed to open file - creating new"));
+        DPRINTLN(F(" - failed to open file - creating new"));
         File file = SPIFFS.open(fileName, FILE_WRITE);
         if (!file) {
-          Serial.println(F(" - SPIFFS failed to open file for writing"));
+          DPRINTLN(F(" - SPIFFS failed to open file for writing"));
           return;
         } else {
           if (file.println(CSV_HEADER)) {
           } else {
-            Serial.println(F(" - SPIFFS failed to write line into file"));
+            DPRINTLN(F(" - SPIFFS failed to write line into file"));
           }
           file.close();
         }
@@ -160,16 +160,16 @@ void IRAM_ATTR writeCSV(const char * fileName, String &csvLine) {
 
       File file = SPIFFS.open(fileName, FILE_APPEND);
       if (!file) {
-        Serial.println(F(" - SPIFFS csv : failed to open file for appending"));
+        DPRINTLN(F(" - SPIFFS csv : failed to open file for appending"));
       }
       if (file.println(csvLine)) {
-        Serial.println(F(" - SPIFFS csv : message appended"));
+        DPRINTLN(F(" - SPIFFS csv : message appended"));
         file.close();
       } else {
-        Serial.println(F(" - SPIFFS csv : append failed"));
+        DPRINTLN(F(" - SPIFFS csv : append failed"));
       }
     } else {
-      Serial.println(F("SPIFFS writeCSV not done; SPIFFS not available!"));
+      DPRINTLN(F("SPIFFS writeCSV not done; SPIFFS not available!"));
     }
   }
 }

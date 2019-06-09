@@ -10,15 +10,15 @@ void receiveMessages() {
         inStr += inChar;
       }
     } else {
-      //Serial.println("MESSAGE #"+String(msgBufferCount)+" ADDED: "+inStr);
+      //DPRINTLN("MESSAGE #"+String(msgBufferCount)+" ADDED: "+inStr);
       msgBuffer[msgBufferCount] = inStr;
       inStr = "";
       msgBufferCount++;
       if (msgBufferCount > 1) {
-        Serial.println(F("****************"));
-        Serial.print(F("!message Buffer = "));
-        Serial.println(String(msgBufferCount));
-        Serial.println(F("****************"));
+        DPRINTLN(F("****************"));
+        DPRINT(F("!message Buffer = "));
+        DPRINTLN(String(msgBufferCount));
+        DPRINTLN(F("****************"));
       }
       allCount++;
     }
@@ -26,7 +26,7 @@ void receiveMessages() {
 }
 
 void fillLogTable(String in, uint8_t b) {
-  Serial.println("I #" + String(b) + ": " + in);
+  DPRINTLN("I #" + String(b) + ": " + in);
 
   String rssiIn = in.substring(1, 3);
   int rssi = -1 * (strtol(&rssiIn[0], NULL, 16) & 0xFF);
@@ -107,24 +107,24 @@ void fillLogTable(String in, uint8_t b) {
   if (SPIFFS.totalBytes() - SPIFFS.usedBytes() > csvLine.length())
     writeCSV(CSV_FILENAME, csvLine);
   else
-    Serial.println(F("writeCSV failed - not enough space"));
+    DPRINTLN(F("writeCSV failed - not enough space"));
   //
 
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
-  Serial.println(F("Added to LogTable: "));
-  Serial.print(F("  - from : ")); Serial.println(LogTable[0].from);
-  Serial.print(F("  - to   : ")); Serial.println(LogTable[0].to);
-  Serial.print(F("  - rssi : ")); Serial.println(LogTable[0].rssi);
-  Serial.print(F("  - len  : ")); Serial.println(LogTable[0].len);
-  Serial.print(F("  - cnt  : ")); Serial.println(LogTable[0].cnt);
-  Serial.print(F("  - typ  : ")); Serial.println(LogTable[0].typ);
-  Serial.print(F("  - flags: ")); Serial.println(LogTable[0].flags);
-  Serial.print(F("  - time : ")); Serial.println(getDatum(LogTable[0].time) + " " + getUhrzeit(LogTable[0].time));
-  Serial.println("allCount         = " + String(allCount));
-  Serial.println("logLength        = " + String(logLength));
-  Serial.println("logLengthDisplay = " + String(logLengthDisplay));
-  Serial.println();
+  DPRINTLN(F("Added to LogTable: "));
+  DPRINT(F(" - from : ")); DPRINTLN(LogTable[0].from);
+  DPRINT(F(" - to   : ")); DPRINTLN(LogTable[0].to);
+  DPRINT(F(" - rssi : ")); DPRINTLN(LogTable[0].rssi);
+  DPRINT(F(" - len  : ")); DPRINTLN(LogTable[0].len);
+  DPRINT(F(" - cnt  : ")); DPRINTLN(LogTable[0].cnt);
+  DPRINT(F(" - typ  : ")); DPRINTLN(LogTable[0].typ);
+  DPRINT(F(" - flags: ")); DPRINTLN(LogTable[0].flags);
+  DPRINT(F(" - time : ")); DPRINTLN(getDatum(LogTable[0].time) + " " + getUhrzeit(LogTable[0].time));
+  DPRINTLN("allCount         = " + String(allCount));
+  //DPRINTLN("logLength        = " + String(logLength));
+  //DPRINTLN("logLengthDisplay = " + String(logLengthDisplay));
+  DPRINTLN(F(""));
 
 }
 

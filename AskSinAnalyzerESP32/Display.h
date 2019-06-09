@@ -28,10 +28,10 @@ void initTFT() {
   digitalWrite(TFT_LED, HIGH);
   showDisplayDetails =  digitalRead(SHOW_DISPLAY_DETAILS_PIN) == LOW;
   showDisplayLines = digitalRead(SHOW_DISPLAY_LINES_PIN) == LOW;
-  Serial.print(F("showDisplayDetails = "));
-  Serial.println(String(showDisplayDetails));
-  Serial.print(F("showDisplayLines   = "));
-  Serial.println(String(showDisplayLines));
+  DPRINT(F("showDisplayDetails = "));
+  DPRINTLN(String(showDisplayDetails));
+  DPRINT(F("showDisplayLines   = "));
+  DPRINTLN(String(showDisplayLines));
 
   LOG_BLOCK_SIZE = (showDisplayDetails == true ? 3 : 1);
   DISPLAY_LOG_LINES /= LOG_BLOCK_SIZE;
@@ -47,6 +47,10 @@ void initTFT() {
   u8g.setFont(u8g2_font_9x15B_mr);
   u8g.setCursor(0, 10);
   u8g.println("   FROM        TO      RSSI LEN CNT");
+    u8g.setCursor(78, 10);
+  u8g.setForegroundColor(ILI9341_WHITE);
+  u8g.setFont(u8g2_font_7x13_mr);
+  u8g.print(F("(#0)"));
   drawRowLines();
 }
 

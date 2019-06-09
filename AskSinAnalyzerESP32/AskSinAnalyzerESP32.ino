@@ -1,5 +1,7 @@
 #define USE_DISPLAY
+//#define NDEBUG
 
+#include "Debug.h"
 #include <Preferences.h>
 #include "WM.h"
 #include <HTTPClient.h>
@@ -65,14 +67,14 @@ struct _HomeMaticConfig {
   char SVAnalyzeOutput[VARIABLESIZE] = "";
 } HomeMaticConfig;
 
-#define ADDRESSTABLE_LENGTH 512
+#define ADDRESSTABLE_LENGTH 256
 struct _AddressTable {
   String Address = "";
   String Serial = "";
 } AddressTable[ADDRESSTABLE_LENGTH];
 uint16_t AddressTableCount = 0;
 
-#define MAX_LOG_ENTRIES 200
+#define MAX_LOG_ENTRIES 51
 struct _LogTable {
   uint32_t lognumber = 0;
   char from[11];
@@ -83,13 +85,14 @@ struct _LogTable {
   char typ[32];
   char flags[32];
   time_t time = 0;
-} LogTable[MAX_LOG_ENTRIES];
+} LogTable[MAX_LOG_ENTRIES+1];
 uint16_t logLength = 0;
 uint16_t logLengthDisplay = 0;
 
 String   msgBuffer[255];
 uint8_t  msgBufferCount        = 0;
 uint32_t allCount              = 0;
+unsigned long lastDebugMillis  = 0;
 bool     showInfoDisplayActive = false;
 bool     isOnline              = false;
 bool     timeOK                = false;
@@ -125,11 +128,6 @@ void setup() {
 
   ONLINE_MODE = digitalRead(ONLINE_MODE_PIN) == LOW;
 
-  for (uint16_t c = 0; c < ADDRESSTABLE_LENGTH; c++) {
-    AddressTable[c].Address = "";
-    AddressTable[c].Serial = "";
-  }
-
   sdAvailable = SdInit();
 
 #ifdef USE_DISPLAY
@@ -139,26 +137,26 @@ void setup() {
   initLogTable();
 
   if (ONLINE_MODE) {
-    Serial.println(F("Config-Modus durch bootConfigMode aktivieren? "));
+    DPRINTLN(F("Config-Modus durch bootConfigMode aktivieren? "));
     if (SPIFFS.begin()) {
-      Serial.println(F("-> bootConfigModeFilename mounted file system"));
+      DPRINTLN(F("-> bootConfigModeFilename mounted file system"));
       if (SPIFFS.exists(BOOTCONFIGMODE_FILENAME)) {
         startWifiManager = true;
-        Serial.println("-> " + String(BOOTCONFIGMODE_FILENAME) + " existiert, starte Config-Modus");
+        DPRINTLN("-> " + String(BOOTCONFIGMODE_FILENAME) + " existiert, starte Config-Modus");
         SPIFFS.remove(BOOTCONFIGMODE_FILENAME);
         SPIFFS.end();
       } else {
-        Serial.println("-> " + String(BOOTCONFIGMODE_FILENAME) + " existiert NICHT");
+        DPRINTLN("-> " + String(BOOTCONFIGMODE_FILENAME) + " existiert NICHT");
       }
     } else {
-      Serial.println(F("-> Nein, SPIFFS mount fail!"));
+      DPRINTLN(F("-> Nein, SPIFFS mount fail!"));
     }
 
     if (!loadSystemConfig()) startWifiManager = true;
-    //Serial.println("startWifiManager = " + String(startWifiManager));
+    //DPRINTLN("startWifiManager = " + String(startWifiManager));
 
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);
-    //Serial.println("startWifiManager = " + String(startWifiManager));
+    //DPRINTLN("startWifiManager = " + String(startWifiManager));
     RESOLVE_ADDRESS = (HomeMaticConfig.ccuIP != "" && HomeMaticConfig.SVAnalyzeInput != "" && HomeMaticConfig.SVAnalyzeOutput != "");
 
     isOnline = doWifiConnect();
@@ -173,6 +171,12 @@ void setup() {
 }
 
 void loop() {
+
+  if (millis() - lastDebugMillis > 2000) {
+    lastDebugMillis = millis();
+    //DPRINT(F("Free Heap Size: ")); DDECLN(ESP.getFreeHeap());
+  }
+
   receiveMessages();
 
   if (ONLINE_MODE)

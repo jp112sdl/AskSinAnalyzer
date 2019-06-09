@@ -10,25 +10,26 @@ bool shouldSaveConfig = false;
 
 //callback notifying us of the need to save config
 void saveConfigCallback () {
-  Serial.println("Should save config");
+  DPRINTLN("Should save config");
   shouldSaveConfig = true;
 }
 void printWifiStatus() {
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
+  DPRINT("SSID: ");
+  DPRINTLN(WiFi.SSID());
   IPAddress IP = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(IP);
+  DPRINT("IP Address: ");
+  DPRINTLN(IP);
   long rssi = WiFi.RSSI();
-  Serial.print("signal strength (RSSI):");
-  Serial.print(rssi);
-  Serial.println(" dBm");
+  DPRINT("signal strength (RSSI):");
+  DPRINT(rssi);
+  DPRINTLN(" dBm");
 }
 
 void checkWifi() {
   if (WiFi.status() != WL_CONNECTED) {
     if (millis() - lastReconnectMillis > 10000) {
-      Serial.println("Wifi disconnected. Reconnect initiated.");
+      DPRINTLN("Wifi disconnected. Reconnect initiated.");
+      WiFi.disconnect();
       WiFi.reconnect();
       lastReconnectMillis = millis();
     }
@@ -42,8 +43,8 @@ bool doWifiConnect() {
   preferences.end();
 
 
-  //Serial.println("ssid; " + _ssid);
-  //Serial.println(" psk; " + _psk);
+  //DPRINTLN("ssid; " + _ssid);
+  //DPRINTLN(" psk; " + _psk);
 
 
   String _pskMask = "";
@@ -64,15 +65,15 @@ bool doWifiConnect() {
 #endif
     WiFi.begin(_ssid.c_str(), _psk.c_str());
     uint8_t connect_count = 0;
-    Serial.println("Connecting to WiFi.");
+    DPRINTLN("Connecting to WiFi.");
     while (WiFi.status() != WL_CONNECTED) {
       delay(500);
-      Serial.print(".");
+      DPRINT(".");
       connect_count++;
       if (connect_count > 60) return false;
     }
     connect_count = 0;
-    Serial.println("\nConnected to the WiFi network");
+    DPRINTLN("\nConnected to the WiFi network");
     printWifiStatus();
     return true;
   } else {
@@ -99,27 +100,27 @@ bool doWifiConnect() {
     wifiManager.addParameter(&custom_gw);
 
     if (!wifiManager.startConfigPortal("AskSinAnalyzer-AP")) {
-      Serial.println("failed to connect and hit timeout");
+      DPRINTLN("failed to connect and hit timeout");
       delay(3000);
       ESP.restart();
       delay(5000);
     }
 
-    Serial.println("Wifi Connected");
+    DPRINTLN("Wifi Connected");
 
     if (shouldSaveConfig) {
       preferences.begin("wifi", false); // Note: Namespace name is limited to 15 chars
-      Serial.println("Writing new ssid");
+      DPRINTLN("Writing new ssid");
       preferences.putString("ssid", WiFi.SSID());
 
-      Serial.println("Writing new pass");
+      DPRINTLN("Writing new pass");
       preferences.putString("password", WiFi.psk());
       delay(300);
       preferences.end();
 
 
       if (String(custom_ip.getValue()).length() > 5) {
-        Serial.println("Custom static IP Address is set!");
+        DPRINTLN("Custom static IP Address is set!");
         strcpy(NetConfig.ip, custom_ip.getValue());
         strcpy(NetConfig.netmask, custom_netmask.getValue());
         strcpy(NetConfig.gw, custom_gw.getValue());
