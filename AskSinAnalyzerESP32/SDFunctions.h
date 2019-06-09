@@ -28,7 +28,7 @@ bool SdInit() {
     return false;
   }
 
-  DPRINTLN(F("SD Card Type: "));
+  DPRINT(F("SD Card Type  : "));
   if (cardType == CARD_MMC) {
     DPRINTLN(F("MMC"));
   } else if (cardType == CARD_SD) {

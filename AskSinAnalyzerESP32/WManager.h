@@ -65,7 +65,7 @@ bool doWifiConnect() {
 #endif
     WiFi.begin(_ssid.c_str(), _psk.c_str());
     uint8_t connect_count = 0;
-    DPRINTLN("Connecting to WiFi.");
+    DPRINT("Connecting to WiFi");
     while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       DPRINT(".");

@@ -6,14 +6,14 @@
 #define JSONCONFIG_SVANALYZEOUTPUT        "svanalyzeoutput"
 
 bool loadSystemConfig() {
-  if (SPIFFS.begin()) {
-    DPRINTLN("mounted file system");
+  if (spiffsAvailable == true) {
+    DPRINTLN(F("loadSystemConfig(): mounted file system"));
     if (SPIFFS.exists(CONFIG_FILENAME)) {
       //file exists, reading and loading
-      DPRINTLN("reading config file");
+      DPRINTLN(F("loadSystemConfig(): reading config file"));
       File configFile = SPIFFS.open(CONFIG_FILENAME, "r");
       if (configFile) {
-        DPRINTLN("opened config file");
+        DPRINTLN(F("loadSystemConfig(): opened config file"));
         size_t size = configFile.size();
         // Allocate a buffer to store contents of the file.
         std::unique_ptr<char[]> buf(new char[size]);
@@ -22,13 +22,13 @@ bool loadSystemConfig() {
         StaticJsonDocument<1024> doc;
         DeserializationError error = deserializeJson(doc, buf.get());
         if (error) {
-          DPRINTLN("load Config JSON DeserializationError");
+          DPRINTLN(F("loadSystemConfig(): load Config JSON DeserializationError"));
           return false;
         } else {
           JsonObject json = doc.as<JsonObject>();
-          DPRINTLN("Content of JSON Configfile:");
+          DPRINTLN(F("loadSystemConfig(): Content of JSON Configfile:"));
           serializeJson(doc, Serial);
-          DPRINTLN("\nJSON OK");
+          DPRINTLN(F("\nloadSystemConfig(): JSON OK"));
 
           ((json[JSONCONFIG_IP]).as<String>()).toCharArray(NetConfig.ip, IPSIZE);
           ((json[JSONCONFIG_NETMASK]).as<String>()).toCharArray(NetConfig.netmask, IPSIZE);
@@ -44,7 +44,7 @@ bool loadSystemConfig() {
 }
 
 bool saveSystemConfig() {
-  DPRINTLN("saving config");
+  DPRINTLN(F("saveSystemConfig(): saving config"));
   StaticJsonDocument<1024> doc;
   JsonObject json = doc.to<JsonObject>();
 
@@ -57,7 +57,7 @@ bool saveSystemConfig() {
 
   File configFile = SPIFFS.open(CONFIG_FILENAME, "w");
   if (!configFile) {
-    DPRINTLN("failed to open config file for writing");
+    DPRINTLN(F("saveSystemConfig(): failed to open config file for writing"));
   }
   serializeJson(doc, Serial);
   DPRINTLN(F(""));

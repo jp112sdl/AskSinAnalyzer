@@ -26,6 +26,7 @@ void receiveMessages() {
 }
 
 void fillLogTable(String in, uint8_t b) {
+  DPRINTLN(F("######## PROCESSING NEW MESSAGE ########"));
   DPRINTLN("I #" + String(b) + ": " + in);
 
   String rssiIn = in.substring(1, 3);
@@ -75,6 +76,7 @@ void fillLogTable(String in, uint8_t b) {
   memcpy(LogTable[0].flags, flags.c_str(), 30);
 
   // Write to CSV
+  DPRINTLN(F("Preprocessing CSV"));
   String csvLine = "";
   String temp = "";
   csvLine += String(allCount);
@@ -108,11 +110,10 @@ void fillLogTable(String in, uint8_t b) {
     writeCSV(CSV_FILENAME, csvLine);
   else
     DPRINTLN(F("writeCSV failed - not enough space"));
-  //
 
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
-  DPRINTLN(F("Added to LogTable: "));
+  DPRINTLN(F("\nAdded to LogTable: "));
   DPRINT(F(" - from : ")); DPRINTLN(LogTable[0].from);
   DPRINT(F(" - to   : ")); DPRINTLN(LogTable[0].to);
   DPRINT(F(" - rssi : ")); DPRINTLN(LogTable[0].rssi);
@@ -121,11 +122,10 @@ void fillLogTable(String in, uint8_t b) {
   DPRINT(F(" - typ  : ")); DPRINTLN(LogTable[0].typ);
   DPRINT(F(" - flags: ")); DPRINTLN(LogTable[0].flags);
   DPRINT(F(" - time : ")); DPRINTLN(getDatum(LogTable[0].time) + " " + getUhrzeit(LogTable[0].time));
-  DPRINTLN("allCount         = " + String(allCount));
+  //DPRINTLN(" => messages received: " + String(allCount));
   //DPRINTLN("logLength        = " + String(logLength));
   //DPRINTLN("logLengthDisplay = " + String(logLengthDisplay));
-  DPRINTLN(F(""));
-
+  DPRINT(F("######## PROCESSING ")); DDEC(allCount); DPRINTLN(F(" END ########\n"));
 }
 
 #endif
