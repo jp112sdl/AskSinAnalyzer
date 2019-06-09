@@ -119,20 +119,20 @@ String getSerialFromAddress(String in) {
 
 void initAddressTable() {
   memset(AddressTable, 0, ADDRESSTABLE_LENGTH);
-  for (uint16_t c = 0; c < ADDRESSTABLE_LENGTH; c++) {
+  /*for (uint16_t c = 0; c < ADDRESSTABLE_LENGTH; c++) {
     AddressTable[c].Address = "";
     AddressTable[c].Serial = "";
-  }
+  }*/
 }
 
 void initLogTable() {
   memset(LogTable, 0, MAX_LOG_ENTRIES);
-  for (uint16_t c = 0; c < MAX_LOG_ENTRIES; c++) {
+  /*for (uint16_t c = 0; c < MAX_LOG_ENTRIES; c++) {
     memset(LogTable[c].from, 0, 11);
     memset(LogTable[c].to, 0, 11);
     memset(LogTable[c].typ, 0, 32);
     memset(LogTable[c].flags, 0, 32);
-  }
+  }*/
 }
 
 #endif
