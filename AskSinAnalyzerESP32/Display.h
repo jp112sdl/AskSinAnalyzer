@@ -28,8 +28,8 @@ void initTFT() {
   digitalWrite(TFT_LED, HIGH);
   showDisplayDetails =  digitalRead(SHOW_DISPLAY_DETAILS_PIN) == LOW;
   showDisplayLines = digitalRead(SHOW_DISPLAY_LINES_PIN) == LOW;
-  DPRINT(F("showDisplayDetails = ")); DPRINTLN(showDisplayDetails ? "Enabled":"Disabled");
-  DPRINT(F("showDisplayLines   = ")); DPRINTLN(showDisplayLines ? "Enabled":"Disabled");
+  DPRINT(F("showDisplayDetails = ")); DPRINTLN(showDisplayDetails ? "Enabled" : "Disabled");
+  DPRINT(F("showDisplayLines   = ")); DPRINTLN(showDisplayLines ? "Enabled" : "Disabled");
 
   LOG_BLOCK_SIZE = (showDisplayDetails == true ? 3 : 1);
   DISPLAY_LOG_LINES /= LOG_BLOCK_SIZE;
@@ -45,10 +45,6 @@ void initTFT() {
   u8g.setFont(u8g2_font_9x15B_mr);
   u8g.setCursor(0, 10);
   u8g.println("   FROM        TO      RSSI LEN CNT");
-    u8g.setCursor(78, 10);
-  u8g.setForegroundColor(ILI9341_WHITE);
-  u8g.setFont(u8g2_font_7x13_mr);
-  u8g.print(F("(#0)"));
   drawRowLines();
 }
 
@@ -93,11 +89,6 @@ void refreshDisplayLog() {
     if (showDisplayLines == true)
       tft.drawLine(0, DISPLAY_LOG_OFFSET_TOP + (2 * DISPLAY_LOG_LINE_HEIGHT) + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c) + 2, tft.width(), DISPLAY_LOG_OFFSET_TOP + (2 * DISPLAY_LOG_LINE_HEIGHT) + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c) + 2, ILI9341_WHITE);
   }
-
-  u8g.setCursor(78, 10);
-  u8g.setForegroundColor(ILI9341_WHITE);
-  u8g.setFont(u8g2_font_7x13_mr);
-  u8g.print("(#" + String(allCount) + ")");
 }
 
 
