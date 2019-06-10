@@ -34,6 +34,8 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "\"spiffssizekb\":" + String(getSPIFFSSizeKB());
   json += ",";
   json += "\"spiffsusedkb\":" + String(getSPIFFSUsedKB());
+  json += ",";
+  json += "\"boottime\":" + String(bootTime);
   json += "}";
 
   AsyncWebServerResponse *response = request->beginResponse(200);

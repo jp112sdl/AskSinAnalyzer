@@ -102,6 +102,7 @@ bool     startWifiManager      = false;
 bool     ONLINE_MODE           = false;
 bool     RESOLVE_ADDRESS       = true;
 uint8_t  DISPLAY_LOG_LINES     = 15;
+time_t   bootTime              = 0;
 
 #include "Config.h"
 #include "SDFunctions.h"
@@ -159,12 +160,13 @@ void setup() {
 
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);
     //DPRINTLN("startWifiManager = " + String(startWifiManager));
-    
+
     RESOLVE_ADDRESS = (HomeMaticConfig.ccuIP != "" && HomeMaticConfig.SVAnalyzeInput != "" && HomeMaticConfig.SVAnalyzeOutput != "");
 
     isOnline = doWifiConnect();
     DPRINT(F("INIT WIFI CONNECT DONE. WIFI IS ")); DPRINTLN(isOnline ? "AVAILABLE" : "NOT AVAILABLE");
     timeOK = doNTPinit();
+    bootTime = timeOK ? now() : 0;
     DPRINT(F("INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE" : "NOT AVAILABLE");
     initWebServer();
     DPRINTLN(F("INIT WEBSERVER DONE."));
