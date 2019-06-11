@@ -1,6 +1,8 @@
-//
-// 2018-11-22 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
-//
+//- -----------------------------------------------------------------------------------------------------------------------
+// AskSinAnalyzer
+// 2019-06-01 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
+//- -----------------------------------------------------------------------------------------------------------------------
+
 
 const char HTTP_CSS[] PROGMEM = R"=====(
 <style>

@@ -1,3 +1,8 @@
+//- -----------------------------------------------------------------------------------------------------------------------
+// AskSinAnalyzer
+// 2019-06-01 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
+//- -----------------------------------------------------------------------------------------------------------------------
+
 #define JSONCONFIG_IP                     "ip"
 #define JSONCONFIG_NETMASK                "netmask"
 #define JSONCONFIG_GW                     "gw"

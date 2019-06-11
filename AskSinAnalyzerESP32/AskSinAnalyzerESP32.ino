@@ -1,3 +1,11 @@
+//- -----------------------------------------------------------------------------------------------------------------------
+// AskSinAnalyzer
+// 2016-10-31 papa Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
+// 2019-06-01 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
+// 2019-06-01 psi-4ward Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
+//- -----------------------------------------------------------------------------------------------------------------------
+
+
 #define USE_DISPLAY
 //#define NDEBUG
 

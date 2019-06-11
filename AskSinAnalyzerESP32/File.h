@@ -1,6 +1,8 @@
-//
-// 2019-05-30 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
-//
+//- -----------------------------------------------------------------------------------------------------------------------
+// AskSinAnalyzer
+// 2019-06-01 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
+//- -----------------------------------------------------------------------------------------------------------------------
+
 
 #ifndef __FILE__H_
 #define __FILE__H_

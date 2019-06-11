@@ -1,3 +1,9 @@
+//- -----------------------------------------------------------------------------------------------------------------------
+// AskSinAnalyzer
+// 2019-06-01 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
+// 2019-06-01 psi-4ward Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
+//- -----------------------------------------------------------------------------------------------------------------------
+
 #ifndef __WEB__H_
 #define __WEB__H_
 
@@ -8,12 +14,17 @@
 AsyncWebServer webServer(80);
 
 void getConfig (AsyncWebServerRequest *request) {
+  bool staticipconfig = String(NetConfig.ip) != "0.0.0.0";
   String json = "{";
-  json += "\"staticip\":\"" + String(NetConfig.ip) + "\"";
+  json += "\"staticipconfig\":" + String(staticipconfig);
   json += ",";
-  json += "\"staticnetmask\":\"" + String(NetConfig.netmask) + "\"";
+  json += "\"ip\":\"" +  String(WiFi.localIP().toString()) + "\"";
   json += ",";
-  json += "\"staticgateway\":\"" + String(NetConfig.gw) + "\"";
+  json += "\"netmask\":\"" + String(WiFi.subnetMask().toString()) + "\"";
+  json += ",";
+  json += "\"gateway\":\"" + String(WiFi.gatewayIP().toString()) + "\"";
+  json += ",";
+  json += "\"macaddress\":\"" + String(WiFi.macAddress()) + "\"";
   json += ",";
   json += "\"ccuip\":\"" + String(HomeMaticConfig.ccuIP) + "\"";
   json += ",";
@@ -37,7 +48,7 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"boottime\":" + String(bootTime);
   json += "}";
-
+  DPRINT("/getConfig JSON: "); DPRINTLN(json);
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Access-Control-Allow-Origin", "*");
   response->addHeader("Content-Length", String(json.length()));
