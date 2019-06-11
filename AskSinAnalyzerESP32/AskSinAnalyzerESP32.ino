@@ -97,8 +97,12 @@ struct _LogTable {
 uint16_t logLength = 0;
 uint16_t logLengthDisplay = 0;
 
-String   msgBuffer[255];
-uint8_t  msgBufferCount        = 0;
+struct _SerialBuffer {
+String   Msg            = "";
+time_t   t              = 0;
+} SerialBuffer[255];
+uint8_t  msgBufferCount = 0;
+
 uint32_t allCount              = 0;
 unsigned long lastDebugMillis  = 0;
 bool     showInfoDisplayActive = false;
@@ -215,7 +219,7 @@ void loop() {
 
   if (msgBufferCount > 0) {
     for (uint8_t b = 0; b < msgBufferCount; b++) {
-      fillLogTable(msgBuffer[b], b);
+      fillLogTable(SerialBuffer[b].Msg, SerialBuffer[b].t, b);
 #ifdef USE_DISPLAY
       if (logLengthDisplay < DISPLAY_LOG_LINES) logLengthDisplay++;
       if (showInfoDisplayActive == false) {

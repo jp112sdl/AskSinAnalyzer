@@ -16,7 +16,8 @@ void receiveMessages() {
       }
     } else {
       //DPRINTLN("MESSAGE #"+String(msgBufferCount)+" ADDED: "+inStr);
-      msgBuffer[msgBufferCount] = inStr;
+      SerialBuffer[msgBufferCount].Msg = inStr;
+      SerialBuffer[msgBufferCount].t = now();// ((timeOK == true)  ? now() : millis());
       inStr = "";
       msgBufferCount++;
       if (msgBufferCount > 1) {
@@ -30,7 +31,7 @@ void receiveMessages() {
   }
 }
 
-void fillLogTable(String in, uint8_t b) {
+void fillLogTable(String in, time_t t, uint8_t b) {
   DPRINTLN(F("######## PROCESSING NEW MESSAGE ########"));
   DPRINTLN("I #" + String(b) + ": " + in);
 
@@ -71,7 +72,7 @@ void fillLogTable(String in, uint8_t b) {
   }
 
   LogTable[0].lognumber = allCount;
-  LogTable[0].time = ((timeOK == true)  ? now() : 0);
+  LogTable[0].time = t;
   LogTable[0].rssi = rssi;
   memcpy(LogTable[0].from, fromStr.c_str(), 10);
   memcpy(LogTable[0].to, toStr.c_str(), 10);
