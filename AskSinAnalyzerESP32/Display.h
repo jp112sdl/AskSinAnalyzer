@@ -115,6 +115,7 @@ void showInfoDisplay() {
   u8g.setForegroundColor(ILI9341_WHITE);
   u8g.setCursor(0, 40);
 
+  u8g.print(F("Mac-Address: ")); u8g.println(WiFi.macAddress()); u8g.println();
   u8g.print(F("       SSID: ")); u8g.println(WiFi.SSID()); u8g.println();
   u8g.print(F("       RSSI: ")); u8g.print(WiFi.RSSI()); u8g.println(F(" dBm")); u8g.println();
   u8g.println();
@@ -122,7 +123,7 @@ void showInfoDisplay() {
   u8g.println();
   u8g.print(F("     CCU IP: ")); u8g.println(HomeMaticConfig.ccuIP); u8g.println();
 
-  u8g.print(F("  SV Input : ")); u8g.println(HomeMaticConfig.SVAnalyzeInput); u8g.println();
+  u8g.print(F("   SV Input: ")); u8g.println(HomeMaticConfig.SVAnalyzeInput); u8g.println();
   u8g.print(F("  SV Output: ")); u8g.println(HomeMaticConfig.SVAnalyzeOutput); u8g.println();
 }
 
