@@ -43,13 +43,13 @@
       <q-card-section>
         <div class="tech-logos">
           <a href="http://vuejs.org" target="_blank" rel="noopener noreferrer">
-            <img :src="$root.CDN + 'logos/Vue.js.svg'"> Vue.js
+            <img :src="$root.CDN + '/logos/Vue.js.svg'"> Vue.js
           </a>
           <a href="https://quasar.dev" target="_blank" rel="noopener noreferrer">
-            <img :src="$root.CDN + 'logos/Quasar.svg'"> Quasar
+            <img :src="$root.CDN + '/logos/Quasar.svg'"> Quasar
           </a>
           <a href="https://www.highcharts.com" target="_blank" rel="noopener noreferrer">
-            <img :src="$root.CDN + 'logos/Highcharts.png'"> Highcharts
+            <img :src="$root.CDN + '/logos/Highcharts.png'"> Highcharts
           </a>
         </div>
       </q-card-section>
