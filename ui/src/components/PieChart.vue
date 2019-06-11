@@ -65,7 +65,7 @@
           maxHeight: 330
         },
         series: [{
-          name: 'Telegrams',
+          name: 'Telegramme',
           colorByPoint: true,
           data: []
         }]
