@@ -37,14 +37,14 @@
         <th>SD-Card:</th>
         <td>
           <div v-if="espConfig.sdcardavailable">
-            {{ espConfig.sdcardusedspacemb }} / {{ espConfig.sdcardtotalspacemb }} MB
+            {{ espConfig.sdcardusedspacemb }} MB belegt / {{ espConfig.sdcardtotalspacemb }} MB gesamt
           </div>
           <div v-else class="text-italic">Keine SD-Card</div>
         </td>
       </tr>
       <tr>
         <th>SPIFFS:</th>
-        <td>{{ espConfig.spiffsusedkb }} / {{ espConfig.spiffssizekb }} MB</td>
+        <td>{{ espConfig.spiffsusedkb }} kB belegt / {{ espConfig.spiffssizekb }} kB gesamt</td>
       </tr>
     </table>
     <div class="q-mt-md">
