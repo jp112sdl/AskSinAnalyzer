@@ -2,19 +2,20 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated reveal>
       <q-toolbar>
-        <q-toolbar-title class="q-mx-lg q-my-sm">
+        <q-toolbar-title class="q-mx-lg q-my-sm gt-xs" style="overflow: visible">
           <router-link to="/">
             AskSin Analyzer
           </router-link>
         </q-toolbar-title>
 
-        <!--
-        <q-tabs v-model="tab">
-          <q-tab name="devices" label="Geräte" />
-          <q-tab name="telegrams" label="Telegramme" />
-          <q-tab name="ka?" label="Fubar"/>
+        <q-space class="lt-sm"/>
+
+        <q-tabs>
+          <q-route-tab icon="dashboard" to="/home" />
+          <q-route-tab icon="list" to="/list" />
+          <q-route-tab icon="settings" to="/settings" />
+          <q-route-tab icon="info" to="/info" />
         </q-tabs>
-        -->
 
         <q-space/>
 
@@ -28,21 +29,14 @@
           </q-menu>
         </q-btn>
 
-        <q-btn flat dense>
-          <q-icon name="more_vert"/>
-          <q-menu auto-close transition-show="jump-down" transition-hide="jump-up">
-            <q-list style="min-width: 100px">
-              <q-item clickable to="/settings">Einstellungen</q-item>
-              <q-item clickable to="/info">Info</q-item>
-            </q-list>
-          </q-menu>
-        </q-btn>
       </q-toolbar>
 
     </q-header>
 
     <q-page-container>
-      <router-view />
+      <transition name="route" mode="out-in" :appear="true">
+        <router-view/>
+      </transition>
     </q-page-container>
   </q-layout>
 </template>
@@ -56,10 +50,10 @@
     QToolbarTitle,
     QIcon,
     QBtn,
-    QTabs, QTab,
+    QTabs, QRouteTab,
     QSpace,
     QMenu,
-    QList, QItem,
+    QList, QItem, QItemSection,
   } from 'quasar';
 
   export default {
@@ -73,16 +67,10 @@
       QToolbarTitle,
       QIcon,
       QBtn,
-      QTabs, QTab,
+      QTabs, QRouteTab,
       QSpace,
       QMenu,
-      QList, QItem,
-    },
-
-    data() {
-      return {
-        tab: "images",
-      }
+      QList, QItem, QItemSection,
     },
 
     computed: {
@@ -96,6 +84,7 @@
 <style lang="stylus" scoped>
   .q-toolbar a
     line-height 1;
+
   .q-toolbar__title a
     text-decoration none
     color white

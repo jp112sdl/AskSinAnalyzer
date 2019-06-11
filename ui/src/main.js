@@ -26,6 +26,19 @@ const espService = new EspService(
 );
 Vue.prototype.$espService = espService;
 
+
+Vue.prototype.$debounce = function(fn, delay) {
+  let timeoutID = null;
+  return function() {
+    clearTimeout(timeoutID);
+    const args = arguments;
+    const that = this;
+    timeoutID = setTimeout(function() {
+      fn.apply(that, args)
+    }, delay)
+  }
+};
+
 // Init Vue
 Vue.use(Quasar, { lang, directives: { Ripple } });
 Vue.config.productionTip = false;
@@ -34,12 +47,15 @@ const vm = new Vue({
   router,
   data() {
     return {
-      telegrams: espService.telegrams,
-      devices: espService.devices,
+      data: espService.data,
       settings,
       espConfig: null,
       errors: {
-        espService: espService.errors
+        espService: espService.data.errors
+      },
+      timefilter: {
+        start: null,
+        stop: null
       }
     }
   },

@@ -1,7 +1,7 @@
 const http = require('http');
 const { parse: parseUrl } = require('url');
 
-const deviceCnt = 50;
+const deviceCnt = 30;
 
 const devices = ['-ALLE-', '-ZENTRALE-'];
 for (let i = 0; i < deviceCnt; i++) {
@@ -43,12 +43,12 @@ for (let i = 0; i < 150; i++) {
 }
 
 setInterval(() => {
-  const cnt = Math.random() * 10;
+  const cnt = Math.random() * 7;
   for (let i = 0; i < cnt; i++) {
     data.unshift(genTelegram());
   }
   data = data.slice(0, 200);
-}, 5000);
+}, 1000);
 
 
 const server = http.createServer(function(req, res) {
@@ -60,7 +60,7 @@ const server = http.createServer(function(req, res) {
       case '/getLogByLogNumber':
         const offset = url.query && url.query.lognum;
         res.write(JSON.stringify(
-          data.filter(item => offset ? item.lognumber > offset : true),
+          data.filter(item => item.lognumber > offset).slice(-50),
           null, 2)
         ); //write a response
         res.end(); //end the response
@@ -68,12 +68,20 @@ const server = http.createServer(function(req, res) {
 
       case '/getConfig':
         res.write(JSON.stringify({
-            "staticip": "0.0.0.0",
-            "staticnetmask": "0.0.0.0",
-            "staticgateway": "0.0.0.0",
+            "staticip": "123.123.123.123",
+            "staticnetmask": "255.255.255.0",
+            "staticgateway": "123.123.123.1",
             "ccuip": "192.168.1.252",
             "svanalyzeinput": "Analyzer_Input",
-            "svanalyzeoutput": "Analyzer_Output"
+            "svanalyzeoutput": "Analyzer_Output",
+            "resolve": 1,
+            "sdcardavailable": 1,
+            "sdcardsizemb": 3780,
+            "sdcardtotalspacemb": "2047",
+            "sdcardusedspacemb": "3",
+            "spiffssizekb": 1342,
+            "spiffsusedkb": 75,
+            "boottime": Math.floor(Date.now()/1000)
           }, null, 2)
         );
         res.end();

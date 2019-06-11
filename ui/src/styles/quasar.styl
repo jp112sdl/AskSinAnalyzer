@@ -1,6 +1,16 @@
 @import './quasar.variables'
 @import '~quasar-styl'
 
+.route-enter-active, .route-leave-active
+  transition: all 0.35s
+
+.route-enter, .route-leave-to
+  opacity: 0
+  transform: translate(-20%, 0);
+
+body
+  background-color #FAFAFA
+
 a
   color $primary
   text-decoration none
@@ -28,12 +38,17 @@ h3
   font-size 1.5rem
   line-height 2rem
 
+h4
+  font-size 1.1rem
+  line-height 1.5rem
+
 .bg-amber
   color: black !important
 
 .q-btn
   &.q-btn__rotate-icon
     padding-right: 45px
+
     i
       position absolute
       right: 0

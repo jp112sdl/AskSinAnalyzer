@@ -6,6 +6,10 @@
     </div>
     <table class="esp-settings-table" v-else>
       <tr>
+        <th>Booted</th>
+        <td>{{ new Date(espConfig.boottime * 1000).toLocaleString() }}</td>
+      </tr>
+      <tr>
         <th>IP:</th>
         <td>{{ espConfig.staticip }}</td>
       </tr>
@@ -22,26 +26,49 @@
         <td>{{ espConfig.ccuip }}</td>
       </tr>
       <tr>
-        <th>Input Systemvariable:</th>
+        <th>Input Sysvar:</th>
         <td>{{ espConfig.svanalyzeinput }}</td>
       </tr>
       <tr>
-        <th>Output Systemvariable:</th>
+        <th>Output Sysvar:</th>
         <td>{{ espConfig.svanalyzeoutput }}</td>
       </tr>
+      <tr>
+        <th>SD-Card:</th>
+        <td>
+          <div v-if="espConfig.sdcardavailable">
+            {{ espConfig.sdcardusedspacemb }} / {{ espConfig.sdcardtotalspacemb }} MB
+          </div>
+          <div v-else class="text-italic">Keine SD-Card</div>
+        </td>
+      </tr>
+      <tr>
+        <th>SPIFFS:</th>
+        <td>{{ espConfig.spiffsusedkb }} / {{ espConfig.spiffssizekb }} MB</td>
+      </tr>
     </table>
+    <div class="q-mt-md">
+      <q-btn icon="refresh" no-caps unelevated dense color="primary" @click="reloadConfig">
+        &nbsp;Konfiguration neu laden&nbsp;
+      </q-btn>
+    </div>
   </div>
 </template>
 
 <script>
-  import { QIcon } from 'quasar';
+  import { QIcon, QBtn } from 'quasar';
 
   export default {
     name: "EspConfigInfo",
-    components: { QIcon },
+    components: { QIcon, QBtn },
     props: {
       espConfig: {
         type: Object
+      }
+    },
+    methods: {
+      async reloadConfig() {
+        this.$root.espConfig = await this.$espService.fetchConfig();
       }
     }
   }

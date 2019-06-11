@@ -1,10 +1,12 @@
 export default class EspService {
 
-  telegrams = [];
-  devices = [];
+  data = {
+    telegrams: [],
+    devices: [],
+    errors: [],
+    errorCnt: 0,
+  };
   maxTelegrams = 100;
-  errors = [];
-  errorCnt = 0;
   refreshInterval = 2;
 
   constructor(baseUrl = '', maxTelegrams = 20000, refreshInterval = 2) {
@@ -13,23 +15,46 @@ export default class EspService {
     this.refreshInterval = refreshInterval;
   }
 
+  addTelegrams(telegrams) {
+    telegrams.forEach(t => t.flags = t.flags.split(' ').sort());
+
+    // Add telegrams
+    this.data.telegrams.splice(0, 0, ...telegrams);
+
+    // Cap collection
+    if (this.data.telegrams.length > this.maxTelegrams) {
+      this.data.telegrams.splice(this.maxTelegrams, this.data.telegrams.length - this.maxTelegrams);
+    }
+
+    // Generate unique devices list
+    let devices = new Set();
+    this.data.telegrams.forEach(({ from, to }) => {
+      if (!devices.has(from)) devices.add(from);
+      if (!devices.has(to)) devices.add(to);
+    });
+    devices = [...devices].sort();
+    this.data.devices.splice(0, this.data.devices.length, ...devices);
+  }
+
   async autorefresh() {
     try {
-      const lastLognumber = this.telegrams[0] && this.telegrams[0].lognumber || 0;
+      const lastLognumber = this.data.telegrams[0] && this.data.telegrams[0].lognumber || 0;
       let telegrams = await this.fetchLog(lastLognumber);
-      this.errors = [];
-      this.errorCnt = 0;
+      // Quickly get more telegrams if result holds 50 (max return from esp)
+      const refreshInterval = telegrams.length === 50 ? 0 : this.refreshInterval * 1000;
+      this.data.errors = [];
+      this.data.errorCnt = 0;
       if (telegrams.length) this.addTelegrams(telegrams);
-      setTimeout(() => this.autorefresh(), this.refreshInterval * 1000)
+      setTimeout(() => this.autorefresh(), refreshInterval)
     }
     catch (err) {
       const msg = `API Error getLogByLogNumber: ${ err.message }`;
-      if (!this.errors.includes(msg)) this.errors.unshift(msg);
-      this.errorCnt++;
-      if (this.errorCnt < 5) {
+      if (!this.data.errors.includes(msg)) this.data.errors.unshift(msg);
+      this.data.errorCnt++;
+      if (this.data.errorCnt < 5) {
         setTimeout(() => this.autorefresh(), this.refreshInterval * 1000);
       } else {
-        this.errors.unshift('Too many errors, telegram fetching stopped. Reload App to retry.')
+        this.data.errors.unshift('Too many errors, telegram fetching stopped. Reload App to retry.')
       }
       console.error(err);
     }
@@ -47,8 +72,8 @@ export default class EspService {
     }
     catch (err) {
       err.message = `API Error getConfig: ${ err.message }`;
-      this.errors.unshift(err.message);
-      this.errorCnt++;
+      this.data.errors.unshift(err.message);
+      this.data.errorCnt++;
       throw err;
     }
   }
@@ -81,27 +106,6 @@ export default class EspService {
       if (!err.response) err.message = 'Network Error! Verify Analyzer IP';
       throw err;
     }
-  }
-
-  addTelegrams(telegrams) {
-    telegrams.forEach(t => t.flags = t.flags.split(' ').sort());
-
-    // Add telegrams
-    this.telegrams.splice(0, 0, ...telegrams);
-
-    // Cap collection
-    if (this.telegrams.length > this.maxTelegrams) {
-      this.telegrams.splice(this.maxTelegrams, this.telegrams.length - this.maxTelegrams);
-    }
-
-    // Generate unique devices list
-    let devices = new Set();
-    this.telegrams.forEach(({ from, to }) => {
-      if (!devices.has(from)) devices.add(from);
-      if (!devices.has(to)) devices.add(to);
-    });
-    devices = [...devices].sort();
-    this.devices.splice(0, this.devices.length, ...devices);
   }
 
 }

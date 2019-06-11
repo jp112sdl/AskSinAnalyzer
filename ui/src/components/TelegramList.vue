@@ -2,41 +2,18 @@
   <div>
     <div class="q-pb-md flex justify-between items-center">
       <div>
-        {{ this.filtered.length }} von {{ this.value.length }} Telegramme
-      </div>
-      <div>
-        <q-btn-group>
-          <q-btn v-if="stopAtLognumber" color="secondary" icon="refresh" @click="refresh" title="Zeige aktuelle Telegramme"/>
-          <q-btn
-            :color="stopAtLognumber === null ? 'secondary' : 'amber'"
-            :icon="stopAtLognumber === null ? 'autorenew' : 'play_arrow'"
-            :class="{ 'q-btn__rotate-icon': stopAtLognumber === null }"
-            no-caps
-            :label="stopAtLognumber === null ? 'updating' : 'update'"
-            @click="toggleRefresh"
-            title="Auto-Update"
-          />
-        </q-btn-group>
+        {{ filtered.length }} von {{ value.length }} Telegramme
       </div>
     </div>
     <q-markup-table>
       <thead>
       <tr>
-        <td class="text-left">
-          <q-btn label="Zeit" unelevated no-caps :color="filter.start || filter.stop ? 'secondary' : 'grey-7'" title="Zeit Filter">
-            <q-menu transition-show="jump-down" transition-hide="jump-up">
-              <div class="q-pa-sm">
-                <time-filter v-model="filter.start" label="Von" autofocus class="q-mb-sm"/>
-                <time-filter v-model="filter.stop" label="Bis"/>
-              </div>
-            </q-menu>
-          </q-btn>
-        </td>
+        <td class="text-left">Zeit</td>
         <td class="text-left">
           <q-btn label="Von" unelevated no-caps :color="filter.from.length ? 'secondary' : 'grey-7'" title="Von-Device Filter">
             <q-menu transition-show="jump-down" transition-hide="jump-up">
               <div class="q-pa-sm">
-                <select-filter v-model="filter.from" :options="$root.devices" autofocus label="Devices"/>
+                <select-filter v-model="filter.from" :options="$root.data.devices" autofocus label="Devices"/>
               </div>
             </q-menu>
           </q-btn>
@@ -45,7 +22,7 @@
           <q-btn label="An" unelevated no-caps :color="filter.to.length ? 'secondary' : 'grey-7'" title="An-Device Filter">
             <q-menu transition-show="jump-down" transition-hide="jump-up">
               <div class="q-pa-sm">
-                <select-filter v-model="filter.to" :options="$root.devices" autofocus label="Devices"/>
+                <select-filter v-model="filter.to" :options="$root.data.devices" autofocus label="Devices"/>
               </div>
             </q-menu>
           </q-btn>
@@ -122,7 +99,6 @@
   import { QBtn, QBtnGroup, QMarkupTable, QMenu, QPage, QPagination, QSelect, QList, QItem, QCheckbox } from 'quasar';
   import RssiValue from './RssiValue';
   import FlagChip from './FlagChip';
-  import TimeFilter from './filters/TimeFilter';
   import SelectFilter from './filters/SelectFilter';
   import RssiFilter from './filters/RssiFilter';
 
@@ -130,7 +106,7 @@
     name: 'TelegramList',
     components: {
       QPage, QMarkupTable, QPagination, QBtn, QBtnGroup, QMenu, QSelect, QList, QItem, QCheckbox,
-      RssiValue, FlagChip, TimeFilter, SelectFilter, RssiFilter,
+      RssiValue, FlagChip, SelectFilter, RssiFilter,
     },
 
     props: {
@@ -145,7 +121,6 @@
       return {
         currPage: 1,
         perPage: 25,
-        stopAtLognumber: null,
         filter: {
           start: null,
           stop: null,
@@ -159,10 +134,10 @@
 
     computed: {
       filtered() {
+        const { start, stop } = this.$root.timefilter;
         let result = this.value;
-        if (this.stopAtLognumber) result = result.filter(v => v.lognumber <= this.stopAtLognumber);
-        if (this.filter.start) result = result.filter(v => v.tstamp >= this.filter.start);
-        if (this.filter.stop) result = result.filter(v => v.tstamp <= this.filter.stop);
+        if (start) result = result.filter(v => v.tstamp >= start);
+        if (stop) result = result.filter(v => v.tstamp <= stop);
         if (this.filter.from.length) result = result.filter(v => this.filter.from.includes(v.from));
         if (this.filter.to.length) result = result.filter(v => this.filter.to.includes(v.to));
         if (this.filter.rssi.length) {
@@ -189,24 +164,7 @@
       }
     },
 
-    watch: {
-      currPage(v) {
-        if (v > 1) this.refresh();
-      }
-    },
-
     methods: {
-      toggleRefresh() {
-        if (this.stopAtLognumber) {
-          this.stopAtLognumber = null;
-          this.currPage = 1;
-        } else {
-          this.refresh();
-        }
-      },
-      refresh() {
-        this.stopAtLognumber = this.value[0].lognumber;
-      },
       getDeviceColor(v) {
         return (v.length === 6 && v !== '-ALLE-') ? 'red' : 'black';
       },
