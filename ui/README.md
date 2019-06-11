@@ -16,6 +16,6 @@ npm run dev
 
 ### Compiles and minifies for production
 ```
-export CDN=https://user.github.io/AskSinAnalyzer
+export VUE_APP_CDN_URL=https://user.github.io/AskSinAnalyzer
 npm run build
 ```

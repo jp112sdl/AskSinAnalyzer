@@ -21,7 +21,7 @@ module.exports = {
         args[0].inject = process.env.NODE_ENV !== 'production';
         args[0].minify = false;
         args[0].templateParameters = {
-          CDN: process.env.CDN_URL || '',
+          CDN: process.env.VUE_APP_CDN_URL || '',
           NODE_ENV: process.env.NODE_ENV,
         };
         return args;

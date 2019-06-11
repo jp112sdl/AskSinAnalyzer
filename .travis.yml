@@ -10,7 +10,7 @@ branches:
 before_script:
   - export OWNER="$(echo $TRAVIS_REPO_SLUG | cut -d/ -f1)"
   - export REPO="$(echo $TRAVIS_REPO_SLUG | cut -d/ -f2)"
-  - export CDN_URL="https://$OWNER.github.io/$REPO/$TRAVIS_BRANCH"
+  - export VUE_APP_CDN_URL="https://$OWNER.github.io/$REPO/$TRAVIS_BRANCH"
 
 script:
   - cd ui

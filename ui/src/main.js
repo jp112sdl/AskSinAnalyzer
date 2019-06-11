@@ -47,6 +47,7 @@ const vm = new Vue({
   router,
   data() {
     return {
+      CDN: process.env.VUE_APP_CDN_URL || '',
       data: espService.data,
       settings,
       espConfig: null,
