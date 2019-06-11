@@ -47,11 +47,11 @@
         <td>{{ espConfig.spiffsusedkb }} kB belegt / {{ espConfig.spiffssizekb }} kB gesamt</td>
       </tr>
     </table>
-    <div class="q-mt-md">
+<!--    <div class="q-mt-md">
       <q-btn icon="refresh" no-caps unelevated dense color="primary" @click="reloadConfig">
         &nbsp;Konfiguration neu laden&nbsp;
       </q-btn>
-    </div>
+    </div>-->
   </div>
 </template>
 
