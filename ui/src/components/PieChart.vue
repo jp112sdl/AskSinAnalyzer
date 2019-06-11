@@ -64,7 +64,6 @@
           layout: 'vertical',
           maxHeight: 330
         },
-        credits: false,
         series: [{
           name: 'Telegrams',
           colorByPoint: true,

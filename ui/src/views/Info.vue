@@ -55,6 +55,17 @@
       </q-card-section>
     </q-card>
 
+    <h2 class="q-mt-xl">Lizenz</h2>
+    <q-card flat>
+      <q-card-section>
+        <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/de/" rel="noopener noreferrer" target="_blank">
+          CC BY-NC-SA 3.0 DE
+        </a>
+        <br />
+        It is NOT free for commercial and governmental use!
+      </q-card-section>
+    </q-card>
+
     <h2 class="q-mt-xl">Authors</h2>
     <q-card flat>
       <q-card-section>

@@ -70,7 +70,6 @@
         title: { text: 'Telegramme' },
         exporting: { enabled: false },
         yAxis: { max: 12, tickAmount: 4 },
-        credits: false,
         series: [{
           name: 'Telegramme pro Sekunde',
           type: 'area',

@@ -68,9 +68,11 @@ const server = http.createServer(function(req, res) {
 
       case '/getConfig':
         res.write(JSON.stringify({
-            "staticip": "123.123.123.123",
-            "staticnetmask": "255.255.255.0",
-            "staticgateway": "123.123.123.1",
+            "staticipconfig": 0,
+            "ip": "192.168.1.191",
+            "netmask": "255.255.255.0",
+            "gateway": "192.168.1.1",
+            "macaddress": "30:AE:A4:38:88:6C",
             "ccuip": "192.168.1.252",
             "svanalyzeinput": "Analyzer_Input",
             "svanalyzeoutput": "Analyzer_Output",
@@ -78,10 +80,10 @@ const server = http.createServer(function(req, res) {
             "sdcardavailable": 1,
             "sdcardsizemb": 3780,
             "sdcardtotalspacemb": "2047",
-            "sdcardusedspacemb": "3",
+            "sdcardusedspacemb": "4",
             "spiffssizekb": 1342,
-            "spiffsusedkb": 75,
-            "boottime": Math.floor(Date.now()/1000)
+            "spiffsusedkb": 79,
+            "boottime": 1560261538
           }, null, 2)
         );
         res.end();

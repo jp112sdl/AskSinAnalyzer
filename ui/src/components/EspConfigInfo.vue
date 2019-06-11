@@ -10,16 +10,16 @@
         <td>{{ new Date(espConfig.boottime * 1000).toLocaleString() }}</td>
       </tr>
       <tr>
-        <th>IP:</th>
-        <td>{{ espConfig.staticip }}</td>
+        <th>{{ espConfig.staticipconfig ? 'Statische' : 'DHCP' }} IP:</th>
+        <td>{{ espConfig.ip }}</td>
       </tr>
       <tr>
         <th>Netmask:</th>
-        <td>{{ espConfig.staticnetmask }}</td>
+        <td>{{ espConfig.netmask }}</td>
       </tr>
       <tr>
         <th>Gateway:</th>
-        <td>{{ espConfig.staticgateway }}</td>
+        <td>{{ espConfig.gateway }}</td>
       </tr>
       <tr>
         <th>CCU-IP:</th>
