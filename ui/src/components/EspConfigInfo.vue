@@ -6,7 +6,7 @@
     </div>
     <table class="esp-settings-table" v-else>
       <tr>
-        <th>Booted</th>
+        <th>Booted:</th>
         <td>{{ new Date(espConfig.boottime * 1000).toLocaleString() }}</td>
       </tr>
       <tr>
@@ -22,7 +22,7 @@
         <td>{{ espConfig.gateway }}</td>
       </tr>
       <tr>
-        <th>NTP-Server</th>
+        <th>NTP-Server:</th>
         <td>{{ espConfig.ntp }}</td>
       </tr>
       <tr>
