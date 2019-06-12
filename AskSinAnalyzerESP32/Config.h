@@ -6,6 +6,7 @@
 #define JSONCONFIG_IP                     "ip"
 #define JSONCONFIG_NETMASK                "netmask"
 #define JSONCONFIG_GW                     "gw"
+#define JSONCONFIG_NTP                    "ntp"
 #define JSONCONFIG_CCUIP                  "ccuip"
 #define JSONCONFIG_SVANALYZEINPUT         "svanalyzeinput"
 #define JSONCONFIG_SVANALYZEOUTPUT        "svanalyzeoutput"
@@ -38,6 +39,10 @@ bool loadSystemConfig() {
           ((json[JSONCONFIG_IP]).as<String>()).toCharArray(NetConfig.ip, IPSIZE);
           ((json[JSONCONFIG_NETMASK]).as<String>()).toCharArray(NetConfig.netmask, IPSIZE);
           ((json[JSONCONFIG_GW]).as<String>()).toCharArray(NetConfig.gw, IPSIZE);
+
+          String _ntp = (json[JSONCONFIG_NTP]).as<String>();
+          strcpy(NetConfig.ntp, (_ntp == "null") ? DEFAULT_NTP_SERVER : _ntp.c_str());
+
           ((json[JSONCONFIG_CCUIP]).as<String>()).toCharArray(HomeMaticConfig.ccuIP, IPSIZE);
           ((json[JSONCONFIG_SVANALYZEINPUT]).as<String>()).toCharArray(HomeMaticConfig.SVAnalyzeInput, VARIABLESIZE);
           ((json[JSONCONFIG_SVANALYZEOUTPUT]).as<String>()).toCharArray(HomeMaticConfig.SVAnalyzeOutput, VARIABLESIZE);
@@ -56,6 +61,7 @@ bool saveSystemConfig() {
   json[JSONCONFIG_IP] = NetConfig.ip;
   json[JSONCONFIG_NETMASK] = NetConfig.netmask;
   json[JSONCONFIG_GW] = NetConfig.gw;
+  json[JSONCONFIG_NTP] = NetConfig.ntp;
   json[JSONCONFIG_CCUIP] = HomeMaticConfig.ccuIP;
   json[JSONCONFIG_SVANALYZEINPUT] = HomeMaticConfig.SVAnalyzeInput;
   json[JSONCONFIG_SVANALYZEOUTPUT] = HomeMaticConfig.SVAnalyzeOutput;

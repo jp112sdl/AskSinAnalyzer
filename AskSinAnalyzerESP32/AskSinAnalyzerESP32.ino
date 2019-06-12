@@ -62,13 +62,16 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 #define CSV_HEADER                  "num;time;rssi;from;to;len;cnt;typ;flags;"
 
 #define IPSIZE                16
+#define VARIABLESIZE          255
+#define DEFAULT_NTP_SERVER    "0.de.pool.ntp.org"
+
 struct _NetConfig {
-  char ip[IPSIZE]      = "0.0.0.0";
-  char netmask[IPSIZE] = "0.0.0.0";
-  char gw[IPSIZE]      = "0.0.0.0";
+  char ip[IPSIZE]         = "0.0.0.0";
+  char netmask[IPSIZE]    = "0.0.0.0";
+  char gw[IPSIZE]         = "0.0.0.0";
+  char ntp[VARIABLESIZE]  = DEFAULT_NTP_SERVER;
 } NetConfig;
 
-#define VARIABLESIZE         255
 struct _HomeMaticConfig {
   char ccuIP[IPSIZE]   = "";
   char SVAnalyzeInput[VARIABLESIZE] = "";

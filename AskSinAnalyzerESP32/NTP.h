@@ -9,7 +9,6 @@
 const int NTP_PACKET_SIZE = 48;
 byte packetBuffer[ NTP_PACKET_SIZE];
 unsigned int localPort = 2390;
-char ntpServerName[50] = "0.de.pool.ntp.org";
 WiFiUDP udp;
 
 unsigned long sendNTPpacket(IPAddress& address) {
@@ -30,7 +29,7 @@ unsigned long sendNTPpacket(IPAddress& address) {
 time_t getNtpTime() {
   IPAddress ntpServerIP;
   while (udp.parsePacket() > 0) ;
-  WiFi.hostByName(ntpServerName, ntpServerIP);
+  WiFi.hostByName(NetConfig.ntp, ntpServerIP);
   sendNTPpacket(ntpServerIP);
   uint32_t beginWait = millis();
   while (millis() - beginWait < 1600) {
@@ -42,7 +41,7 @@ time_t getNtpTime() {
       secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
       secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
       secsSince1900 |= (unsigned long)packetBuffer[43];
-      DPRINTLN("NTP time was set");
+      DPRINTLN("NTP time was set from " + String(NetConfig.ntp));
       return secsSince1900 - 2208988800UL;
     }
   }
@@ -56,7 +55,7 @@ bool doNTPinit() {
     setSyncInterval(3600);
     byte timeSetRetries = 0;
     while (timeStatus() == timeNotSet) {
-      DPRINTLN("Waiting for Time set");
+      DPRINTLN("Waiting for Time from " + String(NetConfig.ntp));
       delay(2000);
       if (timeSetRetries > 5) {
         DPRINTLN("Timeout!");

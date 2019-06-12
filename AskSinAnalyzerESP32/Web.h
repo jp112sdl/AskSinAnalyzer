@@ -20,6 +20,8 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"ip\":\"" +  String(WiFi.localIP().toString()) + "\"";
   json += ",";
+  json += "\"ntp\":\"" +  String(NetConfig.ntp) + "\"";
+  json += ",";
   json += "\"netmask\":\"" + String(WiFi.subnetMask().toString()) + "\"";
   json += ",";
   json += "\"gateway\":\"" + String(WiFi.gatewayIP().toString()) + "\"";

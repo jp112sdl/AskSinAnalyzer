@@ -87,6 +87,7 @@ bool doWifiConnect() {
     WiFiManagerParameter custom_ip("custom_ip", "IP-Adresse", (String(NetConfig.ip) != "0.0.0.0") ? NetConfig.ip : "", IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
     WiFiManagerParameter custom_netmask("custom_netmask", "Netzmaske", (String(NetConfig.netmask) != "0.0.0.0") ? NetConfig.netmask : "", IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
     WiFiManagerParameter custom_gw("custom_gw", "Gateway",  (String(NetConfig.gw) != "0.0.0.0") ? NetConfig.gw : "", IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
+    WiFiManagerParameter custom_ntp("custom_ntp", "NTP-Server (leave blank to reset to default)", NetConfig.ntp, VARIABLESIZE, "pattern='[A-Za-z0-9_ -.]+'");
     WiFiManagerParameter custom_ccuip("ccu", "IP der CCU", HomeMaticConfig.ccuIP, IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
     WiFiManagerParameter custom_svanalyzeinput("svanalyzeinput", "SV Analyze Input", HomeMaticConfig.SVAnalyzeInput, VARIABLESIZE, "pattern='[A-Za-z0-9_ -]+'");
     WiFiManagerParameter custom_svanalyzeoutput("svanalyzeoutput", "SV Analyze Output", HomeMaticConfig.SVAnalyzeOutput, VARIABLESIZE, "pattern='[A-Za-z0-9_ -]+'");
@@ -103,6 +104,7 @@ bool doWifiConnect() {
     wifiManager.addParameter(&custom_ip);
     wifiManager.addParameter(&custom_netmask);
     wifiManager.addParameter(&custom_gw);
+    wifiManager.addParameter(&custom_ntp);
 
     if (!wifiManager.startConfigPortal("AskSinAnalyzer-AP")) {
       DPRINTLN("failed to connect and hit timeout");
@@ -135,6 +137,13 @@ bool doWifiConnect() {
         strcpy(NetConfig.netmask, "0.0.0.0");
         strcpy(NetConfig.gw,      "0.0.0.0");
       }
+
+      if (String(custom_ntp.getValue()).length() > 1 && custom_ntp.getValue() != "null") {
+        strcpy(NetConfig.ntp, custom_ntp.getValue());
+      } else {
+        strcpy(NetConfig.ntp, DEFAULT_NTP_SERVER);
+      }
+
       strcpy(HomeMaticConfig.ccuIP, custom_ccuip.getValue());
       strcpy(HomeMaticConfig.SVAnalyzeInput, custom_svanalyzeinput.getValue());
       strcpy(HomeMaticConfig.SVAnalyzeOutput, custom_svanalyzeoutput.getValue());
