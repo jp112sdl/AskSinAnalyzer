@@ -1,12 +1,18 @@
 const http = require('http');
 const { parse: parseUrl } = require('url');
 
-const deviceCnt = 30;
+const devices = {
+  '-ALLE-': null,
+  '-ZENTRALE-': null,
+  'OEQ1245618': 'Küche Licht Decke',
+  'OEQ1849578': 'Keller Licht',
+  'PsiDimDW07': 'Wohnzimmer Ambilight',
+  'Psi_Temp01': 'Wohnzimmer Temperatur',
+  'OEQ2565942': 'Terassenbeleuchtung',
+  'OEQ1850194': 'Wohnzimmer Licht'
+};
 
-const devices = ['-ALLE-', '-ZENTRALE-'];
-for (let i = 0; i < deviceCnt; i++) {
-  devices.push('QEQ' + (Math.round(Math.random() * 10000000).toString() + '0000000').slice(0, 7));
-}
+const SNs = Object.keys(devices);
 
 const typs = [
   'INFO',
@@ -27,8 +33,8 @@ function genTelegram() {
     "tstamp": Math.round(Date.now() / 1000),
     "lognumber": lognumber,
     "rssi": -1 * Math.round(Math.random() * 120) - 20,
-    "from": devices[Math.floor(Math.random() * devices.length)],
-    "to": devices[Math.floor(Math.random() * devices.length)],
+    "from": SNs[Math.floor(Math.random() * SNs.length)],
+    "to": SNs[Math.floor(Math.random() * SNs.length)],
     "len": Math.round(Math.random() * 100),
     "cnt": Math.round(Math.random() * 100),
     "typ": typs[Math.floor(Math.random() * typs.length)],
@@ -37,10 +43,6 @@ function genTelegram() {
 }
 
 let data = [];
-
-for (let i = 0; i < 150; i++) {
-  data.unshift(genTelegram());
-}
 
 setInterval(() => {
   const cnt = Math.random() * 7;
@@ -73,7 +75,7 @@ const server = http.createServer(function(req, res) {
             "netmask": "255.255.255.0",
             "gateway": "192.168.1.1",
             "macaddress": "30:AE:A4:38:88:6C",
-            "ccuip": "192.168.1.252",
+            "ccuip": "192.168.178.39",
             "svanalyzeinput": "Analyzer_Input",
             "svanalyzeoutput": "Analyzer_Output",
             "resolve": 1,
@@ -83,7 +85,8 @@ const server = http.createServer(function(req, res) {
             "sdcardusedspacemb": "4",
             "spiffssizekb": 1342,
             "spiffsusedkb": 79,
-            "boottime": 1560261538
+            "boottime": Math.floor(Date.now() / 1000),
+            "ntp": "0.de.pool.ntp.org",
           }, null, 2)
         );
         res.end();
@@ -101,6 +104,13 @@ const server = http.createServer(function(req, res) {
       case '/deletecsv':
       case '/index.html':
         res.write(':)');
+        res.end();
+        break;
+
+      case '/getDeviceNameBySerial':
+        const sn = url.query && url.query.Serial;
+        const name = devices[sn] || null;
+        res.write(JSON.stringify(name));
         res.end();
         break;
 

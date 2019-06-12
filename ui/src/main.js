@@ -13,7 +13,8 @@ import EspService from './EspService';
 const defaultSettings = {
   maxTelegrams: 100000,
   refreshInterval: 1,
-  espIp: ''
+  espIp: '',
+  resolveNames: true
 };
 const storedSettings = JSON.parse(localStorage.getItem('AskSinAnalyzer_Settings'));
 const settings = { ...defaultSettings, ...storedSettings };
@@ -22,7 +23,8 @@ const settings = { ...defaultSettings, ...storedSettings };
 const espService = new EspService(
   settings.espIp ? `http://${ settings.espIp }` : '',
   settings.maxTelegrams,
-  settings.refreshInterval
+  settings.refreshInterval,
+  settings.resolveNames
 );
 Vue.prototype.$espService = espService;
 
@@ -67,10 +69,11 @@ const vm = new Vue({
 (async function() {
   try {
     vm.espConfig = await espService.fetchConfig();
+    // Periodically fetch new telegrams
+    espService.autorefresh();
   } catch (e) {
     console.error(e);
   }
 })();
 
-// Periodically fetch new telegrams
-espService.autorefresh();
+

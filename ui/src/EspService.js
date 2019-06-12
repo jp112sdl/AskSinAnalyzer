@@ -3,16 +3,19 @@ export default class EspService {
   data = {
     telegrams: [],
     devices: [],
+    espConfig: {},
     errors: [],
     errorCnt: 0,
   };
   maxTelegrams = 100;
   refreshInterval = 2;
+  names = new Map();
 
-  constructor(baseUrl = '', maxTelegrams = 20000, refreshInterval = 2) {
+  constructor(baseUrl = '', maxTelegrams = 20000, refreshInterval = 2, resolveNames = true) {
     this.baseUrl = baseUrl;
     this.maxTelegrams = maxTelegrams;
     this.refreshInterval = refreshInterval;
+    this.resolveNames = resolveNames;
   }
 
   addTelegrams(telegrams) {
@@ -62,13 +65,23 @@ export default class EspService {
 
   async fetchLog(offset = 0) {
     const res = await this._fetch(`${ this.baseUrl }/getLogByLogNumber?lognum=${ offset }`);
-    return await res.json();
+    const json = await res.json();
+    if(this.resolveNames) {
+      const SNs = [... new Set(json.map(t => t.from).concat(json.map(t => t.to)))];
+      await Promise.all(SNs.map(async sn => this.resolveName(sn)));
+      json.forEach(t => {
+        t.from = this.names.get(t.from) || t.from;
+        t.to = this.names.get(t.to) || t.to;
+      });
+    }
+    return json;
   }
 
   async fetchConfig() {
     try {
       const res = await this._fetch(`${ this.baseUrl }/getConfig`);
-      return await res.json();
+      this.data.espConfig = await res.json();
+      return this.data.espConfig;
     }
     catch (err) {
       err.message = `API Error getConfig: ${ err.message }`;
@@ -106,6 +119,25 @@ export default class EspService {
       if (!err.response) err.message = 'Network Error! Verify Analyzer IP';
       throw err;
     }
+  }
+
+  async resolveName(serial) {
+    if(['-ALLE-', '-ZENTRALE-'].includes(serial)) return null;
+    if(this.names.has(serial)) return this.names.get(serial);
+    if(serial.length !== 10) {
+      this.names.set(serial, null);
+      throw new Error(`Not resolving ${serial} due to wrong length`);
+    }
+    if(!this.data.espConfig.ccuip) throw new Error(`Not resolving ${serial} due to unknown CCU IP`);
+    try {
+      const name = await (await this._fetch(`${ this.baseUrl }/getDeviceNameBySerial?Serial=${ serial }`)).json();
+      this.names.set(serial, name);
+      return name;
+    } catch (e) {
+      this.names.set(serial, null);
+      console.error(e);
+    }
+    return null;
   }
 
 }

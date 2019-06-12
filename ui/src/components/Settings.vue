@@ -6,6 +6,15 @@
       Auf einem anderne Geräte müssen sie erneut gesetzt werden.
     </p>
     <q-form @submit="handleSubmit" @reset="handleReset" class="q-gutter-md q-mt-md">
+      <div>
+        <q-toggle
+          label="CCU Namen auflösen"
+          v-model="settings.resolveNames"
+        />
+        <div class="q-field__bottom">
+          Auflösen und Anzeige der ReGa-Namen anstelle der Seriennummer.
+        </div>
+      </div>
       <q-input
         v-model="settings.maxTelegrams"
         outlined
