@@ -46,6 +46,10 @@
         <th>SPIFFS:</th>
         <td>{{ espConfig.spiffsusedkb }} kB belegt / {{ espConfig.spiffssizekb }} kB gesamt</td>
       </tr>
+      <tr>
+        <th>NTP-Server</th>
+        <td>{{ espConfig.ntp }}</td>
+      </tr>
     </table>
 <!--    <div class="q-mt-md">
       <q-btn icon="refresh" no-caps unelevated dense color="primary" @click="reloadConfig">

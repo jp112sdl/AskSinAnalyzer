@@ -69,7 +69,7 @@
     <h2 class="q-mt-xl">Authors</h2>
     <q-card flat>
       <q-card-section>
-        <ul>
+        <ul style="margin: 0;">
           <li>
             <a href="https://github.com/jp112sdl" target="_blank" rel="noopener noreferrer">
               Jérôme Pech
