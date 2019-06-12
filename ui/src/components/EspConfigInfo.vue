@@ -22,6 +22,10 @@
         <td>{{ espConfig.gateway }}</td>
       </tr>
       <tr>
+        <th>NTP-Server</th>
+        <td>{{ espConfig.ntp }}</td>
+      </tr>
+      <tr>
         <th>CCU-IP:</th>
         <td>{{ espConfig.ccuip }}</td>
       </tr>
@@ -45,10 +49,6 @@
       <tr>
         <th>SPIFFS:</th>
         <td>{{ espConfig.spiffsusedkb }} kB belegt / {{ espConfig.spiffssizekb }} kB gesamt</td>
-      </tr>
-      <tr>
-        <th>NTP-Server</th>
-        <td>{{ espConfig.ntp }}</td>
       </tr>
     </table>
 <!--    <div class="q-mt-md">
