@@ -60,7 +60,7 @@ bool doWifiConnect() {
   const char* netmaskStr = NetConfig.netmask; byte netmaskBytes[4]; parseBytes(netmaskStr, '.', netmaskBytes, 4, 10);
   const char* gwStr = NetConfig.gw; byte gwBytes[4]; parseBytes(gwStr, '.', gwBytes, 4, 10);
 
-  if (!startWifiManager && _ssid != "none" && _psk != "none" ) {
+  if (!startWifiManager && _ssid != "" && _psk != "" ) {
     digitalWrite(AP_MODE_LED_PIN, LOW);
     if (String(NetConfig.ip) != "0.0.0.0") {
       WiFi.config(IPAddress(ipBytes[0], ipBytes[1], ipBytes[2], ipBytes[3]), IPAddress(gwBytes[0], gwBytes[1], gwBytes[2], gwBytes[3]), IPAddress(netmaskBytes[0], netmaskBytes[1], netmaskBytes[2], netmaskBytes[3]));

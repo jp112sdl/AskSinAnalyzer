@@ -10,14 +10,14 @@
 
 //http://CCU_IP:8181/cuxd.exe?ret=dom.GetObject((xmlrpc.GetObjectByHSSAddress(interfaces.Get("BidCos-RF"),"<SERIAL>:0")).Name())
 
-bool setCCURequest(String val) {
+String setCCURequest(String req) {
   if (WiFi.status() == WL_CONNECTED) {
-    #ifdef USE_DISPLAY
+#ifdef USE_DISPLAY
     drawStatusCircle(ILI9341_BLUE);
-    #endif
+#endif
     HTTPClient http;
     //http.setTimeout(HTTPTimeOut);
-    String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + String(HomeMaticConfig.SVAnalyzeInput) + "%22).State(%22" + val + "%22)";
+    String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(" + req + ")";
     DPRINTLN("setCCURequest url: " + url);
     http.begin(url);
     int httpCode = http.GET();
@@ -36,15 +36,18 @@ bool setCCURequest(String val) {
     payload = payload.substring(5, payload.indexOf("</ret>"));
 
     DPRINTLN("result: " + payload);
-    return (payload != "null");
-  } else return false;
+#ifdef USE_DISPLAY
+    drawStatusCircle(ILI9341_GREEN);
+#endif
+    return payload;
+  } else return "null";
 }
 
 String getCCURequestResult() {
   if (WiFi.status() == WL_CONNECTED) {
-    #ifdef USE_DISPLAY
+#ifdef USE_DISPLAY
     drawStatusCircle(ILI9341_BLUE);
-    #endif
+#endif
     HTTPClient http;
     //http.setTimeout(HTTPTimeOut);
     String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + String(HomeMaticConfig.SVAnalyzeOutput) + "%22).State()";

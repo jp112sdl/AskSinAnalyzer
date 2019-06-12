@@ -80,10 +80,7 @@ String getSerialFromAddress(String in) {
     }
 
     if  (WiFi.status() == WL_CONNECTED) {
-      if (setCCURequest(in) == true) {
-#ifdef USE_DISPLAY
-        drawStatusCircle(ILI9341_GREEN);
-#endif
+      if (setCCURequest("%22" + String(HomeMaticConfig.SVAnalyzeInput) + "%22).State(%22" + in + "%22") != "null") {
         delay(250);
         String res = getCCURequestResult();
         if (res.length() > 7 && res.substring(0, 6) == in) {

@@ -54,7 +54,7 @@ void getConfig (AsyncWebServerRequest *request) {
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Access-Control-Allow-Origin", "*");
   response->addHeader("Content-Length", String(json.length()));
-  request->send(200, "text/json", json);
+  request->send(200, "application/json", json);
 }
 
 void getLogByLogNumber (AsyncWebServerRequest *request) {
@@ -63,7 +63,7 @@ void getLogByLogNumber (AsyncWebServerRequest *request) {
     AsyncWebParameter* p = request->getParam("lognum");
     lognum = p->value().toInt();
   }
-  AsyncResponseStream *response = request->beginResponseStream("text/json");
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
   response->addHeader("Access-Control-Allow-Origin", "*");
   response->print("[");
 
@@ -139,7 +139,7 @@ void getLogByTimestamp (AsyncWebServerRequest *request) {
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Access-Control-Allow-Origin", "*");
   response->addHeader("Content-Length", String(json.length()));
-  request->send(200, "text/json", json);
+  request->send(200, "application/json", json);
 }
 
 void getLog(AsyncWebServerRequest *request) {
@@ -184,9 +184,28 @@ void getLog(AsyncWebServerRequest *request) {
   json += "]";
 
   json += "}";
-  request->send(200, "text/json", json);
+  request->send(200, "application/json", json);
 }
 
+void getDeviceNameBySerial(AsyncWebServerRequest *request) {
+  String serial = "";
+  if (request->hasParam("Serial")) {
+    AsyncWebParameter* p = request->getParam("Serial");
+    serial = p->value();
+  }
+
+  String page = "";
+  if (serial.length() == 10) {
+    page = setCCURequest("(xmlrpc.GetObjectByHSSAddress(interfaces.Get(\"BidCos-RF\"),\"" + serial + ":0\")).Name()");
+  }
+
+  if (page != "null") page = "\"" + page.substring(0, page.length() - 2) + "\""; //:0 aus Ergebnis abschneiden
+
+  AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Access-Control-Allow-Origin", "*");
+  response->addHeader("Content-Length", String(page.length()));
+  request->send(200, "application/json", page);
+}
 
 void defaultHtml(AsyncWebServerRequest *request) {
   String page = "";
@@ -245,6 +264,10 @@ void initWebServer() {
 
   webServer.on("/rebootconfig", HTTP_POST, [](AsyncWebServerRequest * request) {
     setBootConfigMode(request);
+  });
+
+  webServer.on("/getDeviceNameBySerial", HTTP_GET, [](AsyncWebServerRequest * request) {
+    getDeviceNameBySerial(request);
   });
 
   webServer.on("/getLogByTimestamp", HTTP_GET, [](AsyncWebServerRequest * request) {
