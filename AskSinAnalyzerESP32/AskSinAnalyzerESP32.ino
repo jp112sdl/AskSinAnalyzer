@@ -222,7 +222,7 @@ void loop() {
 
   if (msgBufferCount > 0) {
     for (uint8_t b = 0; b < msgBufferCount; b++) {
-      fillLogTable(SerialBuffer[b].Msg, SerialBuffer[b].t, b);
+      fillLogTable(SerialBuffer[b], b);
 #ifdef USE_DISPLAY
       if (logLengthDisplay < DISPLAY_LOG_LINES) logLengthDisplay++;
       if (showInfoDisplayActive == false) {

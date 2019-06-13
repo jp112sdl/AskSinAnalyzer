@@ -31,30 +31,30 @@ void receiveMessages() {
   }
 }
 
-void fillLogTable(String in, time_t t, uint8_t b) {
+void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   DPRINTLN(F("######## PROCESSING NEW MESSAGE ########"));
-  DPRINTLN("I #" + String(b) + ": " + in);
+  DPRINTLN("I #" + String(b) + ": " + sb.Msg);
 
-  String rssiIn = in.substring(1, 3);
+  String rssiIn = (sb.Msg).substring(1, 3);
   int rssi = -1 * (strtol(&rssiIn[0], NULL, 16) & 0xFF);
 
-  String lengthIn = in.substring(3, 5);
+  String lengthIn = (sb.Msg).substring(3, 5);
   uint8_t len = (strtol(&lengthIn[0], NULL, 16) & 0xFF);
 
-  String countIn = in.substring(5, 7);
+  String countIn = (sb.Msg).substring(5, 7);
   uint8_t cnt = (strtol(&countIn[0], NULL, 16) & 0xFF);
 
-  String flags = getFlags(in.substring(7, 9));
-  String typ = getTyp(in.substring(9, 11));
+  String flags = getFlags((sb.Msg).substring(7, 9));
+  String typ = getTyp((sb.Msg).substring(9, 11));
 
   String fromStr = "";
   String toStr = "";
   if (ONLINE_MODE && RESOLVE_ADDRESS) {
-    fromStr = getSerialFromAddress(in.substring(11, 17));
-    toStr = getSerialFromAddress(in.substring(17, 23));
+    fromStr = getSerialFromAddress((sb.Msg).substring(11, 17));
+    toStr = getSerialFromAddress((sb.Msg).substring(17, 23));
   } else {
-    fromStr = "  " + in.substring(11, 17) + "  ";
-    toStr = "  " + in.substring(17, 23) + "  ";
+    fromStr = "  " + (sb.Msg).substring(11, 17) + "  ";
+    toStr = "  " + (sb.Msg).substring(17, 23) + "  ";
   }
 
   if (logLength > 0) {
@@ -72,7 +72,7 @@ void fillLogTable(String in, time_t t, uint8_t b) {
   }
 
   LogTable[0].lognumber = allCount;
-  LogTable[0].time = t;
+  LogTable[0].time = sb.t;
   LogTable[0].rssi = rssi;
   memcpy(LogTable[0].from, fromStr.c_str(), 10);
   memcpy(LogTable[0].to, toStr.c_str(), 10);
