@@ -130,7 +130,11 @@ export default class EspService {
     }
     if(!this.data.espConfig.ccuip) throw new Error(`Not resolving ${serial} due to unknown CCU IP`);
     try {
-      const name = await (await this._fetch(`${ this.baseUrl }/getDeviceNameBySerial?Serial=${ serial }`)).json();
+      const blob = await (await this._fetch(`${ this.baseUrl }/getDeviceNameBySerial?Serial=${ serial }`)).blob();
+      const filereader = new FileReader();
+      const readed = new Promise(resolve => filereader.addEventListener('loadend', () => resolve(filereader.result)) );
+      filereader.readAsText(blob, 'iso-8859-1');
+      const name = await readed;
       this.names.set(serial, name);
       return name;
     } catch (e) {
