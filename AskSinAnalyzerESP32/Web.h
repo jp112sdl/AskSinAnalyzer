@@ -204,7 +204,7 @@ void getDeviceNameBySerial(AsyncWebServerRequest *request) {
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Access-Control-Allow-Origin", "*");
   response->addHeader("Content-Length", String(page.length()));
-  request->send(200, "application/json", page);
+  request->send(200, "application/json;charset=iso-8859-1", page);
 }
 
 void defaultHtml(AsyncWebServerRequest *request) {
