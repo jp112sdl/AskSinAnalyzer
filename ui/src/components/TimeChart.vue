@@ -102,7 +102,8 @@
         let data = [];
         m.forEach((v, k) => data.push([k * 1000, v]));
         data = data.sort((a, b) => a[0] - b[0]);
-        this.hightchart.series[0].setData(data, true);
+        this.hightchart.series[0].setData(data, false);
+        this.hightchart.redraw();
       }
     }
   }
