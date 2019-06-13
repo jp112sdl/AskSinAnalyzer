@@ -134,7 +134,7 @@ export default class EspService {
       const filereader = new FileReader();
       const readed = new Promise(resolve => filereader.addEventListener('loadend', () => resolve(filereader.result)) );
       filereader.readAsText(blob, 'iso-8859-1');
-      const name = await readed;
+      const name = JSON.parse(await readed);
       this.names.set(serial, name);
       return name;
     } catch (e) {
