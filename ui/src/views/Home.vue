@@ -1,12 +1,12 @@
 <template>
   <div>
     <div class="row q-col-gutter-md items-stretch">
-      <div class="col-12 col-md-5 col-xl-4">
+      <div class="col-12 col-md-5 col-xl-6">
         <q-card>
           <pie-chart :data="sentByDevice"/>
         </q-card>
       </div>
-      <div class="col-12 col-md-7 col-xl-4">
+      <div class="col-12 col-md-7 col-xl-6">
         <q-card style="height: 100%">
           <div class="q-pa-md">
             <h4>ESP Konfiguration</h4>

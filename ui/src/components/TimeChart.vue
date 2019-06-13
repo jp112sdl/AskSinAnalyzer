@@ -102,16 +102,7 @@
         let data = [];
         m.forEach((v, k) => data.push([k * 1000, v]));
         data = data.sort((a, b) => a[0] - b[0]);
-        this.hightchart.series[0].setData(data, false);
-
-        this.hightchart.redraw();
-
-        const firstTstamp = data[0][0];
-        const lastTstamp = data[data.length - 1][0];
-        if (lastTstamp - firstTstamp > 90 * 1000 && !this.extremeSet) {
-          this.hightchart.xAxis[0].setExtremes(lastTstamp - 60 * 1000);
-          this.extremeSet = true;
-        }
+        this.hightchart.series[0].setData(data, true);
       }
     }
   }
