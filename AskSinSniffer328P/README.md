@@ -3,7 +3,7 @@
 Sketch für den Arduino um die Telegramme zu sniffen.
 
 
-## Flasehn
+## Flashen
 
 Es gibt verschiedene Möglichkeiten den Sketch zu flashen:
 
