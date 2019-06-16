@@ -26,21 +26,21 @@ uint32_t getSPIFFSUsedKB() {
 
 bool initSPIFFS() {
   if (!SPIFFS.begin(true)) {
-    DPRINTLN(F("SPIFFS: Mount Failed. Trying to format..."));
+    DPRINTLN(F("  - SPIFFS: Mount Failed. Trying to format..."));
     SPIFFS.format();
     if (SPIFFS.begin(true)) {
-      DPRINTLN(F("SPIFFS: Now it is working! "));
+      DPRINTLN(F("  - SPIFFS: Now it is working! "));
     } else {
-      DPRINTLN(F("SPIFFS: FATAL: SPIFFS NOT MOUNTABLE!"));
+      DPRINTLN(F("  - SPIFFS: FATAL: SPIFFS NOT MOUNTABLE!"));
       return false;
     }
   }
-  DPRINTLN("SPIFFS: Mount OK");
-  DPRINT("SPIFFS: Total kB: ");
+  DPRINTLN("  - SPIFFS: Mount OK");
+  DPRINT(F("  - SPIFFS: Total kB: "));
   DPRINTLN(getSPIFFSSizeKB());
-  DPRINT("SPIFFS: Used  kB: ");
+  DPRINT(F("  - SPIFFS: Used  kB: "));
   DPRINTLN(getSPIFFSUsedKB());
-  DPRINT("SPIFFS: Free  kb: ");
+  DPRINT(F("  - SPIFFS: Free  kb: "));
   DPRINTLN(getSPIFFSSizeKB() - getSPIFFSUsedKB());
 
   return true;
@@ -108,7 +108,7 @@ uint8_t IRAM_ATTR deleteCSV(const char * fileName, bool createBackup) {
         return FILE_DOES_NOT_EXIST;
       }
     } else {
-      DPRINTLN(F("SPIFFS deleteCSV not done; SPIFFS not available!"));
+      DPRINTLN(F(" - SPIFFS deleteCSV not done; SPIFFS not available!"));
       return SPIFFS_NOT_AVAILABLE;
     }
   }
@@ -171,7 +171,7 @@ void IRAM_ATTR writeCSV(const char * fileName, String &csvLine) {
         DPRINTLN(F(" - SPIFFS csv : append failed"));
       }
     } else {
-      DPRINTLN(F("SPIFFS writeCSV not done; SPIFFS not available!"));
+      DPRINTLN(F(" - SPIFFS writeCSV not done; SPIFFS not available!"));
     }
   }
 }

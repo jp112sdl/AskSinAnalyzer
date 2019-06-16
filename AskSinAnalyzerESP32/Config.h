@@ -12,14 +12,15 @@
 #define JSONCONFIG_SVANALYZEOUTPUT        "svanalyzeoutput"
 
 bool loadSystemConfig() {
+  DPRINTLN(F("- LOADING CONFIG"));
   if (spiffsAvailable == true) {
-    DPRINTLN(F("loadSystemConfig(): mounted file system"));
+    DPRINTLN(F(" - mounted file system"));
     if (SPIFFS.exists(CONFIG_FILENAME)) {
       //file exists, reading and loading
-      DPRINTLN(F("loadSystemConfig(): reading config file"));
+      DPRINTLN(F(" - reading config file"));
       File configFile = SPIFFS.open(CONFIG_FILENAME, "r");
       if (configFile) {
-        DPRINTLN(F("loadSystemConfig(): opened config file"));
+        DPRINTLN(F(" - opened config file"));
         size_t size = configFile.size();
         // Allocate a buffer to store contents of the file.
         std::unique_ptr<char[]> buf(new char[size]);
@@ -28,13 +29,13 @@ bool loadSystemConfig() {
         StaticJsonDocument<1024> doc;
         DeserializationError error = deserializeJson(doc, buf.get());
         if (error) {
-          DPRINTLN(F("loadSystemConfig(): load Config JSON DeserializationError"));
+          DPRINTLN(F(" - JSON DeserializationError"));
           return false;
         } else {
           JsonObject json = doc.as<JsonObject>();
-          DPRINTLN(F("loadSystemConfig(): Content of JSON Configfile:"));
+          DPRINTLN(F(" - Content of JSON Configfile:"));
           serializeJson(doc, Serial);
-          DPRINTLN(F("\nloadSystemConfig(): JSON OK"));
+          DPRINTLN(F("\n - > JSON OK"));
 
           ((json[JSONCONFIG_IP]).as<String>()).toCharArray(NetConfig.ip, IPSIZE);
           ((json[JSONCONFIG_NETMASK]).as<String>()).toCharArray(NetConfig.netmask, IPSIZE);
@@ -48,8 +49,15 @@ bool loadSystemConfig() {
           ((json[JSONCONFIG_SVANALYZEOUTPUT]).as<String>()).toCharArray(HomeMaticConfig.SVAnalyzeOutput, VARIABLESIZE);
         }
       }
-    } else return false;
-  } else return false;
+    } else {
+      DPRINT(F(" - CONFIG File")); DPRINT(CONFIG_FILENAME); DPRINTLN(F(" does not exist."));
+      return false;
+    }
+  } else {
+    DPRINTLN(F(" - SPIFFS not available."));
+    return false;
+  }
+  DPRINTLN(F("- LOADING CONFIG: SUCCESSFUL"));
   return true;
 }
 

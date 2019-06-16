@@ -33,7 +33,7 @@ bool SdInit() {
     return false;
   }
 
-  DPRINT(F("SD Card Type  : "));
+  DPRINT(F("  - SD Card Type  : "));
   if (cardType == CARD_MMC) {
     DPRINTLN(F("MMC"));
   } else if (cardType == CARD_SD) {
@@ -44,11 +44,11 @@ bool SdInit() {
     DPRINTLN(F("UNKNOWN"));
   }
 
-  DPRINT(F("SD Card Size MB: "));
+  DPRINT(F("  - SD Card Size MB: "));
   DPRINTLN(getSDCardSizeMB());
-  DPRINT(F("Total space  MB: "));
+  DPRINT(F("  - Total space  MB: "));
   DPRINTLN(getSDCardTotalSpaceMB());
-  DPRINT(F("Used space   MB: "));
+  DPRINT(F("  - Used space   MB: "));
   DPRINTLN(getSDCardUsedSpaceMB());
 
   return true;

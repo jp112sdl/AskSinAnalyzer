@@ -41,7 +41,7 @@ time_t getNtpTime() {
       secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
       secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
       secsSince1900 |= (unsigned long)packetBuffer[43];
-      DPRINTLN("NTP time was set from " + String(NetConfig.ntp));
+      DPRINTLN(" - NTP time was set from " + String(NetConfig.ntp));
       return secsSince1900 - 2208988800UL;
     }
   }
@@ -55,10 +55,10 @@ bool doNTPinit() {
     setSyncInterval(3600);
     byte timeSetRetries = 0;
     while (timeStatus() == timeNotSet) {
-      DPRINTLN("Waiting for Time from " + String(NetConfig.ntp));
+      DPRINTLN(" - Waiting for Time from " + String(NetConfig.ntp));
       delay(2000);
       if (timeSetRetries > 5) {
-        DPRINTLN("Timeout!");
+        DPRINTLN(" - Timeout!");
         //DPRINTLN("Rebooting");
         //delay(2000);
         //ESP.restart();

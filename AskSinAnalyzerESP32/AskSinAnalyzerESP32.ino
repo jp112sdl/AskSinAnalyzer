@@ -7,7 +7,7 @@
 
 
 #define USE_DISPLAY
-//#define NDEBUG
+// #define NDEBUG
 
 #include "Debug.h"
 #include <Preferences.h>
@@ -101,8 +101,8 @@ uint16_t logLength = 0;
 uint16_t logLengthDisplay = 0;
 
 struct _SerialBuffer {
-String   Msg            = "";
-time_t   t              = 0;
+  String   Msg            = "";
+  time_t   t              = 0;
 } SerialBuffer[255];
 uint8_t  msgBufferCount = 0;
 
@@ -131,8 +131,7 @@ time_t   bootTime              = 0;
 #include "WManager.h"
 
 void setup() {
-  Serial.begin(57600);
-  Serial.println();
+  DINIT(57600, "\nASKSINANALYZER ESP32 \n--------------------------------");
   pinMode(SD_CS, OUTPUT);
   Serial1.begin(EXTSERIALBAUDRATE, SERIAL_8N1, EXTSERIALRX_PIN, EXTSERIALTX_PIN);
 
@@ -143,55 +142,52 @@ void setup() {
   pinMode(AP_MODE_LED_PIN, OUTPUT);
 
   ONLINE_MODE = digitalRead(ONLINE_MODE_PIN) == LOW;
-  DPRINT(F("INIT ONLINE_MODE (")); DPRINTLN(ONLINE_MODE == true ? "Enabled)" : "Disabled)");
+  DPRINT(F("- INIT ONLINE_MODE (")); DPRINTLN(ONLINE_MODE == true ? "Enabled)" : "Disabled)");
 
   sdAvailable = SdInit();
-  DPRINT(F("INIT SD CARD DONE. SD CARD IS ")); DPRINTLN(sdAvailable ? "AVAILABLE" : "NOT AVAILABLE");
+  DPRINT(F("- INIT SD CARD DONE. SD CARD IS ")); DPRINTLN(sdAvailable ? "AVAILABLE" : "NOT AVAILABLE");
 
   spiffsAvailable = initSPIFFS();
-  DPRINT(F("INIT SPIFFS  DONE. SPIFFS  IS ")); DPRINTLN(sdAvailable ? "AVAILABLE" : "NOT AVAILABLE");
+  DPRINT(F("- INIT SPIFFS  DONE. SPIFFS  IS ")); DPRINTLN(sdAvailable ? "AVAILABLE" : "NOT AVAILABLE");
 
 #ifdef USE_DISPLAY
   initTFT();
-  DPRINTLN(F("INIT TFT DONE."));
 #endif
 
   initLogTable();
 
   if (ONLINE_MODE) {
-    DPRINTLN(F("Config-Modus durch bootConfigMode aktivieren? "));
-    DPRINTLN(F("-> bootConfigModeFilename mounted file system"));
+    DPRINTLN(F("- Config-Modus durch bootConfigMode aktivieren? "));
     if (spiffsAvailable && SPIFFS.exists(BOOTCONFIGMODE_FILENAME)) {
       startWifiManager = true;
-      DPRINTLN("-> " + String(BOOTCONFIGMODE_FILENAME) + " existiert, starte Config-Modus");
+      DPRINTLN(" -> " + String(BOOTCONFIGMODE_FILENAME) + " existiert, starte Config-Modus");
       SPIFFS.remove(BOOTCONFIGMODE_FILENAME);
       SPIFFS.end();
     } else {
-      DPRINTLN("-> " + String(BOOTCONFIGMODE_FILENAME) + " existiert NICHT");
+      DPRINTLN(" -> " + String(BOOTCONFIGMODE_FILENAME) + " existiert NICHT");
     }
 
     if (!loadSystemConfig()) startWifiManager = true;
-    //DPRINTLN("startWifiManager = " + String(startWifiManager));
 
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);
-    //DPRINTLN("startWifiManager = " + String(startWifiManager));
 
     RESOLVE_ADDRESS = (HomeMaticConfig.ccuIP != "" && HomeMaticConfig.SVAnalyzeInput != "" && HomeMaticConfig.SVAnalyzeOutput != "");
+    DPRINTLN(F("- RESOLVE_ADDRESS is active! CCU IP and both SV are set."));
 
     isOnline = doWifiConnect();
-    DPRINT(F("INIT WIFI CONNECT DONE. WIFI IS ")); DPRINTLN(isOnline ? "AVAILABLE" : "NOT AVAILABLE");
+    DPRINT(F("- INIT WIFI CONNECT DONE. WIFI IS ")); DPRINTLN(isOnline ? "AVAILABLE" : "NOT AVAILABLE");
     timeOK = doNTPinit();
     bootTime = timeOK ? now() : 0;
-    DPRINT(F("INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE" : "NOT AVAILABLE");
+    DPRINT(F("- INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE" : "NOT AVAILABLE");
     initWebServer();
-    DPRINTLN(F("INIT WEBSERVER DONE."));
+    DPRINTLN(F("- INIT WEBSERVER DONE."));
 
   }
 
 #ifdef USE_DISPLAY
   drawStatusCircle(ILI9341_GREEN);
 #endif
-  DPRINTLN(F("INIT COMPLETE.\n"));
+  DPRINTLN(F("- INIT COMPLETE.\n--------------------------------"));
 }
 
 void loop() {

@@ -19,13 +19,13 @@ void saveConfigCallback () {
   shouldSaveConfig = true;
 }
 void printWifiStatus() {
-  DPRINT("SSID: ");
+  DPRINT(" - SSID: ");
   DPRINTLN(WiFi.SSID());
   IPAddress IP = WiFi.localIP();
-  DPRINT("IP Address: ");
+  DPRINT(" - IP Address: ");
   DPRINTLN(IP);
   long rssi = WiFi.RSSI();
-  DPRINT("signal strength (RSSI):");
+  DPRINT(" - RSSI: ");
   DPRINT(rssi);
   DPRINTLN(" dBm");
 }
@@ -42,6 +42,7 @@ void checkWifi() {
 }
 
 bool doWifiConnect() {
+  DPRINT(F("- INIT WIFI CONNECT."));
   preferences.begin("wifi", false);
   String _ssid =  preferences.getString("ssid", "none");           //NVS key ssid
   String _psk =  preferences.getString("password", "none");   //NVS key password
@@ -70,7 +71,7 @@ bool doWifiConnect() {
 #endif
     WiFi.begin(_ssid.c_str(), _psk.c_str());
     uint8_t connect_count = 0;
-    DPRINT("Connecting to WiFi");
+    DPRINT(F(" - Connecting to WiFi"));
     while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       DPRINT(".");
@@ -78,7 +79,7 @@ bool doWifiConnect() {
       if (connect_count > 60) return false;
     }
     connect_count = 0;
-    DPRINTLN("\nConnected to the WiFi network");
+    DPRINTLN(F("\n - Connected to the WiFi network"));
     printWifiStatus();
     return true;
   } else {

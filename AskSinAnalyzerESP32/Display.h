@@ -30,12 +30,13 @@ void drawRowLines() {
 }
 
 void initTFT() {
+  DPRINTLN(F("- INIT TFT."));
   pinMode(TFT_LED, OUTPUT);
   digitalWrite(TFT_LED, HIGH);
   showDisplayDetails =  digitalRead(SHOW_DISPLAY_DETAILS_PIN) == LOW;
   showDisplayLines = digitalRead(SHOW_DISPLAY_LINES_PIN) == LOW;
-  DPRINT(F("showDisplayDetails = ")); DPRINTLN(showDisplayDetails ? "Enabled" : "Disabled");
-  DPRINT(F("showDisplayLines   = ")); DPRINTLN(showDisplayLines ? "Enabled" : "Disabled");
+  DPRINT(F(" - showDisplayDetails = ")); DPRINTLN(showDisplayDetails ? "Enabled" : "Disabled");
+  DPRINT(F(" - showDisplayLines   = ")); DPRINTLN(showDisplayLines ? "Enabled" : "Disabled");
 
   LOG_BLOCK_SIZE = (showDisplayDetails == true ? 3 : 1);
   DISPLAY_LOG_LINES /= LOG_BLOCK_SIZE;
@@ -56,6 +57,7 @@ void initTFT() {
   u8g.setFont(u8g2_font_7x13_mr);
   u8g.print(F("(#0)"));
   drawRowLines();
+  DPRINTLN(F("- INIT TFT DONE."));
 }
 
 void refreshDisplayLog() {
