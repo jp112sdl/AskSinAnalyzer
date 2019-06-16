@@ -25,22 +25,23 @@ uint32_t getSPIFFSUsedKB() {
 }
 
 bool initSPIFFS() {
+  DPRINTLN(F("- INIT SPIFFS"));
   if (!SPIFFS.begin(true)) {
-    DPRINTLN(F("  - SPIFFS: Mount Failed. Trying to format..."));
+    DPRINTLN(F(" - SPIFFS: Mount Failed. Trying to format..."));
     SPIFFS.format();
     if (SPIFFS.begin(true)) {
-      DPRINTLN(F("  - SPIFFS: Now it is working! "));
+      DPRINTLN(F(" - SPIFFS: Now it is working! "));
     } else {
-      DPRINTLN(F("  - SPIFFS: FATAL: SPIFFS NOT MOUNTABLE!"));
+      DPRINTLN(F(" - SPIFFS: FATAL: SPIFFS NOT MOUNTABLE!"));
       return false;
     }
   }
-  DPRINTLN("  - SPIFFS: Mount OK");
-  DPRINT(F("  - SPIFFS: Total kB: "));
+  DPRINTLN(" - SPIFFS: Mount OK");
+  DPRINT(F(" - SPIFFS: Total kB: "));
   DPRINTLN(getSPIFFSSizeKB());
-  DPRINT(F("  - SPIFFS: Used  kB: "));
+  DPRINT(F(" - SPIFFS: Used  kB: "));
   DPRINTLN(getSPIFFSUsedKB());
-  DPRINT(F("  - SPIFFS: Free  kb: "));
+  DPRINT(F(" - SPIFFS: Free  kb: "));
   DPRINTLN(getSPIFFSSizeKB() - getSPIFFSUsedKB());
 
   return true;

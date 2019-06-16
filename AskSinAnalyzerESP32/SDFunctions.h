@@ -19,21 +19,22 @@ uint32_t getSDCardUsedSpaceMB() {
 }
 
 bool SdInit() {
+  DPRINTLN(F("- INIT SD CARD"));
   if (!SD.begin(SD_CS)) {
     delay(250);
     if (!SD.begin(SD_CS)) {
-      DPRINTLN(F(" Card Mount Failed "));
+      DPRINTLN(F(" - Card Mount Failed "));
       return false;
     }
   }
   uint8_t cardType = SD.cardType();
 
   if (cardType == CARD_NONE) {
-    DPRINTLN(F("No SD card attached"));
+    DPRINTLN(F(" - No SD card attached"));
     return false;
   }
 
-  DPRINT(F("  - SD Card Type  : "));
+  DPRINT(F(" - SD Card Type  : "));
   if (cardType == CARD_MMC) {
     DPRINTLN(F("MMC"));
   } else if (cardType == CARD_SD) {
@@ -44,11 +45,11 @@ bool SdInit() {
     DPRINTLN(F("UNKNOWN"));
   }
 
-  DPRINT(F("  - SD Card Size MB: "));
+  DPRINT(F(" - SD Card Size MB: "));
   DPRINTLN(getSDCardSizeMB());
-  DPRINT(F("  - Total space  MB: "));
+  DPRINT(F(" - Total space  MB: "));
   DPRINTLN(getSDCardTotalSpaceMB());
-  DPRINT(F("  - Used space   MB: "));
+  DPRINT(F(" - Used space   MB: "));
   DPRINTLN(getSDCardUsedSpaceMB());
 
   return true;
