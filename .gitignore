@@ -1,3 +1,4 @@
 DS_Store
 .idea
 AskSinAnalyzerESP32.ino.esp32.bin
+*.bin
