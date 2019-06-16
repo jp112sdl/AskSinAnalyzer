@@ -188,6 +188,7 @@ void getLog(AsyncWebServerRequest *request) {
 }
 
 void getDeviceNameBySerial(AsyncWebServerRequest *request) {
+  DPRINTLN("######## getDeviceNameBySerial BEGIN ########");
   String serial = "";
   if (request->hasParam("Serial")) {
     AsyncWebParameter* p = request->getParam("Serial");
@@ -205,6 +206,7 @@ void getDeviceNameBySerial(AsyncWebServerRequest *request) {
   response->addHeader("Access-Control-Allow-Origin", "*");
   response->addHeader("Content-Length", String(page.length()));
   request->send(200, "application/json;charset=iso-8859-1", page);
+  DPRINTLN("######## getDeviceNameBySerial END    ########\n");
 }
 
 void defaultHtml(AsyncWebServerRequest *request) {
