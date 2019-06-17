@@ -6,3 +6,5 @@ AskSinAnalyzerESP32/.project
 AskSinAnalyzerESP32/spec.d
 AskSinAnalyzerESP32/.settings/language.settings.xml
 AskSinAnalyzerESP32/.settings/org.eclipse.cdt.core.prefs
+AskSinAnalyzerESP32/Release
+sloeber.ino.cpp
