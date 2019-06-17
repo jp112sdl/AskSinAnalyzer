@@ -14,6 +14,7 @@
 #include "WM.h"
 #include <HTTPClient.h>
 #include <ESPAsyncWebServer.h>
+#include <ESP32httpUpdate.h>
 #include <TimeLib.h>
 #include <ArduinoJson.h>
 #include <WiFiUdp.h>
@@ -22,10 +23,16 @@
 #include <SD.h>
 #include <Wire.h>
 #ifdef USE_DISPLAY
+#define HAS_DISPLAY 1
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
 #include <U8g2_for_Adafruit_GFX.h>
+#else
+#define HAS_DISPLAY 0
 #endif
+
+#define VERSION_UPPER "1"
+#define VERSION_LOWER "3"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15
@@ -108,6 +115,7 @@ uint8_t  msgBufferCount = 0;
 
 uint32_t allCount              = 0;
 unsigned long lastDebugMillis  = 0;
+bool     updating              = false;
 bool     showInfoDisplayActive = false;
 bool     isOnline              = false;
 bool     timeOK                = false;
@@ -131,7 +139,7 @@ time_t   bootTime              = 0;
 #include "WManager.h"
 
 void setup() {
-  DINIT(57600, "\nASKSINANALYZER ESP32 \n--------------------------------");
+  DINIT(57600, F("\nASKSINANALYZER ESP32 " VERSION_UPPER "." VERSION_LOWER " (" __DATE__ " " __TIME__ ")\n--------------------------------"));
   pinMode(SD_CS, OUTPUT);
   Serial1.begin(EXTSERIALBAUDRATE, SERIAL_8N1, EXTSERIALRX_PIN, EXTSERIALTX_PIN);
 
@@ -197,36 +205,38 @@ void loop() {
     //DPRINT(F("Free Heap Size: ")); DDECLN(ESP.getFreeHeap());
   }
 
-  receiveMessages();
+  if (updating == false) {
+    receiveMessages();
 
-  if (ONLINE_MODE)
-    checkWifi();
+    if (ONLINE_MODE)
+      checkWifi();
 
 #ifdef USE_DISPLAY
-  if (ONLINE_MODE && (digitalRead(START_WIFIMANAGER_PIN) == LOW)) {
-    if (showInfoDisplayActive == false) {
-      showInfoDisplayActive = true;
-      showInfoDisplay();
-    }
-  } else if (showInfoDisplayActive == true && digitalRead(START_WIFIMANAGER_PIN) == HIGH) {
-    showInfoDisplayActive = false;
-    tft.fillRect(0, 15, tft.width(), tft.height(), ILI9341_BLACK);
-    drawRowLines();
-    refreshDisplayLog();
-  }
-#endif
-
-  if (msgBufferCount > 0) {
-    for (uint8_t b = 0; b < msgBufferCount; b++) {
-      fillLogTable(SerialBuffer[b], b);
-#ifdef USE_DISPLAY
-      if (logLengthDisplay < DISPLAY_LOG_LINES) logLengthDisplay++;
+    if (ONLINE_MODE && (digitalRead(START_WIFIMANAGER_PIN) == LOW)) {
       if (showInfoDisplayActive == false) {
-        refreshDisplayLog();
+        showInfoDisplayActive = true;
+        showInfoDisplay();
       }
-#endif
+    } else if (showInfoDisplayActive == true && digitalRead(START_WIFIMANAGER_PIN) == HIGH) {
+      showInfoDisplayActive = false;
+      tft.fillRect(0, 15, tft.width(), tft.height(), ILI9341_BLACK);
+      drawRowLines();
+      refreshDisplayLog();
     }
-    msgBufferCount = 0;
+#endif
+
+    if (msgBufferCount > 0) {
+      for (uint8_t b = 0; b < msgBufferCount; b++) {
+        fillLogTable(SerialBuffer[b], b);
+#ifdef USE_DISPLAY
+        if (logLengthDisplay < DISPLAY_LOG_LINES) logLengthDisplay++;
+        if (showInfoDisplayActive == false) {
+          refreshDisplayLog();
+        }
+#endif
+      }
+      msgBufferCount = 0;
+    }
   }
 }
 

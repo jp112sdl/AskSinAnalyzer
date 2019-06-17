@@ -49,6 +49,12 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "\"spiffsusedkb\":" + String(getSPIFFSUsedKB());
   json += ",";
   json += "\"boottime\":" + String(bootTime);
+  json += ",";
+  json += "\"display\":" + String(HAS_DISPLAY);
+  json += ",";
+  json += "\"version_upper\":" + String(VERSION_UPPER);
+  json += ",";
+  json += "\"version_lower\":" + String(VERSION_LOWER);
   json += "}";
   DPRINT("/getConfig JSON: "); DPRINTLN(json);
   AsyncWebServerResponse *response = request->beginResponse(200);
@@ -249,6 +255,41 @@ void setBootConfigMode(AsyncWebServerRequest *request) {
   }
 }
 
+void httpUpdate(AsyncWebServerRequest *request) {
+  String url = "";
+  if (request->hasParam("url")) {
+    AsyncWebParameter* p = request->getParam("url");
+    url = p->value();
+  }
+  String page = url;
+  AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Content-Length", String(page.length()));
+  request->send(200, "text/plain", page);
+
+  if (url.length() > 10) {
+    updating = true;
+    DPRINTLN(F("Check for Updates..."));
+
+    t_httpUpdate_return ret = ESPhttpUpdate.update(url);
+
+    switch (ret) {
+      case HTTP_UPDATE_FAILED:
+        DPRINT(F("HTTP_UPDATE_FAILED Error")); DDEC(ESPhttpUpdate.getLastError()); DPRINT(F(":")); DPRINTLN(ESPhttpUpdate.getLastErrorString());
+        DPRINTLN(F(""));
+        break;
+
+      case HTTP_UPDATE_NO_UPDATES:
+        DPRINTLN(F("HTTP_UPDATE_NO_UPDATES"));
+        break;
+
+      case HTTP_UPDATE_OK:
+        DPRINTLN(F("HTTP_UPDATE_OK"));
+        break;
+    }
+    updating = false;
+  }
+}
+
 void initWebServer() {
   webServer.on("/reboot", HTTP_POST, [](AsyncWebServerRequest * request) {
     request->send(200, "text/plain", "rebooting");
@@ -278,6 +319,10 @@ void initWebServer() {
 
   webServer.on("/getLogByLogNumber", HTTP_GET, [](AsyncWebServerRequest * request) {
     getLogByLogNumber(request);
+  });
+
+  webServer.on("/httpupdate", HTTP_GET, [](AsyncWebServerRequest * request) {
+    httpUpdate(request);
   });
 
   webServer.on("/deletecsv", HTTP_POST, [](AsyncWebServerRequest * request) {
