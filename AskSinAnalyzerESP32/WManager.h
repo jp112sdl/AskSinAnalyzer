@@ -139,7 +139,7 @@ bool doWifiConnect() {
         strcpy(NetConfig.gw,      "0.0.0.0");
       }
 
-      if (String(custom_ntp.getValue()).length() > 1 && custom_ntp.getValue() != "null") {
+      if (String(custom_ntp.getValue()).length() > 1 && strcmp(custom_ntp.getValue(), "null") != 0) {
         strcpy(NetConfig.ntp, custom_ntp.getValue());
       } else {
         strcpy(NetConfig.ntp, DEFAULT_NTP_SERVER);
@@ -153,6 +153,7 @@ bool doWifiConnect() {
       digitalWrite(AP_MODE_LED_PIN, LOW);
     }
   }
+  return true;
 }
 
 #endif

@@ -171,7 +171,7 @@ void setup() {
 
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);
 
-    RESOLVE_ADDRESS = (HomeMaticConfig.ccuIP != "" && HomeMaticConfig.SVAnalyzeInput != "" && HomeMaticConfig.SVAnalyzeOutput != "");
+    RESOLVE_ADDRESS = (strcmp(HomeMaticConfig.ccuIP, "") != 0 && strcmp(HomeMaticConfig.SVAnalyzeInput, "") != 0 && strcmp(HomeMaticConfig.SVAnalyzeOutput, "") != 0);
     DPRINTLN(F("- RESOLVE_ADDRESS is active! CCU IP and both SV are set."));
 
     isOnline = doWifiConnect();

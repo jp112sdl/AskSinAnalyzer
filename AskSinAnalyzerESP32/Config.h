@@ -62,7 +62,7 @@ bool loadSystemConfig() {
 }
 
 bool saveSystemConfig() {
-  DPRINTLN(F("saveSystemConfig(): saving config"));
+  DPRINTLN(F(" - saveSystemConfig(): saving config"));
   StaticJsonDocument<1024> doc;
   JsonObject json = doc.to<JsonObject>();
 
@@ -76,11 +76,13 @@ bool saveSystemConfig() {
 
   File configFile = SPIFFS.open(CONFIG_FILENAME, "w");
   if (!configFile) {
-    DPRINTLN(F("saveSystemConfig(): failed to open config file for writing"));
+    DPRINTLN(F(" - saveSystemConfig(): failed to open config file for writing"));
+    return false;
   }
   serializeJson(doc, Serial);
   DPRINTLN(F(""));
   serializeJson(doc, configFile);
   configFile.close();
+  return true;
 }
 

@@ -1,4 +1,9 @@
 DS_Store
 .idea
-AskSinAnalyzerESP32.ino.esp32.bin
 *.bin
+AskSinAnalyzerESP32_
+AskSinAnalyzerESP32/.cproject
+AskSinAnalyzerESP32/.project
+AskSinAnalyzerESP32/spec.d
+AskSinAnalyzerESP32/.settings/language.settings.xml
+AskSinAnalyzerESP32/.settings/org.eclipse.cdt.core.prefs
