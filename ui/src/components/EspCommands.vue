@@ -64,19 +64,21 @@
         });
         await this.$espService.postCommand('reboot');
         await wait(5*1000);
-        await this.ping();
-        await this.$espService.fetchConfig();
-        this.$espService.autorefresh();
+        document.location.reload();
       },
 
       async rebootconfig(){
         Loading.show({
-          message: '<b>Der ESP wird im Config Modus gestartet ...</b>'
+          message: 'Der ESP wird im Config Modus gestartet.<br/>Verbinden Sie sich nun mit dem AasSinAnalyzer-AP.'
         });
         await this.$espService.postCommand('rebootconfig');
         await wait(5 * 1000);
-        await this.ping();
-        document.location.href = this.$espService.baseUrl;
+        let cnt = 0;
+        while (await this.$espService._fetch('http://192.168.4.1') === false && cnt < 30) {
+          cnt++;
+          await wait(1000);
+        }
+        document.location.href = 'http://192.168.4.1';
       },
 
       downloadcsv() {
@@ -99,9 +101,9 @@
 
       async ping() {
         let cnt = 0;
-        while(await this.$espService.ping() === false && cnt < 30) {
+        while(await this.$espService.ping() === false && cnt < 20) {
           cnt++;
-          await wait(1000);
+          await wait(500);
         }
         Loading.hide();
       }

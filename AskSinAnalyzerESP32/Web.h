@@ -58,7 +58,6 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "}";
   DPRINT("/getConfig JSON: "); DPRINTLN(json);
   AsyncWebServerResponse *response = request->beginResponse(200);
-  response->addHeader("Access-Control-Allow-Origin", "*");
   response->addHeader("Content-Length", String(json.length()));
   request->send(200, "application/json", json);
 }
@@ -70,7 +69,6 @@ void getLogByLogNumber (AsyncWebServerRequest *request) {
     lognum = p->value().toInt();
   }
   AsyncResponseStream *response = request->beginResponseStream("application/json");
-  response->addHeader("Access-Control-Allow-Origin", "*");
   response->print("[");
 
   for (uint16_t l = 0; l < logLength; l++) {
@@ -143,7 +141,6 @@ void getLogByTimestamp (AsyncWebServerRequest *request) {
   json.replace("},]", "}]");
 
   AsyncWebServerResponse *response = request->beginResponse(200);
-  response->addHeader("Access-Control-Allow-Origin", "*");
   response->addHeader("Content-Length", String(json.length()));
   request->send(200, "application/json", json);
 }
@@ -209,7 +206,6 @@ void getDeviceNameBySerial(AsyncWebServerRequest *request) {
   if (page != "null") page = "\"" + page.substring(0, page.length() - 2) + "\""; //:0 aus Ergebnis abschneiden
 
   AsyncWebServerResponse *response = request->beginResponse(200);
-  response->addHeader("Access-Control-Allow-Origin", "*");
   response->addHeader("Content-Length", String(page.length()));
   request->send(200, "application/json;charset=iso-8859-1", page);
   DPRINTLN("######## getDeviceNameBySerial END    ########\n");
@@ -368,6 +364,7 @@ void initWebServer() {
     indexHtml(request);
   });
 
+  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
   webServer.begin();
 }
 

@@ -413,6 +413,7 @@ void WiFiManager::handleRoot() {
   page += FPSTR(HTTP_PORTAL_OPTIONS);
   page += FPSTR(HTTP_END);
 
+  server->sendHeader("Access-Control-Allow-Origin", "*");
   server->sendHeader("Content-Length", String(page.length()));
   server->send(200, "text/html", page);
 
