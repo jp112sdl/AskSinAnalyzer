@@ -72,6 +72,8 @@ export default class EspService {
       json.forEach(t => {
         t.from = this.names.get(t.from) || t.from;
         t.to = this.names.get(t.to) || t.to;
+        t.fromNameResolved = !!this.names.get(t.from);
+        t.toNameResolved = !!this.names.get(t.to);
       });
     }
     return json;
