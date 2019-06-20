@@ -55,8 +55,8 @@
       <tbody>
       <tr v-for="(v, i) in paginated" :key="i">
         <td class="text-left">{{ v.tstamp | date }}</td>
-        <td class="text-left" :style="{ color: getDeviceColor(v.from) }">{{ v.from }}</td>
-        <td class="text-left" :style="{ color: getDeviceColor(v.to) }">{{ v.to }}</td>
+        <td class="text-left" :style="{ color: getDeviceColor(v, 'from') }">{{ v.from }}</td>
+        <td class="text-left" :style="{ color: getDeviceColor(v, 'to') }">{{ v.to }}</td>
         <td class="text-right">
           <rssi-value :value="v.rssi"/>
         </td>
@@ -165,8 +165,9 @@
     },
 
     methods: {
-      getDeviceColor(v) {
-        return (v.length === 6 && v !== '-ALLE-') ? 'red' : 'black';
+      getDeviceColor(item, what) {
+        if(item[what+'NameResolved']) return 'black';
+        return (item[what.length] === 6 && item[what] !== '-ALLE-') ? 'red' : 'black';
       },
     }
   }
