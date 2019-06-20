@@ -7,8 +7,6 @@
 #ifndef __WEB__H_
 #define __WEB__H_
 
-#include "Web_JS.h"
-#include "Web_CSS.h"
 #include "Web_HTML.h"
 
 AsyncWebServer webServer(80);
@@ -209,19 +207,6 @@ void getDeviceNameBySerial(AsyncWebServerRequest *request) {
   response->addHeader("Content-Length", String(page.length()));
   request->send(200, "application/json;charset=iso-8859-1", page);
   DPRINTLN("######## getDeviceNameBySerial END    ########\n");
-}
-
-void defaultHtml(AsyncWebServerRequest *request) {
-  String page = "";
-
-  page = FPSTR(HTTP_DEFAULT);
-
-  page.replace("{css_style}", FPSTR(HTTP_CSS));
-  page.replace("{js}", FPSTR(HTTP_JS));
-
-  AsyncWebServerResponse *response = request->beginResponse(200);
-  response->addHeader("Content-Length", String(page.length()));
-  request->send(200, "text/html", page);
 }
 
 void indexHtml(AsyncWebServerRequest *request) {
