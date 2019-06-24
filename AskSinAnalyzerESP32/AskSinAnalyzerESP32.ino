@@ -156,7 +156,7 @@ void setup() {
   DPRINT(F("- INIT SD CARD DONE. SD CARD IS ")); DPRINTLN(sdAvailable ? "AVAILABLE" : "NOT AVAILABLE");
 
   spiffsAvailable = initSPIFFS();
-  DPRINT(F("- INIT SPIFFS  DONE. SPIFFS  IS ")); DPRINTLN(sdAvailable ? "AVAILABLE" : "NOT AVAILABLE");
+  DPRINT(F("- INIT SPIFFS  DONE. SPIFFS  IS ")); DPRINTLN(spiffsAvailable ? "AVAILABLE" : "NOT AVAILABLE");
 
 #ifdef USE_DISPLAY
   initTFT();
