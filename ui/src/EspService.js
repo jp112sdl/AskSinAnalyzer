@@ -6,6 +6,8 @@ export default class EspService {
     espConfig: {},
     errors: [],
     errorCnt: 0,
+    currentVersion: null,
+    latestVersion: null,
   };
   maxTelegrams = 100;
   refreshInterval = 2;
@@ -82,14 +84,35 @@ export default class EspService {
   async fetchConfig() {
     try {
       const res = await this._fetch(`${ this.baseUrl }/getConfig`);
-      this.data.espConfig = await res.json();
-      return this.data.espConfig;
+      const espConfig = await res.json();
+      espConfig.latestVersion = null; // init reactivity
+      espConfig.updateAvailable = false; // init reactivity
+      espConfig.currentVersion = espConfig.version_upper.toString().trim()
+        + '.'
+        + espConfig.version_lower.toString().trim();
+      this.data.espConfig = espConfig;
+      return espConfig;
     }
     catch (err) {
       err.message = `API Error getConfig: ${ err.message }`;
       this.data.errors.unshift(err.message);
       this.data.errorCnt++;
       throw err;
+    }
+  }
+
+  async fetchVersion() {
+    try {
+      const res = await fetch('https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/version');
+      if (res.ok) {
+        this.data.espConfig.latestVersion = (await res.text()).trim();
+        this.data.espConfig.updateAvailable = this.isUpdateAvailable();
+      } else {
+        console.error(new Error(`${ res.status }: ${ res.statusText }`));
+      }
+    } catch(e) {
+      e.message = `Network error while fetching ESP-Version from Github; ${e.message}`;
+      console.error(e);
     }
   }
 
@@ -144,6 +167,14 @@ export default class EspService {
       console.error(e);
     }
     return null;
+  }
+
+  isUpdateAvailable() {
+    const { latestVersion, currentVersion } = this.data.espConfig;
+    if(!latestVersion || !currentVersion) return false;
+    const [aU, aL] = latestVersion.split('.');
+    const [bU, bL] = currentVersion.split('.');
+    return aU > bU || aU === bU && aL > bL;
   }
 
 }

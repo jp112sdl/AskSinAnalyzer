@@ -75,6 +75,8 @@ const server = http.createServer(function(req, res) {
             "netmask": "255.255.255.0",
             "gateway": "192.168.1.1",
             "macaddress": "30:AE:A4:38:88:6C",
+            "version_upper": 1,
+            "version_lower": 3,
             "ccuip": "192.168.178.39",
             "svanalyzeinput": "Analyzer_Input",
             "svanalyzeoutput": "Analyzer_Output",
@@ -87,6 +89,7 @@ const server = http.createServer(function(req, res) {
             "spiffsusedkb": 79,
             "boottime": Math.floor(Date.now() / 1000),
             "ntp": "0.de.pool.ntp.org",
+            "display": false,
           }, null, 2)
         );
         res.end();

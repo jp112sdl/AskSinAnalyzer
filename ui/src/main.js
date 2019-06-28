@@ -54,6 +54,7 @@ const vm = new Vue({
       settings,
       espConfig: null,
       errors: {
+        common: [],
         espService: espService.data.errors
       },
       timefilter: {
@@ -71,6 +72,11 @@ const vm = new Vue({
     vm.espConfig = await espService.fetchConfig();
     // Periodically fetch new telegrams
     espService.autorefresh();
+
+    await espService.fetchVersion();
+    if(vm.espConfig.updateAvailable) {
+      vm.errors.common.push('ESP Update verfügbar.');
+    }
   } catch (e) {
     console.error(e);
   }
