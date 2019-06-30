@@ -44,7 +44,7 @@
     methods: {
       update() {
         const file = `AskSinAnalyzerESP32${ this.$root.espConfig.display ? '' : '-ND'}.bin`;
-        document.location.href = `http://${ this.$espService.baseUrl }/httpupdate?url=https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/${ file }`;
+        document.location.href = `${ this.$espService.baseUrl }/httpupdate?url=https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/${ file }`;
       }
     }
   }
