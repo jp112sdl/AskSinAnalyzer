@@ -32,7 +32,7 @@
 #endif
 
 #define VERSION_UPPER "1"
-#define VERSION_LOWER "3"
+#define VERSION_LOWER "4"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15
@@ -126,6 +126,7 @@ bool     ONLINE_MODE           = false;
 bool     RESOLVE_ADDRESS       = true;
 uint8_t  DISPLAY_LOG_LINES     = 15;
 time_t   bootTime              = 0;
+String   updateUrl             = "https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/AskSinAnalyzerESP32.bin";
 
 #include "Config.h"
 #include "SDFunctions.h"
@@ -208,8 +209,10 @@ void loop() {
   if (updating == false) {
     receiveMessages();
 
-    if (ONLINE_MODE)
+    if (ONLINE_MODE) {
       checkWifi();
+      checkUpdate(updateUrl);
+    }
 
 #ifdef USE_DISPLAY
     if (ONLINE_MODE && (digitalRead(START_WIFIMANAGER_PIN) == LOW)) {

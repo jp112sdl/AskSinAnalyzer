@@ -236,19 +236,9 @@ void setBootConfigMode(AsyncWebServerRequest *request) {
   }
 }
 
-void httpUpdate(AsyncWebServerRequest *request) {
-  String url = "";
-  if (request->hasParam("url")) {
-    AsyncWebParameter* p = request->getParam("url");
-    url = p->value();
-  }
-  String page = url;
-  AsyncWebServerResponse *response = request->beginResponse(200);
-  response->addHeader("Content-Length", String(page.length()));
-  request->send(200, "text/plain", page);
-
-  if (url.length() > 10) {
-    updating = true;
+void checkUpdate(String url) {
+  if (updating == true) {
+    updating = false;
     DPRINTLN(F("Check for Updates..."));
 
     t_httpUpdate_return ret = ESPhttpUpdate.update(url);
@@ -267,7 +257,27 @@ void httpUpdate(AsyncWebServerRequest *request) {
         DPRINTLN(F("HTTP_UPDATE_OK"));
         break;
     }
-    updating = false;
+
+    ESP.restart();
+  }
+}
+
+void httpUpdate(AsyncWebServerRequest *request) {
+  String url = "";
+  if (request->hasParam("url")) {
+    AsyncWebParameter* p = request->getParam("url");
+    url = p->value();
+  }
+  String page = "Processing update from "+url+"\nPlease be patient - ESP32 will reboot automatically";
+  AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Content-Length", String(page.length()));
+  request->send(200, "text/plain", page);
+
+
+
+  if (url.length() > 10) {
+    updateUrl = url;
+    updating = true;
   }
 }
 
