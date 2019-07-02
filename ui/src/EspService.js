@@ -87,9 +87,14 @@ export default class EspService {
       const espConfig = await res.json();
       espConfig.latestVersion = null; // init reactivity
       espConfig.updateAvailable = false; // init reactivity
-      espConfig.currentVersion = espConfig.version_upper.toString().trim()
-        + '.'
-        + espConfig.version_lower.toString().trim();
+      if(espConfig.version_upper) {
+        espConfig.currentVersion = espConfig.version_upper.toString().trim()
+          + '.'
+          + espConfig.version_lower.toString().trim();
+      } else {
+        espConfig.currentVersion = '0.1';
+      }
+
       this.data.espConfig = espConfig;
       return espConfig;
     }
