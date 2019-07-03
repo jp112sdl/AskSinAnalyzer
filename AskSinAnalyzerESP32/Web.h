@@ -241,6 +241,8 @@ void checkUpdate(String url) {
     updating = false;
     DPRINTLN(F("Check for Updates..."));
 
+    digitalWrite(AP_MODE_LED_PIN, HIGH);
+    ESPhttpUpdate.rebootOnUpdate(false);
     t_httpUpdate_return ret = ESPhttpUpdate.update(url);
 
     switch (ret) {
@@ -254,11 +256,14 @@ void checkUpdate(String url) {
         break;
 
       case HTTP_UPDATE_OK:
-        DPRINTLN(F("HTTP_UPDATE_OK"));
+        DPRINTLN(F("HTTP_UPDATE_OK. Rebooting..."));
+        delay(200);
+        ESP.restart();
         break;
     }
 
-    ESP.restart();
+    digitalWrite(AP_MODE_LED_PIN, LOW);
+
   }
 }
 
