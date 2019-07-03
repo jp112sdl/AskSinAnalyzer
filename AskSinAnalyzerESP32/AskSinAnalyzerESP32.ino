@@ -32,7 +32,7 @@
 #endif
 
 #define VERSION_UPPER "1"
-#define VERSION_LOWER "4"
+#define VERSION_LOWER "5"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15
