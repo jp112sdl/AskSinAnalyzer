@@ -180,8 +180,8 @@ void setup() {
 
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);
 
-    RESOLVE_ADDRESS = (strcmp(HomeMaticConfig.ccuIP, "") != 0 && strcmp(HomeMaticConfig.SVAnalyzeInput, "") != 0 && strcmp(HomeMaticConfig.SVAnalyzeOutput, "") != 0);
-    DPRINTLN(F("- RESOLVE_ADDRESS is active! CCU IP and both SV are set."));
+    RESOLVE_ADDRESS = isNotEmpty(HomeMaticConfig.ccuIP) && isNotEmpty(HomeMaticConfig.SVAnalyzeInput) && isNotEmpty(HomeMaticConfig.SVAnalyzeOutput);
+    DPRINT(F("- RESOLVE_ADDRESS is")); DPRINT(RESOLVE_ADDRESS ? " " : " NOT "); DPRINTLN(F("active!"));
 
     isOnline = doWifiConnect();
     DPRINT(F("- INIT WIFI CONNECT DONE. WIFI IS ")); DPRINTLN(isOnline ? "AVAILABLE" : "NOT AVAILABLE");

@@ -6,6 +6,8 @@
 #ifndef HELPER_H_
 #define HELPER_H_
 
+bool isNotEmpty(const char *string){  return *string; }
+
 void parseBytes(const char* str, char sep, byte* bytes, int maxBytes, int base) {
   for (int i = 0; i < maxBytes; i++) {
     bytes[i] = strtoul(str, NULL, base);
