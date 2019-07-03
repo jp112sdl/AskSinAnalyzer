@@ -38,7 +38,10 @@ void setConfig(AsyncWebServerRequest *request) {
    }
   DPRINTLN(F("- setConfig END"));
 
-  String page = "OK\n";
+  bool ok = saveSystemConfig();
+
+  String page = ok ? F("saveSystemConfig OK\n") : F("saveSystemConfig NOT OK\n");
+
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(page.length()));
   request->send(200, "text/plain", page);
