@@ -11,6 +11,39 @@
 
 AsyncWebServer webServer(80);
 
+void setConfig(AsyncWebServerRequest *request) {
+  DPRINTLN(F("- setConfig"));
+  if (request->hasParam("ccuip")) {
+     AsyncWebParameter* p = request->getParam("ccuip");
+     p->value().toCharArray(HomeMaticConfig.ccuIP, IPSIZE, 0);
+     DPRINT(F("  - ccuip: "));DPRINTLN(HomeMaticConfig.ccuIP);
+   }
+
+  if (request->hasParam("svanalyzeinput")) {
+     AsyncWebParameter* p = request->getParam("svanalyzeinput");
+     p->value().toCharArray(HomeMaticConfig.SVAnalyzeInput, VARIABLESIZE, 0);
+     DPRINT(F("  - svanalyzeinput: "));DPRINTLN(HomeMaticConfig.SVAnalyzeInput);
+   }
+
+  if (request->hasParam("svanalyzeoutput")) {
+     AsyncWebParameter* p = request->getParam("svanalyzeoutput");
+     p->value().toCharArray(HomeMaticConfig.SVAnalyzeOutput, VARIABLESIZE, 0);
+     DPRINT(F("  - svanalyzeoutput: "));DPRINTLN(HomeMaticConfig.SVAnalyzeOutput);
+   }
+
+  if (request->hasParam("ntp")) {
+     AsyncWebParameter* p = request->getParam("ntp");
+     p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
+     DPRINT(F("  - ntp: "));DPRINTLN(NetConfig.ntp);
+   }
+  DPRINTLN(F("- setConfig END"));
+
+  String page = "OK\n";
+  AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Content-Length", String(page.length()));
+  request->send(200, "text/plain", page);
+}
+
 void getConfig (AsyncWebServerRequest *request) {
   bool staticipconfig = String(NetConfig.ip) != "0.0.0.0";
   String json = "{";
@@ -299,6 +332,10 @@ void initWebServer() {
 
   webServer.on("/getConfig", HTTP_GET, [](AsyncWebServerRequest * request) {
     getConfig(request);
+  });
+
+  webServer.on("/setConfig", HTTP_GET, [](AsyncWebServerRequest * request) {
+    setConfig(request);
   });
 
   webServer.on("/rebootconfig", HTTP_POST, [](AsyncWebServerRequest * request) {
