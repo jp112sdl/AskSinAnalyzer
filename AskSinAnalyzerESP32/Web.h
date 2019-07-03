@@ -36,6 +36,25 @@ void setConfig(AsyncWebServerRequest *request) {
      p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
      DPRINT(F("  - ntp: "));DPRINTLN(NetConfig.ntp);
    }
+
+  if (request->hasParam("ip")) {
+     AsyncWebParameter* p = request->getParam("ip");
+     p->value().toCharArray(NetConfig.ip, IPSIZE, 0);
+     DPRINT(F("  - ip: "));DPRINTLN(NetConfig.ip);
+   }
+
+  if (request->hasParam("netmask")) {
+     AsyncWebParameter* p = request->getParam("netmask");
+     p->value().toCharArray(NetConfig.netmask, IPSIZE, 0);
+     DPRINT(F("  - netmask: "));DPRINTLN(NetConfig.netmask);
+   }
+
+  if (request->hasParam("gw")) {
+     AsyncWebParameter* p = request->getParam("gw");
+     p->value().toCharArray(NetConfig.gw, IPSIZE, 0);
+     DPRINT(F("  - gw: "));DPRINTLN(NetConfig.gw);
+   }
+
   DPRINTLN(F("- setConfig END"));
 
   bool ok = saveSystemConfig();
