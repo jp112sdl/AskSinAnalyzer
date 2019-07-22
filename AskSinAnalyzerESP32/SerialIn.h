@@ -7,7 +7,7 @@
 #define SERIALIN_H_
 
 void receiveMessages() {
-  String inStr = "";
+  static String inStr = "";
   while (Serial1.available() > 0) {
     char inChar = (char)Serial1.read();
     if (inChar != ';') {
@@ -16,17 +16,21 @@ void receiveMessages() {
       }
     } else {
       //DPRINTLN("MESSAGE #"+String(msgBufferCount)+" ADDED: "+inStr);
-      SerialBuffer[msgBufferCount].Msg = inStr;
-      SerialBuffer[msgBufferCount].t = now();// ((timeOK == true)  ? now() : millis());
-      inStr = "";
-      msgBufferCount++;
-      if (msgBufferCount > 1) {
-        DPRINTLN(F("****************"));
-        DPRINT(F("!message Buffer = "));
-        DPRINTLN(String(msgBufferCount));
-        DPRINTLN(F("****************"));
+      if (inStr.indexOf("big") == -1) {
+        SerialBuffer[msgBufferCount].Msg = inStr;
+        SerialBuffer[msgBufferCount].t = now();
+        msgBufferCount++;
+        if (msgBufferCount > 1) {
+          DPRINTLN(F("****************"));
+          DPRINT(F("!message Buffer = "));
+          DDECLN(msgBufferCount);
+          DPRINTLN(F("****************"));
+        }
+        allCount++;
+      } else {
+        DPRINT(F("INVALID MESSAGE DISCARDED: "));DPRINTLN(inStr);
       }
-      allCount++;
+      inStr = "";
     }
   }
 }
