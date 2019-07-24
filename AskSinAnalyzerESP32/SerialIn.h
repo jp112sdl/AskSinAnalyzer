@@ -7,7 +7,7 @@
 #define SERIALIN_H_
 
 void receiveMessages() {
-  String inStr = "";
+  static String inStr = "";
   while (Serial1.available() > 0) {
     char inChar = (char)Serial1.read();
     if (inChar != ';') {
@@ -15,18 +15,39 @@ void receiveMessages() {
         inStr += inChar;
       }
     } else {
+      bool messageFound = false;
       //DPRINTLN("MESSAGE #"+String(msgBufferCount)+" ADDED: "+inStr);
-      SerialBuffer[msgBufferCount].Msg = inStr;
-      SerialBuffer[msgBufferCount].t = now();// ((timeOK == true)  ? now() : millis());
-      inStr = "";
-      msgBufferCount++;
-      if (msgBufferCount > 1) {
-        DPRINTLN(F("****************"));
-        DPRINT(F("!message Buffer = "));
-        DPRINTLN(String(msgBufferCount));
-        DPRINTLN(F("****************"));
+      /* each telegramm shall start with ':' and end with ';' */
+      if (inStr[0] == ':') {
+        messageFound = true;
+      } else {
+        if (inStr.startsWith("Packet too big")) {
+          DPRINT(F("INVALID MESSAGE (too big) DISCARDED: "));DPRINTLN(inStr);
+        } else {
+          int startPos = inStr.lastIndexOf(':');
+          if (startPos == -1) {
+            DPRINT(F("INVALID MESSAGE (no ':' found) DISCARDED: "));DPRINTLN(inStr);
+          } else {
+            DPRINT(F("MESSAGE DOES NOT START WITH ':' "));DPRINTLN(inStr);
+            inStr = inStr.substring(startPos);
+            messageFound = true;
+            DPRINT(F("CORRECTED MESSAGE: "));DPRINTLN(inStr);
+          }
+        }
       }
-      allCount++;
+      if (messageFound) {
+        SerialBuffer[msgBufferCount].Msg = inStr;
+        SerialBuffer[msgBufferCount].t = now();// ((timeOK == true)  ? now() : millis());
+        msgBufferCount++;
+        if (msgBufferCount > 1) {
+          DPRINTLN(F("****************"));
+          DPRINT(F("!message Buffer = "));
+          DDECLN(msgBufferCount);
+          DPRINTLN(F("****************"));
+        }
+        allCount++;
+      }
+      inStr = "";
     }
   }
 }
