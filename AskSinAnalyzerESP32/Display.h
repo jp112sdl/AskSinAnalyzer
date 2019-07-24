@@ -24,8 +24,10 @@ void drawStatusCircle(uint16_t color) {
 void drawRowLines() {
   if (showDisplayLines == true) {
     tft.drawLine(0, 14, tft.width(), 14, ILI9341_WHITE);
-    for (uint8_t c = 0; c < DISPLAY_LOG_LINES; c++)
-      tft.drawLine(0, DISPLAY_LOG_OFFSET_TOP + (2 * DISPLAY_LOG_LINE_HEIGHT) + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c) + 2, tft.width(), DISPLAY_LOG_OFFSET_TOP + (2 * DISPLAY_LOG_LINE_HEIGHT) + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c) + 2, ILI9341_WHITE);
+    for (uint8_t c = 0; c < DISPLAY_LOG_LINES; c++) {
+      int y = DISPLAY_LOG_OFFSET_TOP + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * (c+1)) - DISPLAY_LOG_LINE_HEIGHT + 2;
+      tft.drawLine(0, y, tft.width(), y, ILI9341_WHITE);
+    }
   }
 }
 
@@ -98,8 +100,10 @@ void refreshDisplayLog() {
       u8g.setForegroundColor(ILI9341_OLIVE);
       u8g.print(LogTable[c].flags);
     }
-    if (showDisplayLines == true)
-      tft.drawLine(0, DISPLAY_LOG_OFFSET_TOP + (2 * DISPLAY_LOG_LINE_HEIGHT) + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c) + 2, tft.width(), DISPLAY_LOG_OFFSET_TOP + (2 * DISPLAY_LOG_LINE_HEIGHT) + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c) + 2, ILI9341_WHITE);
+    if (showDisplayLines == true) {
+      int y = DISPLAY_LOG_OFFSET_TOP + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * (c+1)) - DISPLAY_LOG_LINE_HEIGHT + 2;
+      tft.drawLine(0, y, tft.width(), y, ILI9341_WHITE);
+    }
   }
 
   u8g.setCursor(78, 10);
