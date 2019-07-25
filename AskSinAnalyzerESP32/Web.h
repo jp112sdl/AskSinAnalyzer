@@ -37,6 +37,12 @@ void setConfig(AsyncWebServerRequest *request) {
      DPRINT(F("  - ntp: "));DPRINTLN(NetConfig.ntp);
    }
 
+  if (request->hasParam("hostname")) {
+     AsyncWebParameter* p = request->getParam("hostname");
+     p->value().toCharArray(NetConfig.hostname, VARIABLESIZE, 0);
+     DPRINT(F("  - hostname: "));DPRINTLN(NetConfig.hostname);
+   }
+
   if (request->hasParam("ip")) {
      AsyncWebParameter* p = request->getParam("ip");
      p->value().toCharArray(NetConfig.ip, IPSIZE, 0);
@@ -74,6 +80,8 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "\"ip\":\"" +  String(WiFi.localIP().toString()) + "\"";
   json += ",";
   json += "\"ntp\":\"" +  String(NetConfig.ntp) + "\"";
+  json += ",";
+  json += "\"hostname\":\"" +  String(NetConfig.hostname) + "\"";
   json += ",";
   json += "\"netmask\":\"" + String(WiFi.subnetMask().toString()) + "\"";
   json += ",";

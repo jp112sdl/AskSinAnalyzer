@@ -71,12 +71,14 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 #define IPSIZE                16
 #define VARIABLESIZE          255
 #define DEFAULT_NTP_SERVER    "0.de.pool.ntp.org"
+#define DEFAULT_HOSTNAME      "AskSinAnalyzer"
 
 struct _NetConfig {
-  char ip[IPSIZE]         = "0.0.0.0";
-  char netmask[IPSIZE]    = "0.0.0.0";
-  char gw[IPSIZE]         = "0.0.0.0";
-  char ntp[VARIABLESIZE]  = DEFAULT_NTP_SERVER;
+  char ip[IPSIZE]             = "0.0.0.0";
+  char netmask[IPSIZE]        = "0.0.0.0";
+  char gw[IPSIZE]             = "0.0.0.0";
+  char hostname[VARIABLESIZE] = DEFAULT_HOSTNAME;
+  char ntp[VARIABLESIZE]      = DEFAULT_NTP_SERVER;
 } NetConfig;
 
 struct _HomeMaticConfig {

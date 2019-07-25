@@ -70,6 +70,7 @@ bool doWifiConnect() {
     drawStatusCircle(ILI9341_YELLOW);
 #endif
     WiFi.begin(_ssid.c_str(), _psk.c_str());
+    WiFi.setHostname(NetConfig.hostname);
     uint8_t connect_count = 0;
     DPRINT(F(" - Connecting to WiFi"));
     while (WiFi.status() != WL_CONNECTED) {
@@ -88,6 +89,7 @@ bool doWifiConnect() {
     WiFiManagerParameter custom_ip("custom_ip", "IP-Adresse", (String(NetConfig.ip) != "0.0.0.0") ? NetConfig.ip : "", IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
     WiFiManagerParameter custom_netmask("custom_netmask", "Netzmaske", (String(NetConfig.netmask) != "0.0.0.0") ? NetConfig.netmask : "", IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
     WiFiManagerParameter custom_gw("custom_gw", "Gateway",  (String(NetConfig.gw) != "0.0.0.0") ? NetConfig.gw : "", IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
+    WiFiManagerParameter custom_hostname("custom_hostname", "Hostname (leave blank to reset to default)", NetConfig.hostname, VARIABLESIZE, "pattern='[A-Za-z0-9_ -.]+'");
     WiFiManagerParameter custom_ntp("custom_ntp", "NTP-Server (leave blank to reset to default)", NetConfig.ntp, VARIABLESIZE, "pattern='[A-Za-z0-9_ -.]+'");
     WiFiManagerParameter custom_ccuip("ccu", "IP der CCU", HomeMaticConfig.ccuIP, IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
     WiFiManagerParameter custom_svanalyzeinput("svanalyzeinput", "SV Analyze Input", HomeMaticConfig.SVAnalyzeInput, VARIABLESIZE, "pattern='[A-Za-z0-9_ -]+'");
@@ -105,6 +107,7 @@ bool doWifiConnect() {
     wifiManager.addParameter(&custom_ip);
     wifiManager.addParameter(&custom_netmask);
     wifiManager.addParameter(&custom_gw);
+    wifiManager.addParameter(&custom_hostname);
     wifiManager.addParameter(&custom_ntp);
 
     if (!wifiManager.startConfigPortal("AskSinAnalyzer-AP")) {
@@ -143,6 +146,12 @@ bool doWifiConnect() {
         strcpy(NetConfig.ntp, custom_ntp.getValue());
       } else {
         strcpy(NetConfig.ntp, DEFAULT_NTP_SERVER);
+      }
+
+      if (String(custom_hostname.getValue()).length() > 1 && strcmp(custom_hostname.getValue(), "null") != 0) {
+        strcpy(NetConfig.hostname, custom_hostname.getValue());
+      } else {
+        strcpy(NetConfig.hostname, DEFAULT_HOSTNAME);
       }
 
       strcpy(HomeMaticConfig.ccuIP, custom_ccuip.getValue());
