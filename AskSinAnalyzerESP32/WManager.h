@@ -28,6 +28,8 @@ void printWifiStatus() {
   DPRINT(" - RSSI: ");
   DPRINT(rssi);
   DPRINTLN(" dBm");
+  DPRINT(" - Hostname: ");
+  DPRINTLN(WiFi.getHostname());
 }
 
 void checkWifi() {
@@ -69,8 +71,9 @@ bool doWifiConnect() {
 #ifdef USE_DISPLAY
     drawStatusCircle(ILI9341_YELLOW);
 #endif
+    WiFi.setHostname(NetConfig.hostname);     // <- better here?
     WiFi.begin(_ssid.c_str(), _psk.c_str());
-    WiFi.setHostname(NetConfig.hostname);
+    WiFi.setHostname(NetConfig.hostname);     // <- or here ?
     uint8_t connect_count = 0;
     DPRINT(F(" - Connecting to WiFi"));
     while (WiFi.status() != WL_CONNECTED) {

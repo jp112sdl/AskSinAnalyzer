@@ -433,6 +433,10 @@ void initWebServer() {
 
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
   webServer.begin();
+  MDNS.addService("http", "tcp", 80);
 }
 
+bool initmDNS() {
+  return MDNS.begin(NetConfig.hostname);
+}
 #endif

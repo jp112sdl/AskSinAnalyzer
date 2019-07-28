@@ -15,6 +15,7 @@
 #include <HTTPClient.h>
 #include <ESPAsyncWebServer.h>
 #include <ESP32httpUpdate.h>
+#include <ESPmDNS.h>
 #include <TimeLib.h>
 #include <ArduinoJson.h>
 #include <WiFiUdp.h>
@@ -187,6 +188,8 @@ void setup() {
 
     isOnline = doWifiConnect();
     DPRINT(F("- INIT WIFI CONNECT DONE. WIFI IS ")); DPRINTLN(isOnline ? "AVAILABLE" : "NOT AVAILABLE");
+    bool mdns_ok = initmDNS();
+    DPRINT(F("- INIT MDNS DONE. STATUS: ")); DPRINTLN(mdns_ok == true ? "OK" : "FAIL");
     timeOK = doNTPinit();
     bootTime = timeOK ? now() : 0;
     DPRINT(F("- INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE" : "NOT AVAILABLE");
