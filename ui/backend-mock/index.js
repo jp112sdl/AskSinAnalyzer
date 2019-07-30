@@ -75,6 +75,7 @@ const server = http.createServer(function(req, res) {
             "netmask": "255.255.255.0",
             "gateway": "192.168.1.1",
             "macaddress": "30:AE:A4:38:88:6C",
+            "hostname": "my.hostname.local",
             "version_upper": 1,
             "version_lower": 3,
             "ccuip": "192.168.178.39",
