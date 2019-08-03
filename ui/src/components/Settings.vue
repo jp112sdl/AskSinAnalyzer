@@ -3,7 +3,7 @@
     <p class="text-grey-8 text-italic">
       <q-icon name="info"/>
       Die Einstellungen werden im Browser gespeichert.
-      Auf einem anderne Geräte müssen sie erneut gesetzt werden.
+      Auf einem anderen Gerät müssen sie erneut gesetzt werden.
     </p>
     <q-form @submit="handleSubmit" @reset="handleReset" class="q-gutter-md q-mt-md">
       <div>
@@ -31,7 +31,7 @@
         type="number"
         min="1"
         label="Update Interval"
-        hint="In diesen Zeitabständen werden neue Telegramme vom Analyzer aberufen."
+        hint="In diesen Zeitabständen werden neue Telegramme vom Analyzer abgerufen."
         suffix="Sekunden"
       />
       <q-toggle label="Analyzer IP überschreiben" v-model="overwriteEspIp"/>
