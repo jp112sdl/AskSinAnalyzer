@@ -32,7 +32,7 @@ if (!svObj){
 string sDevId;
 string data;
 string metaData;
-string result = "[";
+string result = "[{\"address\":15728641,\"serial\":\"HMIPBCAST\",\"HmIP Broadcast\"},{\"address\":0,\"serial\":\"HMRFBCAST\",\"HmRF Broadcast\"},";
 
 foreach(sDevId, root.Devices().EnumUsedIDs())
 {
@@ -43,7 +43,7 @@ foreach(sDevId, root.Devices().EnumUsedIDs())
     foreach (data, metaData.Split(",")) {
       if (data.Substr(0,10) == "RF_ADDRESS") {
         data = data.Replace("RF_ADDRESS:","");
-        result = result # "{\"address:\":\"" #data#"\",\"serial\":\""#dev.Address()#"\",\"name\":\""#dev.Name()#"\"},";
+        result = result # "{\"address:\":" #data#",\"serial\":\""#dev.Address()#"\",\"name\":\""#dev.Name()#"\"},";
       }
     }
   }
