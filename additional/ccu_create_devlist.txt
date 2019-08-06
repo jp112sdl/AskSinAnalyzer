@@ -5,17 +5,17 @@ object  svObj     = dom.GetObject(svDevList);
 !dom.DeleteObject(svObj);
 !dom.RTUpdate(false);
 
-if (!svObj){   
+if (!svObj){
   object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
 
   svObj = dom.CreateObject(OT_VARDP);
 
   svObjects.Add(svObj.ID());
 
-  svObj.Name(svDevList);   
+  svObj.Name(svDevList);
   svObj.ValueType(ivtString);
   svObj.ValueSubType(istChar8859);
-   
+
   svObj.DPInfo("used by AskSinAnalyzer");
   svObj.ValueUnit("");
   svObj.State("");
@@ -32,7 +32,7 @@ if (!svObj){
 string sDevId;
 string data;
 string metaData;
-string result = "[{\"address\":15728641,\"serial\":\"HMIPBCAST\",\"HmIP Broadcast\"},{\"address\":0,\"serial\":\"HMRFBCAST\",\"HmRF Broadcast\"},";
+string result = "[{\"address\":15728641,\"serial\":\"HMIPBCAST\",\"name\":\"HmIP Broadcast\"},{\"address\":0,\"serial\":\"HMRFBCAST\",\"name\":\"HmRF Broadcast\"},";
 
 foreach(sDevId, root.Devices().EnumUsedIDs())
 {
