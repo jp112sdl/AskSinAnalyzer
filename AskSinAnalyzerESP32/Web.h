@@ -136,15 +136,20 @@ void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
       WiFiClient * stream = &client;
       while (http.connected() && (len > 0 || len == -1)) {
         int c = stream->readBytes(buff, std::min((size_t)len, sizeof(buff)));
-        if (!c) Serial.println("read timeout");
+        if (!c) DPRINTLN(F("getAskSinAnalyzerDevList read timeout"));
 
         for (uint8_t a = 0; a < c; a++)
           response->print((char)buff[a]);
         if (len > 0)  len -= c;
       }
+    } else {
+      DPRINT(F("getAskSinAnalyzerDevList HTTP GET ERROR ")); DDECLN(httpCode);
     }
-    request->send(response);
+  } else {
+    DPRINT(F("getAskSinAnalyzerDevList HTTP-Client failed with ")); DDECLN(httpCode);
   }
+
+  request->send(response);
 }
 void getLogByLogNumber (AsyncWebServerRequest * request) {
   uint32_t lognum = 0;
