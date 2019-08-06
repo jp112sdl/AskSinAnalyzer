@@ -43,7 +43,9 @@ foreach(sDevId, root.Devices().EnumUsedIDs())
     foreach (data, metaData.Split(",")) {
       if (data.Substr(0,10) == "RF_ADDRESS") {
         data = data.Replace("RF_ADDRESS:","");
-        result = result # "{\"address:\":" #data#",\"serial\":\""#dev.Address()#"\",\"name\":\""#dev.Name()#"\"},";
+        if (data != "0") {
+          result = result # "{\"address:\":" #data#",\"serial\":\""#dev.Address()#"\",\"name\":\""#dev.Name()#"\"},";
+        }
       }
     }
   }
