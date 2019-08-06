@@ -44,7 +44,7 @@ foreach(sDevId, root.Devices().EnumUsedIDs())
       if (data.Substr(0,10) == "RF_ADDRESS") {
         data = data.Replace("RF_ADDRESS:","");
         if (data != "0") {
-          result = result # "{\"address:\":" #data#",\"serial\":\""#dev.Address()#"\",\"name\":\""#dev.Name()#"\"},";
+          result = result # "{\"address\":" #data#",\"serial\":\""#dev.Address()#"\",\"name\":\""#dev.Name()#"\"},";
         }
       }
     }
@@ -58,3 +58,4 @@ dom.GetObject(ID_SYSTEM_VARIABLES).Get(svDevList).State(result);
 Write(result);
 
 !Abfrage im Browser mit http://ccu2:8181/ret.exe?ret=dom.GetObject("AskSinAnalyzerDevList").Value()
+
