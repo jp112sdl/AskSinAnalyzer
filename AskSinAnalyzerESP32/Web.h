@@ -124,7 +124,7 @@ void getConfig (AsyncWebServerRequest *request) {
 }
 
 void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
-  AsyncResponseStream *response = request->beginResponseStream("application/xml");
+  AsyncResponseStream *response = request->beginResponseStream("application/xml;charset=iso-8859-1");
   HTTPClient http;
   WiFiClient client;
   http.begin(client, "http://" + String(HomeMaticConfig.ccuIP) + ":8181/ret.exe?ret=dom.GetObject(\"AskSinAnalyzerDevList\").Value()");
