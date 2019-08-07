@@ -124,6 +124,7 @@ void getConfig (AsyncWebServerRequest *request) {
 }
 
 void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
+  DPRINT(F("\n::: getAskSinAnalyzerDevList\n"));
   AsyncResponseStream *response = request->beginResponseStream("application/xml;charset=iso-8859-1");
   HTTPClient http;
   WiFiClient client;
@@ -143,10 +144,10 @@ void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
         if (len > 0)  len -= c;
       }
     } else {
-      DPRINT(F("getAskSinAnalyzerDevList HTTP GET ERROR ")); DDECLN(httpCode);
+      DPRINT(F("::: getAskSinAnalyzerDevList HTTP GET ERROR ")); DDECLN(httpCode);
     }
   } else {
-    DPRINT(F("getAskSinAnalyzerDevList HTTP-Client failed with ")); DDECLN(httpCode);
+    DPRINT(F(":::getAskSinAnalyzerDevList HTTP-Client failed with ")); DDECLN(httpCode);
   }
 
   request->send(response);
