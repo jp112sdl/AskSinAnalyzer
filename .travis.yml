@@ -19,6 +19,7 @@ script:
   - npm run build
   - echo $VUE_APP_COMMIT_HASH > dist/commit-hash.txt
   - cd ..
+  - cp ota/version ui/dist/esp-version.txt
 
 before_deploy:
   - git clone --branch=gh-pages https://$GITHUB_TOKEN@github.com/$TRAVIS_REPO_SLUG.git gh-pages
