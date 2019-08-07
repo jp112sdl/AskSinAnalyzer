@@ -8,6 +8,7 @@ export default class EspService {
     errorCnt: 0,
     currentVersion: null,
     latestVersion: null,
+    devlistCreated: null,
   };
   devlist = [];
   maxTelegrams = 100;
@@ -108,7 +109,7 @@ export default class EspService {
 
   async fetchVersion() {
     try {
-      const res = await fetch('https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/version');
+      const res = await fetch((process.env.VUE_APP_CDN_URL || 'https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/gh-pages/dev') + '/esp-version.txt');
       if (res.ok) {
         this.data.espConfig.latestVersion = (await res.text()).trim();
         this.data.espConfig.updateAvailable = this.isUpdateAvailable();
@@ -152,8 +153,7 @@ export default class EspService {
   }
 
   resolveName(val) {
-    if(val === '-ALLE-') return val;
-    if(val === '-ZENTRALE-') return val;
+    if(val === '-ALLE-' || val === '-ZENTRALE-') return val;
     if(val.length === 10) {
       // Serial has 10 chars
       const dev = this.devlist.devices.find(({ serial }) => serial === val);
@@ -175,7 +175,8 @@ export default class EspService {
       const readed = new Promise(resolve => filereader.addEventListener('loadend', () => resolve(filereader.result)));
       filereader.readAsText(blob, 'iso-8859-1');
       const xml = await readed;
-      this.devlist = JSON.parse(xml.replace(/\r?\n|\r/g, '').match(/<ret>(.*)<\/ret>/)[1].split('&quot;').join('"'))
+      this.devlist = JSON.parse(xml.replace(/\r?\n|\r/g, '').match(/<ret>(.*)<\/ret>/)[1].split('&quot;').join('"'));
+      this.data.devlistCreated = this.devlist.created_at;
     }
     catch (e) {
       console.error(e);

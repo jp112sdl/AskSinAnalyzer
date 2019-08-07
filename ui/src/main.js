@@ -50,6 +50,8 @@ const vm = new Vue({
   data() {
     return {
       CDN: process.env.VUE_APP_CDN_URL || '',
+      COMMIT: process.env.VUE_APP_COMMIT_HASH || 'dev',
+      LATEST_COMMIT: null,
       data: espService.data,
       settings,
       espConfig: null,
@@ -78,6 +80,23 @@ const vm = new Vue({
     if(vm.espConfig.updateAvailable) {
       vm.errors.common.push('ESP Update verfügbar.');
     }
+
+    try {
+      const res = await fetch((vm.CDN || 'https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/gh-pages/dev') + '/commit-hash.txt');
+      if (res.ok) {
+        vm.LATEST_COMMIT = (await res.text()).trim();
+        if(vm.LATEST_COMMIT !== vm.COMMIT) {
+          vm.errors.common.push('WebUI Update verfügbar.');
+        }
+      } else {
+        console.error(new Error(`${ res.status }: ${ res.statusText }`));
+      }
+    }
+    catch (e) {
+      e.message = `Network error while fetching latest commit from Github; ${ e.message }`;
+      console.error(e);
+    }
+
   } catch (e) {
     console.error(e);
   }

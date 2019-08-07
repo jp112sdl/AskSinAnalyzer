@@ -16,6 +16,12 @@
             <esp-updater/>
           </q-card-section>
         </q-card>
+        <q-card class="q-mt-md">
+          <q-card-section>
+            <h2>UI-Version</h2>
+            <ui-updater/>
+          </q-card-section>
+        </q-card>
       </div>
     </div>
   </div>
@@ -26,12 +32,13 @@
 
   import Settings from '@/components/Settings.vue';
   import EspUpdater from '@/components/EspUpdater.vue';
+  import UiUpdater from '@/components/UiUpdater.vue';
 
   export default {
     name: 'EinstellungenView',
     components: {
       QCard, QCardSection,
-      Settings, EspUpdater,
+      Settings, EspUpdater, UiUpdater,
     },
   }
 </script>
