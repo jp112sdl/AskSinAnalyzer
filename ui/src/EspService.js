@@ -152,6 +152,8 @@ export default class EspService {
   }
 
   resolveName(val) {
+    if(val === '-ALLE-') return val;
+    if(val === '-ZENTRALE-') return val;
     if(val.length === 10) {
       // Serial has 10 chars
       const dev = this.devlist.devices.find(({ serial }) => serial === val);
