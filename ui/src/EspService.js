@@ -152,14 +152,12 @@ export default class EspService {
   }
 
   resolveName(val) {
-    console.log("resolveName val: "+val);
     if(val.length === 10) {
       // Serial has 10 chars
       const dev = this.devlist.devices.find(({ serial }) => serial === val);
       return dev ? dev.name : null;
     } else if(val.length === 6) {
       // Address has 6 chars (hex)
-      console.log("val len is 6");
       const addrInDev = parseInt(val, 16);
       console.log("addrInDev: "+addrInDev);
       const dev = this.devlist.devices.find(({ serial: address }) => address === addrInDev);
