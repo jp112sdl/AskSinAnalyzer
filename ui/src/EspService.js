@@ -180,6 +180,7 @@ export default class EspService {
     }
     catch (e) {
       console.error(e);
+      this.data.errors.push(`Could not fetch DeviceList from CCU. ${e.message}`);
     }
     return null;
   }
