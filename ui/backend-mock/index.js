@@ -1,18 +1,12 @@
 const http = require('http');
 const { parse: parseUrl } = require('url');
+const { readFileSync } = require('fs');
+const devlist = readFileSync('./devlist.xml');
+const devlistDevices = require('./devlist.json').devices;
 
-const devices = {
-  '-ALLE-': null,
-  '-ZENTRALE-': null,
-  'OEQ1245618': 'Küche Licht Decke',
-  'OEQ1849578': 'Keller Licht',
-  'PsiDimDW07': 'Wohnzimmer Ambilight',
-  'Psi_Temp01': 'Wohnzimmer Temperatur',
-  'OEQ2565942': 'Terassenbeleuchtung',
-  'OEQ1850194': 'Wohnzimmer Licht'
-};
-
-const SNs = Object.keys(devices);
+let SNs = devlistDevices.map(({serial}) => serial);
+SNs.push('123gibtsnet');
+SNs.push('987gibtsnet');
 
 const typs = [
   'INFO',
@@ -58,6 +52,12 @@ const server = http.createServer(function(req, res) {
   const url = parseUrl(req.url, true);
   {
     switch (url.pathname) {
+
+      case '/getAskSinAnalyzerDevList':
+        res.setHeader('Content-Type','application/json');
+        res.write(devlist);
+        res.end();
+        break;
 
       case '/getLogByLogNumber':
         const offset = url.query && url.query.lognum;
@@ -111,12 +111,12 @@ const server = http.createServer(function(req, res) {
         res.end();
         break;
 
-      case '/getDeviceNameBySerial':
-        const sn = url.query && url.query.Serial;
-        const name = devices[sn] || null;
-        res.write(JSON.stringify(name));
-        res.end();
-        break;
+      // case '/getDeviceNameBySerial':
+      //   const sn = url.query && url.query.Serial;
+      //   const name = devices[sn] || null;
+      //   res.write(JSON.stringify(name));
+      //   res.end();
+      //   break;
 
       default:
         res.writeHead(404);

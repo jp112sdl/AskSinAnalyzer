@@ -1,0 +1,14 @@
+<xml>
+  <exec>/ret.exe</exec>
+  <sessionId></sessionId>
+  <httpUserAgent>User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.108
+    Safari/537.36
+  </httpUserAgent>
+  <ret>{"created_at": 1565165859, "devices": [{"address":15728641,"serial":"HMIPBCAST","name":"HmIP Broadcast"},{"address":0,"serial":"HMRFBCAST","name":"HmRF
+    Broadcast"},{"address":769,"serial":"JPLCSW4001","name":"4fach Schaltaktor
+    Garten"},{"address":15929857,"serial":"JPCAPM0001","name":"Bodenfeuchtesensor"},{"address":5132554,"serial":"NEQ0942706","name":"Briefkasten
+    Einwurf"},{"address":4523712,"serial":"000457098CEFA9","name":"iSense
+    Nachtbetrieb"},{"address":4183614,"serial":"BidCoS-RF","name":"ZentraleHM"},{"address":15115481,"serial":"61A7D7128E11B4","name":"ZentraleHMiP"},{"address":3291642,"serial":"LTK0123634","name":"Zwischenstecker
+    Anbau"},{"address":15990529,"serial":"JPBEACON01","name":"ZZZ-DUMMY-BEACON"}]}
+  </ret>
+</xml>

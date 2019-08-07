@@ -70,6 +70,7 @@ const vm = new Vue({
 (async function() {
   try {
     vm.espConfig = await espService.fetchConfig();
+    await espService.fetchDevList();
     // Periodically fetch new telegrams
     espService.autorefresh();
 
