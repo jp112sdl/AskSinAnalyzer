@@ -29,10 +29,11 @@ if (!svObj){
 }
 
 !alle Geräteadressen, Seriennummer und Namen erfassen
+integer tstamp = system.Date("%F %X").ToTime().ToInteger();
 string sDevId;
 string data;
 string metaData;
-string result = "[{\"address\":15728641,\"serial\":\"HMIPBCAST\",\"name\":\"HmIP Broadcast\"},{\"address\":0,\"serial\":\"HMRFBCAST\",\"name\":\"HmRF Broadcast\"},";
+string result = "{\"created_at\":"#tstamp#",\"devices\":[{\"address\":15728641,\"serial\":\"HMIPBCAST\",\"name\":\"HmIP Broadcast\"},{\"address\":0,\"serial\":\"HMRFBCAST\",\"name\":\"HmRF Broadcast\"},";
 
 foreach(sDevId, root.Devices().EnumUsedIDs())
 {
@@ -50,7 +51,7 @@ foreach(sDevId, root.Devices().EnumUsedIDs())
     }
   }
 }
-result = result # "]";
+result = result # "]}";
 result = result.Replace("},]","}]");
 
 
@@ -58,4 +59,3 @@ dom.GetObject(ID_SYSTEM_VARIABLES).Get(svDevList).State(result);
 Write(result);
 
 !Abfrage im Browser mit http://ccu2:8181/ret.exe?ret=dom.GetObject("AskSinAnalyzerDevList").Value()
-
