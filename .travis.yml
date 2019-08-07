@@ -17,7 +17,7 @@ script:
   - cd ui
   - npm ci
   - npm run build
-  - echo $VUE_APP_COMMIT_HASH > build/commit-hash.txt
+  - echo $VUE_APP_COMMIT_HASH > dist/commit-hash.txt
   - cd ..
 
 before_deploy:
