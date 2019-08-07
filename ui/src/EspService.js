@@ -151,9 +151,18 @@ export default class EspService {
     }
   }
 
-  resolveName(SN) {
-    const dev = this.devlist.devices.find(({serial}) => serial === SN);
-    return dev ? dev.serial : null;
+  resolveName(val) {
+    if(val.length === 10) {
+      // Serial has 10 chars
+      const dev = this.devlist.devices.find(({ serial }) => serial === val);
+      return dev ? dev.name : null;
+    } else if(val.length === 6) {
+      // Address has 6 chars (hex)
+      const addrInDev = parseInt(val, 16);
+      const dev = this.devlist.devices.find(({ serial: address }) => address === addrInDev);
+      return dev ? dev.name : null;
+    }
+    return null;
   }
 
 
