@@ -30,3 +30,5 @@ before_deploy:
 deploy:
   provider: script
   script: git push
+  on:
+    all_branches: true
