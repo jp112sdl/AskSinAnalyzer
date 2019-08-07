@@ -159,9 +159,9 @@ export default class EspService {
     } else if(val.length === 6) {
       // Address has 6 chars (hex)
       const addrInDev = parseInt(val, 16);
-      console.log("addrInDev: "+addrInDev);
+      console.log("1. addrInDev: "+addrInDev);
       const dev = this.devlist.devices.find(({ address }) => address === addrInDev);
-      console.log("dev: "+dev);      
+      console.log("2. dev: "+dev);      
       return dev ? dev.name : null;
     }
     return null;
