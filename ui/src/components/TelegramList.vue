@@ -166,8 +166,7 @@
 
     methods: {
       getDeviceColor(item, what) {
-        if(item[what+'NameResolved']) return 'black';
-        return (item[what.length] === 6 && item[what] !== '-ALLE-') ? 'red' : 'black';
+        return item[what+'NameResolved'] ? 'black' : 'red';
       },
     }
   }

@@ -14,46 +14,52 @@ AsyncWebServer webServer(80);
 void setConfig(AsyncWebServerRequest *request) {
   DPRINTLN(F("- setConfig"));
   if (request->hasParam("ccuip")) {
-     AsyncWebParameter* p = request->getParam("ccuip");
-     p->value().toCharArray(HomeMaticConfig.ccuIP, IPSIZE, 0);
-     DPRINT(F("  - ccuip: "));DPRINTLN(HomeMaticConfig.ccuIP);
-   }
+    AsyncWebParameter* p = request->getParam("ccuip");
+    p->value().toCharArray(HomeMaticConfig.ccuIP, IPSIZE, 0);
+    DPRINT(F("  - ccuip: ")); DPRINTLN(HomeMaticConfig.ccuIP);
+  }
 
   if (request->hasParam("svanalyzeinput")) {
-     AsyncWebParameter* p = request->getParam("svanalyzeinput");
-     p->value().toCharArray(HomeMaticConfig.SVAnalyzeInput, VARIABLESIZE, 0);
-     DPRINT(F("  - svanalyzeinput: "));DPRINTLN(HomeMaticConfig.SVAnalyzeInput);
-   }
+    AsyncWebParameter* p = request->getParam("svanalyzeinput");
+    p->value().toCharArray(HomeMaticConfig.SVAnalyzeInput, VARIABLESIZE, 0);
+    DPRINT(F("  - svanalyzeinput: ")); DPRINTLN(HomeMaticConfig.SVAnalyzeInput);
+  }
 
   if (request->hasParam("svanalyzeoutput")) {
-     AsyncWebParameter* p = request->getParam("svanalyzeoutput");
-     p->value().toCharArray(HomeMaticConfig.SVAnalyzeOutput, VARIABLESIZE, 0);
-     DPRINT(F("  - svanalyzeoutput: "));DPRINTLN(HomeMaticConfig.SVAnalyzeOutput);
-   }
+    AsyncWebParameter* p = request->getParam("svanalyzeoutput");
+    p->value().toCharArray(HomeMaticConfig.SVAnalyzeOutput, VARIABLESIZE, 0);
+    DPRINT(F("  - svanalyzeoutput: ")); DPRINTLN(HomeMaticConfig.SVAnalyzeOutput);
+  }
 
   if (request->hasParam("ntp")) {
-     AsyncWebParameter* p = request->getParam("ntp");
-     p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
-     DPRINT(F("  - ntp: "));DPRINTLN(NetConfig.ntp);
-   }
+    AsyncWebParameter* p = request->getParam("ntp");
+    p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
+    DPRINT(F("  - ntp: ")); DPRINTLN(NetConfig.ntp);
+  }
+
+  if (request->hasParam("hostname")) {
+    AsyncWebParameter* p = request->getParam("hostname");
+    p->value().toCharArray(NetConfig.hostname, VARIABLESIZE, 0);
+    DPRINT(F("  - hostname: ")); DPRINTLN(NetConfig.hostname);
+  }
 
   if (request->hasParam("ip")) {
-     AsyncWebParameter* p = request->getParam("ip");
-     p->value().toCharArray(NetConfig.ip, IPSIZE, 0);
-     DPRINT(F("  - ip: "));DPRINTLN(NetConfig.ip);
-   }
+    AsyncWebParameter* p = request->getParam("ip");
+    p->value().toCharArray(NetConfig.ip, IPSIZE, 0);
+    DPRINT(F("  - ip: ")); DPRINTLN(NetConfig.ip);
+  }
 
   if (request->hasParam("netmask")) {
-     AsyncWebParameter* p = request->getParam("netmask");
-     p->value().toCharArray(NetConfig.netmask, IPSIZE, 0);
-     DPRINT(F("  - netmask: "));DPRINTLN(NetConfig.netmask);
-   }
+    AsyncWebParameter* p = request->getParam("netmask");
+    p->value().toCharArray(NetConfig.netmask, IPSIZE, 0);
+    DPRINT(F("  - netmask: ")); DPRINTLN(NetConfig.netmask);
+  }
 
   if (request->hasParam("gw")) {
-     AsyncWebParameter* p = request->getParam("gw");
-     p->value().toCharArray(NetConfig.gw, IPSIZE, 0);
-     DPRINT(F("  - gw: "));DPRINTLN(NetConfig.gw);
-   }
+    AsyncWebParameter* p = request->getParam("gw");
+    p->value().toCharArray(NetConfig.gw, IPSIZE, 0);
+    DPRINT(F("  - gw: ")); DPRINTLN(NetConfig.gw);
+  }
 
   DPRINTLN(F("- setConfig END"));
 
@@ -74,6 +80,8 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "\"ip\":\"" +  String(WiFi.localIP().toString()) + "\"";
   json += ",";
   json += "\"ntp\":\"" +  String(NetConfig.ntp) + "\"";
+  json += ",";
+  json += "\"hostname\":\"" +  String(NetConfig.hostname) + "\"";
   json += ",";
   json += "\"netmask\":\"" + String(WiFi.subnetMask().toString()) + "\"";
   json += ",";
@@ -115,7 +123,36 @@ void getConfig (AsyncWebServerRequest *request) {
   request->send(200, "application/json", json);
 }
 
-void getLogByLogNumber (AsyncWebServerRequest *request) {
+void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
+  DPRINT(F("\n::: getAskSinAnalyzerDevList\n"));
+  AsyncResponseStream *response = request->beginResponseStream("application/xml;charset=iso-8859-1");
+  HTTPClient http;
+  WiFiClient client;
+  http.begin(client, "http://" + String(HomeMaticConfig.ccuIP) + ":8181/ret.exe?ret=dom.GetObject(\"AskSinAnalyzerDevList\").Value()");
+  int httpCode = http.GET();
+  if (httpCode > 0) {
+    if (httpCode == HTTP_CODE_OK) {
+      int len = http.getSize();
+      uint8_t buff[128] = { 0 };
+      WiFiClient * stream = &client;
+      while (http.connected() && (len > 0 || len == -1)) {
+        int c = stream->readBytes(buff, std::min((size_t)len, sizeof(buff)));
+        if (!c) DPRINTLN(F("getAskSinAnalyzerDevList read timeout"));
+
+        for (uint8_t a = 0; a < c; a++)
+          response->print((char)buff[a]);
+        if (len > 0)  len -= c;
+      }
+    } else {
+      DPRINT(F("::: getAskSinAnalyzerDevList HTTP GET ERROR ")); DDECLN(httpCode);
+    }
+  } else {
+    DPRINT(F(":::getAskSinAnalyzerDevList HTTP-Client failed with ")); DDECLN(httpCode);
+  }
+
+  request->send(response);
+}
+void getLogByLogNumber (AsyncWebServerRequest * request) {
   uint32_t lognum = 0;
   if (request->hasParam("lognum")) {
     AsyncWebParameter* p = request->getParam("lognum");
@@ -156,7 +193,7 @@ void getLogByLogNumber (AsyncWebServerRequest *request) {
   request->send(response);
 }
 
-void getLogByTimestamp (AsyncWebServerRequest *request) {
+void getLogByTimestamp (AsyncWebServerRequest * request) {
   time_t ts = 0;
   if (request->hasParam("ts")) {
     AsyncWebParameter* p = request->getParam("ts");
@@ -198,7 +235,7 @@ void getLogByTimestamp (AsyncWebServerRequest *request) {
   request->send(200, "application/json", json);
 }
 
-void getLog(AsyncWebServerRequest *request) {
+void getLog(AsyncWebServerRequest * request) {
 
   uint16_t start = 0;
   bool first = false;
@@ -243,7 +280,7 @@ void getLog(AsyncWebServerRequest *request) {
   request->send(200, "application/json", json);
 }
 
-void getDeviceNameBySerial(AsyncWebServerRequest *request) {
+void getDeviceNameBySerial(AsyncWebServerRequest * request) {
   DPRINTLN("######## getDeviceNameBySerial BEGIN ########");
   String serial = "";
   if (request->hasParam("Serial")) {
@@ -264,7 +301,7 @@ void getDeviceNameBySerial(AsyncWebServerRequest *request) {
   DPRINTLN("######## getDeviceNameBySerial END    ########\n");
 }
 
-void indexHtml(AsyncWebServerRequest *request) {
+void indexHtml(AsyncWebServerRequest * request) {
   String page = FPSTR(HTTP_INDEX);
 
   AsyncWebServerResponse *response = request->beginResponse(200);
@@ -272,7 +309,7 @@ void indexHtml(AsyncWebServerRequest *request) {
   request->send(200, "text/html", page);
 }
 
-void setBootConfigMode(AsyncWebServerRequest *request) {
+void setBootConfigMode(AsyncWebServerRequest * request) {
   if (SPIFFS.begin()) {
     DPRINTLN(F("setBootConfigMode mounted file system"));
     if (!SPIFFS.exists(BOOTCONFIGMODE_FILENAME)) {
@@ -322,13 +359,13 @@ void checkUpdate(String url) {
   }
 }
 
-void httpUpdate(AsyncWebServerRequest *request) {
+void httpUpdate(AsyncWebServerRequest * request) {
   String url = "";
   if (request->hasParam("url")) {
     AsyncWebParameter* p = request->getParam("url");
     url = p->value();
   }
-  String page = "Processing update from "+url+"\nPlease be patient - ESP32 will reboot automatically";
+  String page = "Processing update from " + url + "\nPlease be patient - ESP32 will reboot automatically";
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(page.length()));
   request->send(200, "text/plain", page);
@@ -366,6 +403,10 @@ void initWebServer() {
 
   webServer.on("/getDeviceNameBySerial", HTTP_GET, [](AsyncWebServerRequest * request) {
     getDeviceNameBySerial(request);
+  });
+
+  webServer.on("/getAskSinAnalyzerDevList", HTTP_GET, [](AsyncWebServerRequest * request) {
+    getAskSinAnalyzerDevList(request);
   });
 
   webServer.on("/getLogByTimestamp", HTTP_GET, [](AsyncWebServerRequest * request) {
@@ -425,6 +466,10 @@ void initWebServer() {
 
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
   webServer.begin();
+  MDNS.addService("http", "tcp", 80);
 }
 
+bool initmDNS() {
+  return MDNS.begin(NetConfig.hostname);
+}
 #endif

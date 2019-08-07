@@ -9,9 +9,9 @@ export default class EspService {
     currentVersion: null,
     latestVersion: null,
   };
+  devlist = [];
   maxTelegrams = 100;
   refreshInterval = 2;
-  names = new Map();
 
   constructor(baseUrl = '', maxTelegrams = 20000, refreshInterval = 2, resolveNames = true) {
     this.baseUrl = baseUrl;
@@ -69,13 +69,13 @@ export default class EspService {
     const res = await this._fetch(`${ this.baseUrl }/getLogByLogNumber?lognum=${ offset }`);
     const json = await res.json();
     if(this.resolveNames) {
-      const SNs = [... new Set(json.map(t => t.from).concat(json.map(t => t.to)))];
-      await Promise.all(SNs.map(async sn => this.resolveName(sn)));
       json.forEach(t => {
-        t.from = this.names.get(t.from) || t.from;
-        t.to = this.names.get(t.to) || t.to;
-        t.fromNameResolved = !!this.names.get(t.from);
-        t.toNameResolved = !!this.names.get(t.to);
+        const fromName = this.resolveName(t.from);
+        const toName = this.resolveName(t.to);
+        t.from =  fromName || t.from;
+        t.to = toName || t.to;
+        t.fromNameResolved = fromName !== null;
+        t.toNameResolved = toName !== null;
       });
     }
     return json;
@@ -151,28 +151,38 @@ export default class EspService {
     }
   }
 
-  async resolveName(serial) {
-    if(['-ALLE-', '-ZENTRALE-'].includes(serial)) return null;
-    if(this.names.has(serial)) return this.names.get(serial);
-    if(serial.length !== 10) {
-      this.names.set(serial, null);
-      throw new Error(`Not resolving ${serial} due to wrong length`);
+  resolveName(val) {
+    if(val === '-ALLE-') return val;
+    if(val === '-ZENTRALE-') return val;
+    if(val.length === 10) {
+      // Serial has 10 chars
+      const dev = this.devlist.devices.find(({ serial }) => serial === val);
+      return dev ? dev.name : null;
+    } else if(val.length === 6) {
+      // Address has 6 chars (hex)
+      const addrInDev = parseInt(val, 16);
+      const dev = this.devlist.devices.find(({ address }) => address === addrInDev);
+      return dev ? dev.name : null;
     }
-    if(!this.data.espConfig.ccuip) throw new Error(`Not resolving ${serial} due to unknown CCU IP`);
+    return null;
+  }
+
+
+  async fetchDevList() {
     try {
-      const blob = await (await this._fetch(`${ this.baseUrl }/getDeviceNameBySerial?Serial=${ serial }`)).blob();
+      const blob = await (await this._fetch(`${ this.baseUrl }/getAskSinAnalyzerDevList`)).blob();
       const filereader = new FileReader();
-      const readed = new Promise(resolve => filereader.addEventListener('loadend', () => resolve(filereader.result)) );
+      const readed = new Promise(resolve => filereader.addEventListener('loadend', () => resolve(filereader.result)));
       filereader.readAsText(blob, 'iso-8859-1');
-      const name = JSON.parse(await readed);
-      this.names.set(serial, name);
-      return name;
-    } catch (e) {
-      this.names.set(serial, null);
+      const xml = await readed;
+      this.devlist = JSON.parse(xml.replace(/\r?\n|\r/g, '').match(/<ret>(.*)<\/ret>/)[1].split('&quot;').join('"'))
+    }
+    catch (e) {
       console.error(e);
     }
     return null;
   }
+
 
   isUpdateAvailable() {
     const { latestVersion, currentVersion } = this.data.espConfig;

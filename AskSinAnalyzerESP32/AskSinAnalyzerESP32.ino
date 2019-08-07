@@ -15,6 +15,7 @@
 #include <HTTPClient.h>
 #include <ESPAsyncWebServer.h>
 #include <ESP32httpUpdate.h>
+#include <ESPmDNS.h>
 #include <TimeLib.h>
 #include <ArduinoJson.h>
 #include <WiFiUdp.h>
@@ -32,7 +33,7 @@
 #endif
 
 #define VERSION_UPPER "1"
-#define VERSION_LOWER "5"
+#define VERSION_LOWER "7"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15
@@ -71,12 +72,14 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 #define IPSIZE                16
 #define VARIABLESIZE          255
 #define DEFAULT_NTP_SERVER    "0.de.pool.ntp.org"
+#define DEFAULT_HOSTNAME      "AskSinAnalyzer"
 
 struct _NetConfig {
-  char ip[IPSIZE]         = "0.0.0.0";
-  char netmask[IPSIZE]    = "0.0.0.0";
-  char gw[IPSIZE]         = "0.0.0.0";
-  char ntp[VARIABLESIZE]  = DEFAULT_NTP_SERVER;
+  char ip[IPSIZE]             = "0.0.0.0";
+  char netmask[IPSIZE]        = "0.0.0.0";
+  char gw[IPSIZE]             = "0.0.0.0";
+  char hostname[VARIABLESIZE] = DEFAULT_HOSTNAME;
+  char ntp[VARIABLESIZE]      = DEFAULT_NTP_SERVER;
 } NetConfig;
 
 struct _HomeMaticConfig {
@@ -185,6 +188,8 @@ void setup() {
 
     isOnline = doWifiConnect();
     DPRINT(F("- INIT WIFI CONNECT DONE. WIFI IS ")); DPRINTLN(isOnline ? "AVAILABLE" : "NOT AVAILABLE");
+    bool mdns_ok = initmDNS();
+    DPRINT(F("- INIT MDNS DONE. STATUS: ")); DPRINTLN(mdns_ok == true ? "OK" : "FAIL");
     timeOK = doNTPinit();
     bootTime = timeOK ? now() : 0;
     DPRINT(F("- INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE" : "NOT AVAILABLE");

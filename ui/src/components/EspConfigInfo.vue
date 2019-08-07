@@ -14,6 +14,10 @@
         <td>{{ espConfig.ip }}</td>
       </tr>
       <tr>
+        <th>Hostname:</th>
+        <td>{{ espConfig.hostname }}</td>
+      </tr>
+      <tr>
         <th>Netmask:</th>
         <td>{{ espConfig.netmask }}</td>
       </tr>

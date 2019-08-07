@@ -1,18 +1,12 @@
 const http = require('http');
 const { parse: parseUrl } = require('url');
+const { readFileSync } = require('fs');
+const devlist = readFileSync('./devlist.xml');
+const devlistDevices = require('./devlist.json').devices;
 
-const devices = {
-  '-ALLE-': null,
-  '-ZENTRALE-': null,
-  'OEQ1245618': 'Küche Licht Decke',
-  'OEQ1849578': 'Keller Licht',
-  'PsiDimDW07': 'Wohnzimmer Ambilight',
-  'Psi_Temp01': 'Wohnzimmer Temperatur',
-  'OEQ2565942': 'Terassenbeleuchtung',
-  'OEQ1850194': 'Wohnzimmer Licht'
-};
-
-const SNs = Object.keys(devices);
+let SNs = devlistDevices.map(({serial}) => serial);
+SNs.push('123gibtsnet');
+SNs.push('987gibtsnet');
 
 const typs = [
   'INFO',
@@ -59,6 +53,12 @@ const server = http.createServer(function(req, res) {
   {
     switch (url.pathname) {
 
+      case '/getAskSinAnalyzerDevList':
+        res.setHeader('Content-Type','application/json');
+        res.write(devlist);
+        res.end();
+        break;
+
       case '/getLogByLogNumber':
         const offset = url.query && url.query.lognum;
         res.write(JSON.stringify(
@@ -75,6 +75,7 @@ const server = http.createServer(function(req, res) {
             "netmask": "255.255.255.0",
             "gateway": "192.168.1.1",
             "macaddress": "30:AE:A4:38:88:6C",
+            "hostname": "my.hostname.local",
             "version_upper": 1,
             "version_lower": 3,
             "ccuip": "192.168.178.39",
@@ -110,12 +111,12 @@ const server = http.createServer(function(req, res) {
         res.end();
         break;
 
-      case '/getDeviceNameBySerial':
-        const sn = url.query && url.query.Serial;
-        const name = devices[sn] || null;
-        res.write(JSON.stringify(name));
-        res.end();
-        break;
+      // case '/getDeviceNameBySerial':
+      //   const sn = url.query && url.query.Serial;
+      //   const name = devices[sn] || null;
+      //   res.write(JSON.stringify(name));
+      //   res.end();
+      //   break;
 
       default:
         res.writeHead(404);

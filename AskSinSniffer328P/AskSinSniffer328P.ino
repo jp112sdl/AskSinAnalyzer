@@ -57,6 +57,7 @@ class SnifferDevice : public Device<HalType, DefList0>, Alarm {
       this->setHal(hal);
       this->getDeviceID(id);
       hal.init(id);
+      hal.config(this->getConfigArea());
       return false;
     }
 };

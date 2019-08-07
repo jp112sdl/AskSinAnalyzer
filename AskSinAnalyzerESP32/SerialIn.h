@@ -15,10 +15,29 @@ void receiveMessages() {
         inStr += inChar;
       }
     } else {
+      bool messageFound = false;
       //DPRINTLN("MESSAGE #"+String(msgBufferCount)+" ADDED: "+inStr);
-      if (inStr.indexOf("big") == -1) {
+      /* each telegramm shall start with ':' and end with ';' */
+      if (inStr[0] == ':') {
+        messageFound = true;
+      } else {
+        if (inStr.startsWith("Packet too big")) {
+          DPRINT(F("INVALID MESSAGE (too big) DISCARDED: "));DPRINTLN(inStr);
+        } else {
+          int startPos = inStr.lastIndexOf(':');
+          if (startPos == -1) {
+            DPRINT(F("INVALID MESSAGE (no ':' found) DISCARDED: "));DPRINTLN(inStr);
+          } else {
+            DPRINT(F("MESSAGE DOES NOT START WITH ':' "));DPRINTLN(inStr);
+            inStr = inStr.substring(startPos);
+            messageFound = true;
+            DPRINT(F("CORRECTED MESSAGE: "));DPRINTLN(inStr);
+          }
+        }
+      }
+      if (messageFound) {
         SerialBuffer[msgBufferCount].Msg = inStr;
-        SerialBuffer[msgBufferCount].t = now();
+        SerialBuffer[msgBufferCount].t = now();// ((timeOK == true)  ? now() : millis());
         msgBufferCount++;
         if (msgBufferCount > 1) {
           DPRINTLN(F("****************"));
@@ -27,8 +46,6 @@ void receiveMessages() {
           DPRINTLN(F("****************"));
         }
         allCount++;
-      } else {
-        DPRINT(F("INVALID MESSAGE DISCARDED: "));DPRINTLN(inStr);
       }
       inStr = "";
     }
