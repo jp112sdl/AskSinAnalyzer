@@ -152,6 +152,7 @@ export default class EspService {
   }
 
   resolveName(val) {
+    console.log("resolveName val: "+val);
     if(val.length === 10) {
       // Serial has 10 chars
       const dev = this.devlist.devices.find(({ serial }) => serial === val);
