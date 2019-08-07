@@ -160,7 +160,7 @@ export default class EspService {
       // Address has 6 chars (hex)
       const addrInDev = parseInt(val, 16);
       console.log("addrInDev: "+addrInDev);
-      const dev = this.devlist.devices.find(({ serial: address }) => address === addrInDev);
+      const dev = this.devlist.devices.find(({ address }) => address === addrInDev);
       console.log("dev: "+dev);      
       return dev ? dev.name : null;
     }
