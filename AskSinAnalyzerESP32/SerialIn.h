@@ -22,16 +22,16 @@ void receiveMessages() {
         messageFound = true;
       } else {
         if (inStr.startsWith("Packet too big")) {
-          DPRINT(F("INVALID MESSAGE (too big) DISCARDED: "));DPRINTLN(inStr);
+          DPRINT(F("INVALID MESSAGE (too big) DISCARDED: ")); DPRINTLN(inStr);
         } else {
           int startPos = inStr.lastIndexOf(':');
           if (startPos == -1) {
-            DPRINT(F("INVALID MESSAGE (no ':' found) DISCARDED: "));DPRINTLN(inStr);
+            DPRINT(F("INVALID MESSAGE (no ':' found) DISCARDED: ")); DPRINTLN(inStr);
           } else {
-            DPRINT(F("MESSAGE DOES NOT START WITH ':' "));DPRINTLN(inStr);
+            DPRINT(F("MESSAGE DOES NOT START WITH ':' ")); DPRINTLN(inStr);
             inStr = inStr.substring(startPos);
             messageFound = true;
-            DPRINT(F("CORRECTED MESSAGE: "));DPRINTLN(inStr);
+            DPRINT(F("CORRECTED MESSAGE: ")); DPRINTLN(inStr);
           }
         }
       }
@@ -78,10 +78,18 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
     toStr = "  " + (sb.Msg).substring(17, 23) + "  ";
   }
 
+  char fromAddress[7];
+  (sb.Msg).substring(11, 17).toCharArray(fromAddress, 7);
+  char toAddress[7];
+  (sb.Msg).substring(17, 23).toCharArray(toAddress, 7);
+
+
   if (logLength > 0) {
     for (uint16_t c = logLength; c > 0; c--) {
       memcpy(LogTable[c].from, LogTable[c - 1].from, 10);
       memcpy(LogTable[c].to, LogTable[c - 1].to, 10);
+      memcpy(LogTable[c].fromAddress, LogTable[c - 1].fromAddress, 6);
+      memcpy(LogTable[c].toAddress, LogTable[c - 1].toAddress, 6);
       LogTable[c].rssi = LogTable[c - 1].rssi;
       LogTable[c].len = LogTable[c - 1].len;
       LogTable[c].cnt = LogTable[c - 1].cnt;
@@ -97,6 +105,8 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   LogTable[0].rssi = rssi;
   memcpy(LogTable[0].from, fromStr.c_str(), 10);
   memcpy(LogTable[0].to, toStr.c_str(), 10);
+  memcpy(LogTable[0].fromAddress, fromAddress, 6);
+  memcpy(LogTable[0].toAddress, toAddress, 6);
   LogTable[0].len = len;
   LogTable[0].cnt = cnt;
   memcpy(LogTable[0].typ, typ.c_str(), 30);
@@ -112,14 +122,28 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   csvLine += ";";
   csvLine += String(LogTable[0].rssi);
   csvLine += ";";
+
+      
+  temp = LogTable[0].fromAddress;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+  
   temp = LogTable[0].from;
   temp.trim();
   csvLine += temp;
   csvLine += ";";
+
+  temp = LogTable[0].toAddress;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+  
   temp = LogTable[0].to;
   temp.trim();
   csvLine += temp;
   csvLine += ";";
+  
   csvLine += String(LogTable[0].len);
   csvLine += ";";
   csvLine += String(LogTable[0].cnt);
@@ -141,14 +165,16 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
   DPRINTLN(F("\nAdded to LogTable: "));
-  DPRINT(F(" - from : ")); DPRINTLN(LogTable[0].from);
-  DPRINT(F(" - to   : ")); DPRINTLN(LogTable[0].to);
-  DPRINT(F(" - rssi : ")); DPRINTLN(LogTable[0].rssi);
-  DPRINT(F(" - len  : ")); DPRINTLN(LogTable[0].len);
-  DPRINT(F(" - cnt  : ")); DPRINTLN(LogTable[0].cnt);
-  DPRINT(F(" - typ  : ")); DPRINTLN(LogTable[0].typ);
-  DPRINT(F(" - flags: ")); DPRINTLN(LogTable[0].flags);
-  DPRINT(F(" - time : ")); DPRINTLN(getDatum(LogTable[0].time) + " " + getUhrzeit(LogTable[0].time));
+  DPRINT(F(" - fromAddress : ")); DPRINTLN(LogTable[0].fromAddress);
+  DPRINT(F(" - fromSerial  : ")); DPRINTLN(LogTable[0].from);
+  DPRINT(F(" - toAddress   : ")); DPRINTLN(LogTable[0].toAddress);
+  DPRINT(F(" - toSerial    : ")); DPRINTLN(LogTable[0].to);
+  DPRINT(F(" - rssi        : ")); DPRINTLN(LogTable[0].rssi);
+  DPRINT(F(" - len         : ")); DPRINTLN(LogTable[0].len);
+  DPRINT(F(" - cnt         : ")); DPRINTLN(LogTable[0].cnt);
+  DPRINT(F(" - typ         : ")); DPRINTLN(LogTable[0].typ);
+  DPRINT(F(" - flags       : ")); DPRINTLN(LogTable[0].flags);
+  DPRINT(F(" - time        : ")); DPRINTLN(getDatum(LogTable[0].time) + " " + getUhrzeit(LogTable[0].time));
   //DPRINTLN(" => messages received: " + String(allCount));
   //DPRINTLN("logLength        = " + String(logLength));
   //DPRINTLN("logLengthDisplay = " + String(logLengthDisplay));
