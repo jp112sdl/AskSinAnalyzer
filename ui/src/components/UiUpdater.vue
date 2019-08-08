@@ -5,9 +5,15 @@
       Die letzte Version konnte nicht ermittelt werden.
     </div>
     <div>
-      <div class="text-blue text-bold q-mb-sm" v-if="updateAvailable">
-        <q-icon name="info"/>
-        Es ist ein Update verfügbar.
+      <div class="q-mb-sm" v-if="updateAvailable">
+        <div class="text-blue text-bold">
+          <q-icon name="info"/>
+          Es ist ein Update verfügbar.
+        </div>
+        <p class="text-grey-8 text-italic">
+          Die WebUI wird direkt von Github.com geladen.
+          Falls ein Update nicht funktioniert muss ggf. der Browser-Cache gelöscht werden.
+        </p>
       </div>
       <div class="text-blue text-bold q-mb-sm" v-if="!updateAvailable && latestCommit">
         <q-icon name="check"/>
@@ -15,7 +21,7 @@
       </div>
       <table>
         <tr>
-          <th>Installierte Version:</th>
+          <th>Geladene Version:</th>
           <td>
             <code>{{ $root.COMMIT }}</code>
           </td>
