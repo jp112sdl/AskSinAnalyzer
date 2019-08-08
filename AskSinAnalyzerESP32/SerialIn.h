@@ -45,7 +45,6 @@ void receiveMessages() {
           DDECLN(msgBufferCount);
           DPRINTLN(F("****************"));
         }
-        allCount++;
       }
       inStr = "";
     }
@@ -178,6 +177,9 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   //DPRINTLN(" => messages received: " + String(allCount));
   //DPRINTLN("logLength        = " + String(logLength));
   //DPRINTLN("logLengthDisplay = " + String(logLengthDisplay));
+
+  allCount++;
+
   DPRINT(F("######## PROCESSING ")); DDEC(allCount); DPRINTLN(F(" END ########\n"));
 }
 
