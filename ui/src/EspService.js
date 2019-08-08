@@ -115,7 +115,7 @@ export default class EspService {
 
   async fetchVersion() {
     try {
-      const res = await fetch((process.env.VUE_APP_CDN_URL || 'https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/gh-pages/dev') + '/esp-version.txt');
+      const res = await fetch((process.env.VUE_APP_CDN_URL || 'https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/gh-pages/dev') + '/esp-version.txt', { cache: "no-store" });
       if (res.ok) {
         this.data.espConfig.latestVersion = (await res.text()).trim();
         this.data.espConfig.updateAvailable = this.isUpdateAvailable();

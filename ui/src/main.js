@@ -82,7 +82,7 @@ const vm = new Vue({
     }
 
     try {
-      const res = await fetch((vm.CDN || 'https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/gh-pages/dev') + '/commit-hash.txt');
+      const res = await fetch((vm.CDN || 'https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/gh-pages/dev') + '/commit-hash.txt', { cache: "no-store" });
       if (res.ok) {
         vm.LATEST_COMMIT = (await res.text()).trim();
         if(vm.LATEST_COMMIT !== vm.COMMIT) {
