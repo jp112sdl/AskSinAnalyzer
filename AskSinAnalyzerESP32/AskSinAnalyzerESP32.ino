@@ -100,6 +100,8 @@ struct _LogTable {
   uint32_t lognumber = 0;
   char from[11];
   char to[11];
+  char fromAddress[7];
+  char toAddress[7];
   int rssi = -255;
   uint8_t len = 0;
   uint8_t cnt = 0;

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="text-red text-bold" v-if="!$root.espConfig">
+    <div class="text-red text-bold q-mb-sm" v-if="!$root.espConfig">
       <q-icon name="warning"/>
       Die Konfiguration konnte nicht geladen werden.
     </div>
@@ -15,13 +15,13 @@
       </div>
       <table>
         <tr>
-          <th>Installierte Version</th>
+          <th>Installierte Version:</th>
           <td>
             <code>{{ $root.espConfig.currentVersion }}</code>
           </td>
         </tr>
         <tr>
-          <th>Verfügbare Version</th>
+          <th>Verfügbare Version:</th>
           <td>
             <code>{{ $root.espConfig.latestVersion }}</code>
           </td>

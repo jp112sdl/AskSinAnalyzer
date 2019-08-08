@@ -1,4 +1,7 @@
-string  svDevList = "AskSinAnalyzerDevList";
+string svDevList = "AskSinAnalyzerDevList";
+
+string HmIPBroadcastName = "HmIP Broadcast";
+string HmRFBroadcastName = "HMRF Broadcast";
 
 !Systemvariable anlegen, falls sie nicht bereits existiert
 object  svObj     = dom.GetObject(svDevList);
@@ -33,7 +36,7 @@ integer tstamp = system.Date("%F %X").ToTime().ToInteger();
 string sDevId;
 string data;
 string metaData;
-string result = "{\"created_at\":"#tstamp#",\"devices\":[{\"address\":15728641,\"serial\":\"HMIPBCAST\",\"name\":\"HmIP Broadcast\"},{\"address\":0,\"serial\":\"HMRFBCAST\",\"name\":\"HmRF Broadcast\"},";
+string result = "{\"created_at\":"#tstamp#",\"devices\":[{\"address\":15728641,\"serial\":\"00000000000000\",\"name\":\""#HmIPBroadcastName#"\"},{\"address\":0,\"serial\":\"0000000000\",\"name\":\""#HmRFBroadcastName#"\"},";
 
 foreach(sDevId, root.Devices().EnumUsedIDs())
 {
@@ -59,3 +62,4 @@ dom.GetObject(ID_SYSTEM_VARIABLES).Get(svDevList).State(result);
 Write(result);
 
 !Abfrage im Browser mit http://ccu2:8181/ret.exe?ret=dom.GetObject("AskSinAnalyzerDevList").Value()
+

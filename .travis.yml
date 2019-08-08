@@ -11,12 +11,15 @@ before_script:
   - export OWNER="$(echo $TRAVIS_REPO_SLUG | cut -d/ -f1)"
   - export REPO="$(echo $TRAVIS_REPO_SLUG | cut -d/ -f2)"
   - export VUE_APP_CDN_URL="https://$OWNER.github.io/$REPO/$TRAVIS_BRANCH"
+  - export VUE_APP_COMMIT_HASH=$(git log --pretty=format:'%h' -n 1)
 
 script:
   - cd ui
   - npm ci
   - npm run build
+  - echo $VUE_APP_COMMIT_HASH > dist/commit-hash.txt
   - cd ..
+  - cp ota/version ui/dist/esp-version.txt
 
 before_deploy:
   - git clone --branch=gh-pages https://$GITHUB_TOKEN@github.com/$TRAVIS_REPO_SLUG.git gh-pages

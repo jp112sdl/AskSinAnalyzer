@@ -41,7 +41,7 @@
             <q-menu transition-show="jump-down" transition-hide="jump-up">
               <q-list dense>
                 <q-item tag="label" v-for="v in types" :key="v">
-                  <q-checkbox v-model="filter.types" :val="v" :label="v" />
+                  <q-checkbox v-model="filter.types" :val="v" :label="v"/>
                 </q-item>
               </q-list>
             </q-menu>
@@ -96,7 +96,7 @@
 </style>
 
 <script>
-  import { QBtn, QBtnGroup, QMarkupTable, QMenu, QPage, QPagination, QSelect, QList, QItem, QCheckbox } from 'quasar';
+  import { QBtn, QBtnGroup, QCheckbox, QItem, QList, QMarkupTable, QMenu, QPage, QPagination, QSelect } from 'quasar';
   import RssiValue from './RssiValue';
   import FlagChip from './FlagChip';
   import SelectFilter from './filters/SelectFilter';
@@ -166,7 +166,9 @@
 
     methods: {
       getDeviceColor(item, what) {
-        return item[what+'NameResolved'] ? 'black' : 'red';
+        if (!item[what + 'NameResolved']) return 'red';
+        if (item[what + 'IsIp']) return '#027BE3';
+        return 'black';
       },
     }
   }

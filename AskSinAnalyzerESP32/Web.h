@@ -169,10 +169,10 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
       json += "\"lognumber\": " + String(LogTable[l].lognumber) + ", ";
       json += "\"tstamp\": " + String(LogTable[l].time) + ", ";
       json += "\"rssi\": " + String(LogTable[l].rssi) + ", ";
-      String from = String(LogTable[l].from);
+      String from = String(LogTable[l].fromAddress);
       from.trim();
       json += "\"from\": \"" + from + "\", ";
-      String to = String(LogTable[l].to);
+      String to = String(LogTable[l].toAddress);
       to.trim();
       json += "\"to\": \"" + to + "\", ";
       json += "\"len\": " + String(LogTable[l].len) + ", ";
