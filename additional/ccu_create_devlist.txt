@@ -33,7 +33,7 @@ integer tstamp = system.Date("%F %X").ToTime().ToInteger();
 string sDevId;
 string data;
 string metaData;
-string result = "{\"created_at\":"#tstamp#",\"devices\":[{\"address\":15728641,\"serial\":\"HMIPBCAST\",\"name\":\"HmIP Broadcast\"},{\"address\":0,\"serial\":\"HMRFBCAST\",\"name\":\"HmRF Broadcast\"},";
+string result = "{\"created_at\":"#tstamp#",\"devices\":[{\"address\":15728641,\"serial\":\"00000000000000\",\"name\":\"HmIP Broadcast\"},{\"address\":0,\"serial\":\"0000000000\",\"name\":\"HmRF Broadcast\"},";
 
 foreach(sDevId, root.Devices().EnumUsedIDs())
 {
