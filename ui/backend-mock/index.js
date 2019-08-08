@@ -4,9 +4,11 @@ const { readFileSync } = require('fs');
 const devlist = readFileSync('./devlist.xml');
 const devlistDevices = require('./devlist.json').devices;
 
-let SNs = devlistDevices.map(({serial}) => serial);
-SNs.push('123gibtsnet');
-SNs.push('987gibtsnet');
+let Addrs = devlistDevices.map(({ address }) => address.toString(16));
+Addrs.push('-ZENTRALE-');
+Addrs.push('-ALLE-');
+Addrs.push('123gibtsnet');
+Addrs.push('987gibtsnet');
 
 const typs = [
   'INFO',
@@ -27,12 +29,12 @@ function genTelegram() {
     "tstamp": Math.round(Date.now() / 1000),
     "lognumber": lognumber,
     "rssi": -1 * Math.round(Math.random() * 120) - 20,
-    "from": SNs[Math.floor(Math.random() * SNs.length)],
-    "to": SNs[Math.floor(Math.random() * SNs.length)],
+    "from": Addrs[Math.floor(Math.random() * Addrs.length)],
+    "to": Addrs[Math.floor(Math.random() * Addrs.length)],
     "len": Math.round(Math.random() * 100),
     "cnt": Math.round(Math.random() * 100),
     "typ": typs[Math.floor(Math.random() * typs.length)],
-    "flags": flags.sort(() => Math.random() - 0.5).slice(0, Math.floor(Math.random()*3)+1).join(' ')
+    "flags": flags.sort(() => Math.random() - 0.5).slice(0, Math.floor(Math.random() * 3) + 1).join(' ')
   }
 }
 
@@ -54,7 +56,7 @@ const server = http.createServer(function(req, res) {
     switch (url.pathname) {
 
       case '/getAskSinAnalyzerDevList':
-        res.setHeader('Content-Type','application/json');
+        res.setHeader('Content-Type', 'application/json');
         res.write(devlist);
         res.end();
         break;
@@ -101,8 +103,8 @@ const server = http.createServer(function(req, res) {
         console.log('Simulate ESP reboot, closing listener');
         res.writeHead(200);
         res.end();
-        setTimeout(() => server.close(),1000);
-        setTimeout(() => server.listen(3000,() => console.log('Listener opened')),10*1000);
+        setTimeout(() => server.close(), 1000);
+        setTimeout(() => server.listen(3000, () => console.log('Listener opened')), 10 * 1000);
         break;
 
       case '/deletecsv':
