@@ -71,12 +71,18 @@ export default class EspService {
     const json = await res.json();
     if(this.resolveNames) {
       json.forEach(t => {
-        const fromName = this.resolveName(t.from);
-        const toName = this.resolveName(t.to);
-        t.from =  fromName || t.from;
-        t.to = toName || t.to;
-        t.fromNameResolved = fromName !== null;
-        t.toNameResolved = toName !== null;
+        const fromResolved = this.resolveFromDevlist(t.from);
+        t.fromNameResolved = fromResolved !== null;
+        if(fromResolved) {
+          t.from =  fromResolved.name;
+          t.fromIsIp = fromResolved.isIp;
+        }
+        const toResolved = this.resolveFromDevlist(t.to);
+        t.toNameResolved = toResolved !== null;
+        if(toResolved) {
+          t.to =  toResolved.name;
+          t.toIsIp = toResolved.isIp;
+        }
       });
     }
     return json;
@@ -152,17 +158,19 @@ export default class EspService {
     }
   }
 
-  resolveName(val) {
+  resolveFromDevlist(val) {
     if(val === '-ALLE-' || val === '-ZENTRALE-') return val;
+    let dev = null;
     if(val.length === 10) {
       // Serial has 10 chars
-      const dev = this.devlist.devices.find(({ serial }) => serial === val);
-      return dev ? dev.name : null;
+      dev = this.devlist.devices.find(({ serial }) => serial === val);
     } else if(val.length === 6) {
       // Address has 6 chars (hex)
-      const addrInDev = parseInt(val, 16);
-      const dev = this.devlist.devices.find(({ address }) => address === addrInDev);
-      return dev ? dev.name : null;
+      dev = this.devlist.devices.find(({ address }) => address === parseInt(val, 16));
+    }
+    if (dev) {
+      // HmIP SN: 14 chars; HmRF: 10 chars
+      return { name: dev.name, serial: dev.serial, isIp: dev.serial.length === 14 };
     }
     return null;
   }
