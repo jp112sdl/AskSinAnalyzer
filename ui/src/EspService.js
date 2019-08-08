@@ -161,7 +161,6 @@ export default class EspService {
   }
 
   resolveFromDevlist(val) {
-    if (val === '-ALLE-' || val === '-ZENTRALE-') return { name: val, serial: val, isIp: false };
     const dev = this.devlist.devices.find(({ address }) => address === parseInt(val, 16));
     if (dev) {
       // HmIP SN: 14 chars; HmRF: 10 chars

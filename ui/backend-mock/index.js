@@ -5,8 +5,6 @@ const devlist = readFileSync('./devlist.xml');
 const devlistDevices = require('./devlist.json').devices;
 
 let Addrs = devlistDevices.map(({ address }) => address.toString(16));
-Addrs.push('-ZENTRALE-');
-Addrs.push('-ALLE-');
 Addrs.push('123gibtsnet');
 Addrs.push('987gibtsnet');
 
