@@ -67,7 +67,7 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 #define CONFIG_FILENAME             "/config.json"
 #define BOOTCONFIGMODE_FILENAME     "/bootcfg.mod"
 
-#define CSV_HEADER                  "num;time;rssi;from;to;len;cnt;typ;flags;"
+#define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;"
 
 #define IPSIZE                16
 #define VARIABLESIZE          255
