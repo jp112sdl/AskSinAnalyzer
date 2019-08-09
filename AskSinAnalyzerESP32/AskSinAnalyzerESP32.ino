@@ -98,6 +98,9 @@ uint16_t AddressTableCount = 0;
 #define MAX_LOG_ENTRIES 51
 #define SIZE_ADDRESS   (6+1)    // address has 6 chars
 #define SIZE_SERIAL    (10+1)   // serial has 10 chars
+#define SIZE_TYPE       32
+#define SIZE_FLAGS      32
+
 struct _LogTable {
   uint32_t lognumber = 0;
   char from[SIZE_SERIAL];
@@ -107,8 +110,8 @@ struct _LogTable {
   int rssi = -255;
   uint8_t len = 0;
   uint8_t cnt = 0;
-  char typ[32];
-  char flags[32];
+  char typ[SIZE_TYPE];
+  char flags[SIZE_FLAGS];
   time_t time = 0;
 } LogTable[MAX_LOG_ENTRIES + 1];
 uint16_t logLength = 0;

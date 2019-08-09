@@ -92,8 +92,8 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
       LogTable[c].rssi = LogTable[c - 1].rssi;
       LogTable[c].len = LogTable[c - 1].len;
       LogTable[c].cnt = LogTable[c - 1].cnt;
-      memcpy(LogTable[c].typ, LogTable[c - 1].typ, 30);
-      memcpy(LogTable[c].flags, LogTable[c - 1].flags, 30);
+      memcpy(LogTable[c].typ, LogTable[c - 1].typ, SIZE_TYPE);
+      memcpy(LogTable[c].flags, LogTable[c - 1].flags, SIZE_FLAGS);
       LogTable[c].time = LogTable[c - 1].time;
       LogTable[c].lognumber = LogTable[c - 1].lognumber;
     }
@@ -108,8 +108,8 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   memcpy(LogTable[0].toAddress, toAddress, SIZE_ADDRESS);
   LogTable[0].len = len;
   LogTable[0].cnt = cnt;
-  memcpy(LogTable[0].typ, typ.c_str(), 30);
-  memcpy(LogTable[0].flags, flags.c_str(), 30);
+  memcpy(LogTable[0].typ, typ.c_str(), SIZE_TYPE);
+  memcpy(LogTable[0].flags, flags.c_str(), SIZE_FLAGS);
 
   // Write to CSV
   DPRINTLN(F("Preprocessing CSV"));
