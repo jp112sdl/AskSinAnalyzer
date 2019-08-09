@@ -75,20 +75,20 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   uint8_t cnt = (strtol(&countIn[0], NULL, 16) & 0xFF);
 
   String flags = getFlags((sb.Msg).substring(STRPOS_FLAGS_BEGIN, STRPOS_TYPE_BEGIN));
-  String typ = getTyp((sb.Msg).substring(STRPOS_TYPE_BEGIN, STRPOS_LENGTH_BEGIN));
+  String typ = getTyp((sb.Msg).substring(STRPOS_TYPE_BEGIN, STRPOS_FROM_BEGIN));
 
   String fromStr = "";
   String toStr = "";
   if (ONLINE_MODE && RESOLVE_ADDRESS) {
-    fromStr = getSerialFromAddress((sb.Msg).substring(STRPOS_LENGTH_BEGIN, STRPOS_TO_BEGIN));
+    fromStr = getSerialFromAddress((sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN));
     toStr = getSerialFromAddress((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END));
   } else {
-    fromStr = "  " + (sb.Msg).substring(STRPOS_LENGTH_BEGIN, STRPOS_TO_BEGIN) + "  ";
+    fromStr = "  " + (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN) + "  ";
     toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END) + "  ";
   }
 
   char fromAddress[SIZE_ADDRESS];
-  (sb.Msg).substring(STRPOS_LENGTH_BEGIN, STRPOS_TO_BEGIN).toCharArray(fromAddress, SIZE_ADDRESS);
+  (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN).toCharArray(fromAddress, SIZE_ADDRESS);
   char toAddress[SIZE_ADDRESS];
   (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END).toCharArray(toAddress, SIZE_ADDRESS);
 
