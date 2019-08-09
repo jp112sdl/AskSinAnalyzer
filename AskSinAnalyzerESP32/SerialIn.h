@@ -51,36 +51,46 @@ void receiveMessages() {
   }
 }
 
+// substring: ending index is exclusive, so it is fine to use the next starting index as end
+#define STRPOS_RSSI_BEGIN     1
+#define STRPOS_LENGTH_BEGIN   3
+#define STRPOS_COUNT_BEGIN    5
+#define STRPOS_FLAGS_BEGIN    7
+#define STRPOS_TYPE_BEGIN     9
+#define STRPOS_FROM_BEGIN     11
+#define STRPOS_TO_BEGIN       17
+#define STRPOS_TO_END         23
+
 void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   DPRINTLN(F("######## PROCESSING NEW MESSAGE ########"));
   DPRINTLN("I #" + String(b) + ": " + sb.Msg);
 
-  String rssiIn = (sb.Msg).substring(1, 3);
+  String rssiIn = (sb.Msg).substring(STRPOS_RSSI_BEGIN, STRPOS_LENGTH_BEGIN);
   int rssi = -1 * (strtol(&rssiIn[0], NULL, 16) & 0xFF);
 
-  String lengthIn = (sb.Msg).substring(3, 5);
+  String lengthIn = (sb.Msg).substring(STRPOS_LENGTH_BEGIN, STRPOS_COUNT_BEGIN);
   uint8_t len = (strtol(&lengthIn[0], NULL, 16) & 0xFF);
 
-  String countIn = (sb.Msg).substring(5, 7);
+  String countIn = (sb.Msg).substring(STRPOS_COUNT_BEGIN, STRPOS_FLAGS_BEGIN);
   uint8_t cnt = (strtol(&countIn[0], NULL, 16) & 0xFF);
 
-  String flags = getFlags((sb.Msg).substring(7, 9));
-  String typ = getTyp((sb.Msg).substring(9, 11));
+  String flags = getFlags((sb.Msg).substring(STRPOS_FLAGS_BEGIN, STRPOS_TYPE_BEGIN));
+  String typ = getTyp((sb.Msg).substring(STRPOS_TYPE_BEGIN, STRPOS_LENGTH_BEGIN));
 
   String fromStr = "";
   String toStr = "";
   if (ONLINE_MODE && RESOLVE_ADDRESS) {
-    fromStr = getSerialFromAddress((sb.Msg).substring(11, 17));
-    toStr = getSerialFromAddress((sb.Msg).substring(17, 23));
+    fromStr = getSerialFromAddress((sb.Msg).substring(STRPOS_LENGTH_BEGIN, STRPOS_TO_BEGIN));
+    toStr = getSerialFromAddress((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END));
   } else {
-    fromStr = "  " + (sb.Msg).substring(11, 17) + "  ";
-    toStr = "  " + (sb.Msg).substring(17, 23) + "  ";
+    fromStr = "  " + (sb.Msg).substring(STRPOS_LENGTH_BEGIN, STRPOS_TO_BEGIN) + "  ";
+    toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END) + "  ";
   }
 
   char fromAddress[SIZE_ADDRESS];
-  (sb.Msg).substring(11, 17).toCharArray(fromAddress, SIZE_ADDRESS);
+  (sb.Msg).substring(STRPOS_LENGTH_BEGIN, STRPOS_TO_BEGIN).toCharArray(fromAddress, SIZE_ADDRESS);
   char toAddress[SIZE_ADDRESS];
-  (sb.Msg).substring(17, 23).toCharArray(toAddress, SIZE_ADDRESS);
+  (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END).toCharArray(toAddress, SIZE_ADDRESS);
 
 
   if (logLength > 0) {
