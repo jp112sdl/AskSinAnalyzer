@@ -77,18 +77,18 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
     toStr = "  " + (sb.Msg).substring(17, 23) + "  ";
   }
 
-  char fromAddress[7];
-  (sb.Msg).substring(11, 17).toCharArray(fromAddress, 7);
-  char toAddress[7];
-  (sb.Msg).substring(17, 23).toCharArray(toAddress, 7);
+  char fromAddress[SIZE_ADDRESS];
+  (sb.Msg).substring(11, 17).toCharArray(fromAddress, SIZE_ADDRESS);
+  char toAddress[SIZE_ADDRESS];
+  (sb.Msg).substring(17, 23).toCharArray(toAddress, SIZE_ADDRESS);
 
 
   if (logLength > 0) {
     for (uint16_t c = logLength; c > 0; c--) {
-      memcpy(LogTable[c].from, LogTable[c - 1].from, 10);
-      memcpy(LogTable[c].to, LogTable[c - 1].to, 10);
-      memcpy(LogTable[c].fromAddress, LogTable[c - 1].fromAddress, 6);
-      memcpy(LogTable[c].toAddress, LogTable[c - 1].toAddress, 6);
+      memcpy(LogTable[c].from, LogTable[c - 1].from, SIZE_SERIAL);
+      memcpy(LogTable[c].to, LogTable[c - 1].to, SIZE_SERIAL);
+      memcpy(LogTable[c].fromAddress, LogTable[c - 1].fromAddress, SIZE_ADDRESS);
+      memcpy(LogTable[c].toAddress, LogTable[c - 1].toAddress, SIZE_ADDRESS);
       LogTable[c].rssi = LogTable[c - 1].rssi;
       LogTable[c].len = LogTable[c - 1].len;
       LogTable[c].cnt = LogTable[c - 1].cnt;
@@ -102,10 +102,10 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   LogTable[0].lognumber = allCount;
   LogTable[0].time = sb.t;
   LogTable[0].rssi = rssi;
-  memcpy(LogTable[0].from, fromStr.c_str(), 10);
-  memcpy(LogTable[0].to, toStr.c_str(), 10);
-  memcpy(LogTable[0].fromAddress, fromAddress, 6);
-  memcpy(LogTable[0].toAddress, toAddress, 6);
+  memcpy(LogTable[0].from, fromStr.c_str(), SIZE_SERIAL);
+  memcpy(LogTable[0].to, toStr.c_str(), SIZE_SERIAL);
+  memcpy(LogTable[0].fromAddress, fromAddress, SIZE_ADDRESS);
+  memcpy(LogTable[0].toAddress, toAddress, SIZE_ADDRESS);
   LogTable[0].len = len;
   LogTable[0].cnt = cnt;
   memcpy(LogTable[0].typ, typ.c_str(), 30);
