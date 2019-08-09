@@ -32,8 +32,8 @@
 #define HAS_DISPLAY 0
 #endif
 
-#define VERSION_UPPER "1"
-#define VERSION_LOWER "7"
+#define VERSION_UPPER "2"
+#define VERSION_LOWER "0"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15
