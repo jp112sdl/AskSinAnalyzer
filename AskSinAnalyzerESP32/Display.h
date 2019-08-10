@@ -66,11 +66,12 @@ void refreshDisplayLog() {
   for (uint8_t c = 0; c < logLengthDisplay; c++) {
     u8g.setCursor(0, DISPLAY_LOG_OFFSET_TOP + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c));
     u8g.setFont(u8g2_font_9x15_mr);
-    u8g.setForegroundColor(ILI9341_WHITE);
+    u8g.setForegroundColor( String(LogTable[c].typ).startsWith("HMIP") ? ILI9341_CYAN : ILI9341_WHITE);
     u8g.print(LogTable[c].from);
     u8g.print(" ");
     u8g.print(LogTable[c].to);
     u8g.print(" ");
+    u8g.setForegroundColor(ILI9341_WHITE);
 
     String rssiStr = LogTable[c].rssi < -99 ? String(LogTable[c].rssi) : String(LogTable[c].rssi) + " ";
     u8g.setForegroundColor(ILI9341_GREEN);
