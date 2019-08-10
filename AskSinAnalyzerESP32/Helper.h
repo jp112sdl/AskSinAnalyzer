@@ -106,17 +106,15 @@ unsigned int hexToDec(String hexString) {
   return decValue;
 }
 
+const size_t listCapacity = JSON_ARRAY_SIZE(400) + JSON_OBJECT_SIZE(2) + 400 * JSON_OBJECT_SIZE(3) + 4 * 4620;
+DynamicJsonDocument JSONDevList(listCapacity);
 void createJSONDevList() {
   if (isOnline) {
-    const size_t listCapacity = JSON_ARRAY_SIZE(400) + JSON_OBJECT_SIZE(2) + 400 * JSON_OBJECT_SIZE(3) + 4 * 4620;
-    DynamicJsonDocument JSONDevList(listCapacity);
-
     String a = getCCURequest("AskSinAnalyzerDevList");
     a.replace("&quot;", "\"");
-
     DeserializationError error = deserializeJson(JSONDevList, a);
     if (error) {
-      DPRINTLN(F(" - JSON DeserializationError"));
+      DPRINT(F(" - JSON DeserializationError: "));DPRINTLN(error.c_str());
     } else {
       devices = JSONDevList["devices"];
       //for (uint16_t i = 0; i < devices.size(); i++) {

@@ -28,7 +28,7 @@ bool loadSystemConfig() {
         StaticJsonDocument<1024> doc;
         DeserializationError error = deserializeJson(doc, buf.get());
         if (error) {
-          DPRINTLN(F(" - JSON DeserializationError"));
+          DPRINT(F(" - JSON DeserializationError"));DPRINTLN(error.c_str());
           return false;
         } else {
           JsonObject json = doc.as<JsonObject>();
