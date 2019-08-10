@@ -6,7 +6,9 @@
 #ifndef HELPER_H_
 #define HELPER_H_
 
-bool isNotEmpty(const char *string){  return *string; }
+bool isNotEmpty(const char *string) {
+  return *string;
+}
 
 void parseBytes(const char* str, char sep, byte* bytes, int maxBytes, int base) {
   for (int i = 0; i < maxBytes; i++) {
@@ -128,7 +130,7 @@ void initAddressTable() {
   /*for (uint16_t c = 0; c < ADDRESSTABLE_LENGTH; c++) {
     AddressTable[c].Address = "";
     AddressTable[c].Serial = "";
-  }*/
+    }*/
 }
 
 void initLogTable() {
@@ -138,7 +140,62 @@ void initLogTable() {
     memset(LogTable[c].to, 0, 11);
     memset(LogTable[c].typ, 0, 32);
     memset(LogTable[c].flags, 0, 32);
-  }*/
+    }*/
+}
+
+unsigned int hexToDec(String hexString) {
+  unsigned int decValue = 0;
+  int nextInt;
+
+  for (int i = 0; i < hexString.length(); i++) {
+
+    nextInt = int(hexString.charAt(i));
+    if (nextInt >= 48 && nextInt <= 57) nextInt = map(nextInt, 48, 57, 0, 9);
+    if (nextInt >= 65 && nextInt <= 70) nextInt = map(nextInt, 65, 70, 10, 15);
+    if (nextInt >= 97 && nextInt <= 102) nextInt = map(nextInt, 97, 102, 10, 15);
+    nextInt = constrain(nextInt, 0, 15);
+
+    decValue = (decValue * 16) + nextInt;
+  }
+  return decValue;
+}
+
+void createJSONDevList() {
+  if (isOnline) {
+    const size_t listCapacity = JSON_ARRAY_SIZE(400) + JSON_OBJECT_SIZE(2) + 400 * JSON_OBJECT_SIZE(3) + 4 * 4620;
+    DynamicJsonDocument JSONDevList(listCapacity);
+
+    String a = getCCURequest("AskSinAnalyzerDevList");
+    a.replace("&quot;", "\"");
+
+    DeserializationError error = deserializeJson(JSONDevList, a);
+    if (error) {
+      DPRINTLN(F(" - JSON DeserializationError"));
+    } else {
+      devices = JSONDevList["devices"];
+      for (uint16_t i = 0; i < devices.size(); i++) {
+        JsonObject device = devices[i];
+        DPRINTLN("(" + String(device["address"].as<unsigned int>()) + ") - " + device["serial"].as<String>() + " - " + device["name"].as<String>());
+      }
+    }
+  } else {
+    DPRINTLN(F("- ABORTED. Not online."));
+  }
+}
+
+String getSerialFromIntAddress(int intAddr, String hexAddr) {
+  if (isOnline) {
+    if (devices.size() > 1) {
+      for (uint16_t i = 0; i < devices.size(); i++) {
+        JsonObject device = devices[i];
+        if (device["address"].as<unsigned int>() == intAddr) {
+          String _t =  device["serial"].as<String>();
+          _t += "         ";
+          return _t.substring(0, 10);
+        }
+      }
+    } else return hexAddr;
+  } else return hexAddr;
 }
 
 #endif

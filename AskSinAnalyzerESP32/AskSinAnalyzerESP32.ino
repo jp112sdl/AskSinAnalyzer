@@ -122,6 +122,7 @@ struct _SerialBuffer {
   time_t   t              = 0;
 } SerialBuffer[255];
 uint8_t  msgBufferCount = 0;
+JsonArray devices;
 
 uint32_t allCount              = 0;
 unsigned long lastDebugMillis  = 0;
@@ -202,7 +203,9 @@ void setup() {
     DPRINT(F("- INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE" : "NOT AVAILABLE");
     initWebServer();
     DPRINTLN(F("- INIT WEBSERVER DONE."));
-
+    DPRINT(F("- Fetching DevList... "));
+    createJSONDevList();
+    DPRINTLN(F("DONE"));
   }
 
 #ifdef USE_DISPLAY

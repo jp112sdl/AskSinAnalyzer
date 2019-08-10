@@ -74,4 +74,35 @@ String getCCURequestResult() {
   }
 }
 
+String getCCURequest(String req) {
+  if (WiFi.status() == WL_CONNECTED) {
+#ifdef USE_DISPLAY
+    drawStatusCircle(ILI9341_BLUE);
+#endif
+    HTTPClient http;
+    //http.setTimeout(HTTPTimeOut);
+    String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + req + "%22).Value()";
+    DPRINTLN("getCCURequestResult url: " + url);
+    http.begin(url);
+    int httpCode = http.GET();
+    String payload = "error";
+    if (httpCode > 0) {
+      payload = http.getString();
+    }
+    if (httpCode != 200) {
+      DPRINTLN("HTTP fail");
+    }
+    http.end();
+
+    payload = payload.substring(payload.indexOf("<ret>"));
+    payload = payload.substring(5, payload.indexOf("</ret>"));
+    DPRINTLN("result: " + payload);
+
+    return payload;
+  } else {
+    DPRINTLN("getCCURequestResult: WiFi.status() != WL_CONNECTED, trying to reconnect");
+    return "ERR";
+  }
+}
+
 #endif
