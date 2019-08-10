@@ -80,18 +80,12 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   String fromStr = "";
   String toStr = "";
   if (ONLINE_MODE && RESOLVE_ADDRESS) {
-    String fromHex = (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN);
-    int fromInt = hexToDec(fromHex);
-    String toHex = (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END);
-    int toInt = hexToDec(toHex);
-    fromStr = getSerialFromIntAddress(fromInt,fromHex);
-    toStr = getSerialFromIntAddress(toInt, toHex);
-    //fromStr = getSerialFromAddress((sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN));
-    //toStr = getSerialFromAddress((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END));
-  } else {
-    fromStr = "  " + (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN) + "  ";
-    toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END) + "  ";
+    fromStr = getSerialFromIntAddress(hexToDec((sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN)));
+    toStr = getSerialFromIntAddress(hexToDec((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END)));
   }
+  
+  if (fromStr == "")  fromStr = "  " + (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN) + "  ";
+  if (toStr == "")    toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END) + "  ";
 
   char fromAddress[SIZE_ADDRESS];
   (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN).toCharArray(fromAddress, SIZE_ADDRESS);

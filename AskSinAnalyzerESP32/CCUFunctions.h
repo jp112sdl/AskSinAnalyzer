@@ -96,7 +96,7 @@ String getCCURequest(String req) {
 
     payload = payload.substring(payload.indexOf("<ret>"));
     payload = payload.substring(5, payload.indexOf("</ret>"));
-    DPRINTLN("result: " + payload);
+    //DPRINTLN("result: " + payload);
 
     return payload;
   } else {

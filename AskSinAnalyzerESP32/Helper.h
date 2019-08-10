@@ -173,17 +173,17 @@ void createJSONDevList() {
       DPRINTLN(F(" - JSON DeserializationError"));
     } else {
       devices = JSONDevList["devices"];
-      for (uint16_t i = 0; i < devices.size(); i++) {
-        JsonObject device = devices[i];
-        DPRINTLN("(" + String(device["address"].as<unsigned int>()) + ") - " + device["serial"].as<String>() + " - " + device["name"].as<String>());
-      }
+      //for (uint16_t i = 0; i < devices.size(); i++) {
+      //  JsonObject device = devices[i];
+      //  DPRINTLN("(" + String(device["address"].as<unsigned int>()) + ") - " + device["serial"].as<String>() + " - " + device["name"].as<String>());
+      //}
     }
   } else {
     DPRINTLN(F("- ABORTED. Not online."));
   }
 }
 
-String getSerialFromIntAddress(int intAddr, String hexAddr) {
+String getSerialFromIntAddress(int intAddr) {
   if (isOnline) {
     if (devices.size() > 1) {
       for (uint16_t i = 0; i < devices.size(); i++) {
@@ -194,8 +194,9 @@ String getSerialFromIntAddress(int intAddr, String hexAddr) {
           return _t.substring(0, 10);
         }
       }
-    } else return hexAddr;
-  } else return hexAddr;
+    }
+  }
+  return "";
 }
 
 #endif

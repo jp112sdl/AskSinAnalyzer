@@ -73,6 +73,7 @@ void setConfig(AsyncWebServerRequest *request) {
 }
 
 void getConfig (AsyncWebServerRequest *request) {
+  DPRINTLN(F("::: Web.h /getConfig"));
   bool staticipconfig = String(NetConfig.ip) != "0.0.0.0";
   String json = "{";
   json += "\"staticipconfig\":" + String(staticipconfig);
@@ -123,8 +124,8 @@ void getConfig (AsyncWebServerRequest *request) {
   request->send(200, "application/json", json);
 }
 
-void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
-  DPRINT(F("\n::: getAskSinAnalyzerDevList\n"));
+ void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
+  DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevList"));
   AsyncResponseStream *response = request->beginResponseStream("application/xml;charset=iso-8859-1");
   HTTPClient http;
   WiFiClient client;
@@ -139,7 +140,7 @@ void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
         int c = stream->readBytes(buff, std::min((size_t)len, sizeof(buff)));
         if (!c) DPRINTLN(F("getAskSinAnalyzerDevList read timeout"));
 
-        for (uint8_t a = 0; a < c; a++)
+        for (uint8_t a = 0; a < c; a++) 
           response->print((char)buff[a]);
         if (len > 0)  len -= c;
       }
@@ -149,9 +150,13 @@ void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
   } else {
     DPRINT(F(":::getAskSinAnalyzerDevList HTTP-Client failed with ")); DDECLN(httpCode);
   }
-
+  http.end();
   request->send(response);
+  createJSONDevList();
 }
+
+
+
 void getLogByLogNumber (AsyncWebServerRequest * request) {
   uint32_t lognum = 0;
   if (request->hasParam("lognum")) {
