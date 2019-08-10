@@ -70,60 +70,6 @@ String getTyp(String in) {
   return typ;
 }
 
-String getSerialFromAddress(String in) {
-  String out = in;
-
-  if (in != "000000") {
-    for (uint16_t c = 0; c < ADDRESSTABLE_LENGTH; c++) {
-      if (AddressTable[c].Address == in) {
-        String s = (AddressTable[c].Serial).substring(0, 10);
-        DPRINTLN("FOUND LOCAL: " + in + " / " + s);
-#ifdef USE_DISPLAY
-        drawStatusCircle(ILI9341_GREEN);
-#endif
-        return s;
-      }
-    }
-
-    if  (WiFi.status() == WL_CONNECTED) {
-      if (setCCURequest("%22" + String(HomeMaticConfig.SVAnalyzeInput) + "%22).State(%22" + in + "%22") != "null") {
-        delay(250);
-        String res = getCCURequestResult();
-        if (res.length() > 7 && res.substring(0, 6) == in) {
-#ifdef USE_DISPLAY
-          drawStatusCircle(ILI9341_GREEN);
-#endif
-          DPRINTLN(F("FOUND VALID RESULT"));
-          AddressTable[AddressTableCount].Address = in;
-          res = res.substring(res.indexOf(","));
-          res = res.substring(1);
-          res.replace("BidCoS-RF", "-ZENTRALE-");
-
-          DPRINTLN("SERIAL = " + res);
-          AddressTable[AddressTableCount].Serial = res;
-          out = res;
-          AddressTableCount++;
-        } else {
-          if (res == "null")
-            DPRINTLN(F("getCCURequest failed! Check config parameters for CCU IP and SV Analyzer name"));
-#ifdef USE_DISPLAY
-          drawStatusCircle(ILI9341_RED);
-#endif
-        }
-      } else {
-#ifdef USE_DISPLAY
-        drawStatusCircle(ILI9341_RED);
-#endif
-        DPRINTLN(F("setCCURequest failed! Check config parameters for CCU IP and SV Analyzer name"));
-      }
-    }
-  } else {
-    out = "-ALLE-";
-  }
-  out.trim();
-  if (out.length() == 6) out = "  " + out + "  ";
-  return out;
-}
 
 void initAddressTable() {
   memset(AddressTable, 0, ADDRESSTABLE_LENGTH);

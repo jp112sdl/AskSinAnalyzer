@@ -84,8 +84,6 @@ struct _NetConfig {
 
 struct _HomeMaticConfig {
   char ccuIP[IPSIZE]   = "";
-  char SVAnalyzeInput[VARIABLESIZE] = "";
-  char SVAnalyzeOutput[VARIABLESIZE] = "";
 } HomeMaticConfig;
 
 #define ADDRESSTABLE_LENGTH 256
@@ -191,7 +189,7 @@ void setup() {
 
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);
 
-    RESOLVE_ADDRESS = isNotEmpty(HomeMaticConfig.ccuIP) && isNotEmpty(HomeMaticConfig.SVAnalyzeInput) && isNotEmpty(HomeMaticConfig.SVAnalyzeOutput);
+    RESOLVE_ADDRESS = isNotEmpty(HomeMaticConfig.ccuIP);
     DPRINT(F("- RESOLVE_ADDRESS is")); DPRINT(RESOLVE_ADDRESS ? " " : " NOT "); DPRINTLN(F("active!"));
 
     isOnline = doWifiConnect();

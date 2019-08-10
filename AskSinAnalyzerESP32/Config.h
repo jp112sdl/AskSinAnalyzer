@@ -9,8 +9,6 @@
 #define JSONCONFIG_HOSTNAME               "hostname"
 #define JSONCONFIG_NTP                    "ntp"
 #define JSONCONFIG_CCUIP                  "ccuip"
-#define JSONCONFIG_SVANALYZEINPUT         "svanalyzeinput"
-#define JSONCONFIG_SVANALYZEOUTPUT        "svanalyzeoutput"
 
 bool loadSystemConfig() {
   DPRINTLN(F("- LOADING CONFIG"));
@@ -49,8 +47,6 @@ bool loadSystemConfig() {
           strcpy(NetConfig.ntp, (_ntp == "null") ? DEFAULT_NTP_SERVER : _ntp.c_str());
 
           ((json[JSONCONFIG_CCUIP]).as<String>()).toCharArray(HomeMaticConfig.ccuIP, IPSIZE);
-          ((json[JSONCONFIG_SVANALYZEINPUT]).as<String>()).toCharArray(HomeMaticConfig.SVAnalyzeInput, VARIABLESIZE);
-          ((json[JSONCONFIG_SVANALYZEOUTPUT]).as<String>()).toCharArray(HomeMaticConfig.SVAnalyzeOutput, VARIABLESIZE);
         }
       }
     } else {
@@ -76,8 +72,6 @@ bool saveSystemConfig() {
   json[JSONCONFIG_HOSTNAME] = NetConfig.hostname;
   json[JSONCONFIG_NTP] = NetConfig.ntp;
   json[JSONCONFIG_CCUIP] = HomeMaticConfig.ccuIP;
-  json[JSONCONFIG_SVANALYZEINPUT] = HomeMaticConfig.SVAnalyzeInput;
-  json[JSONCONFIG_SVANALYZEOUTPUT] = HomeMaticConfig.SVAnalyzeOutput;
 
   File configFile = SPIFFS.open(CONFIG_FILENAME, "w");
   if (!configFile) {
