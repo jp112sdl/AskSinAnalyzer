@@ -44,7 +44,7 @@ export default class EspService {
 
   async autorefresh() {
     try {
-      const lastLognumber = this.data.telegrams[0] && this.data.telegrams[0].lognumber || -1;
+      const lastLognumber = this.data.telegrams[0] && this.data.telegrams[0].lognumber > -1 || -1;
       console.log("lastlognumber="+lastLognumber);
       let telegrams = await this.fetchLog(lastLognumber);
       // Quickly get more telegrams if result holds 50 (max return from esp)
