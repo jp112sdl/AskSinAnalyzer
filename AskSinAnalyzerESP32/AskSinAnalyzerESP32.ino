@@ -95,26 +95,28 @@ struct _HomeMaticConfig {
 #define SIZE_FLAGS      32
 
 struct _LogTable {
-  uint32_t lognumber = 0;
-  char fromSerial[SIZE_SERIAL];
-  char toSerial[SIZE_SERIAL];
-  char fromAddress[SIZE_ADDRESS];
-  char toAddress[SIZE_ADDRESS];
-  int rssi = -255;
-  uint8_t len = 0;
-  uint8_t cnt = 0;
-  char typ[SIZE_TYPE];
-  char flags[SIZE_FLAGS];
-  time_t time = 0;
+  uint32_t lognumber                  = 0;
+  uint8_t  len                        = 0;
+  uint8_t  cnt                        = 0;
+  time_t   time                       = 0;
+  int      rssi                       = -255;
+  char     fromSerial [SIZE_SERIAL];
+  char     toSerial   [SIZE_SERIAL];
+  char     fromAddress[SIZE_ADDRESS];
+  char     toAddress  [SIZE_ADDRESS];
+  char     typ        [SIZE_TYPE];
+  char     flags      [SIZE_FLAGS];
 } LogTable[MAX_LOG_ENTRIES + 1];
-uint16_t logLength = 0;
-uint16_t logLengthDisplay = 0;
+
+uint16_t   logLength                  = 0;
+uint16_t   logLengthDisplay           = 0;
 
 struct _SerialBuffer {
   String   Msg            = "";
   time_t   t              = 0;
 } SerialBuffer[255];
 uint8_t  msgBufferCount = 0;
+
 JsonArray devices;
 
 uint32_t allCount              = 0;

@@ -59,7 +59,7 @@ String getTyp(String in) {
   else if (in == "5E") typ = "POWER_EVENT";
   else if (in == "5F") typ = "POWER_EVENT_CYCLIC";
   else if (in == "70") typ = "WEATHER";
-  else if (in.startsWith("8")) typ += "HMIP_TYPE";
+  else if (in.startsWith("8")) typ = "HMIP_TYPE";
 
   else typ = in;
   uint8_t typlen = typ.length();
