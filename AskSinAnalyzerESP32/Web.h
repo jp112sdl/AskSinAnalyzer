@@ -223,7 +223,7 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
   request->send(200, "application/json", json);
 }*/
 
-void getLog(AsyncWebServerRequest * request) {
+/*void getLog(AsyncWebServerRequest * request) {
 
   uint16_t start = 0;
   bool first = false;
@@ -248,8 +248,8 @@ void getLog(AsyncWebServerRequest * request) {
       json += "{";
       json += "\"time\": \"" + getDatum(LogTable[l].time) + " " + getUhrzeit(LogTable[l].time) + "\", ";
       json += "\"rssi\": \"" + String(LogTable[l].rssi) + "\", ";
-      json += "\"from\": \"" + String(LogTable[l].from) + "\", ";
-      json += "\"to\": \"" + String(LogTable[l].to) + "\", ";
+      json += "\"from\": \"" + String(LogTable[l].fromSerial) + "\", ";
+      json += "\"to\": \"" + String(LogTable[l].toSerial) + "\", ";
       json += "\"len\": \"" + String(LogTable[l].len) + "\", ";
       json += "\"cnt\": \"" + String(LogTable[l].cnt) + "\", ";
       String t = String(LogTable[l].typ);
@@ -266,7 +266,7 @@ void getLog(AsyncWebServerRequest * request) {
 
   json += "}";
   request->send(200, "application/json", json);
-}
+}*/
 
 /*void getDeviceNameBySerial(AsyncWebServerRequest * request) {
   DPRINTLN("######## getDeviceNameBySerial BEGIN ########");
@@ -373,9 +373,9 @@ void initWebServer() {
     ESP.restart();
   });
 
-  webServer.on("/getLog", HTTP_GET, [](AsyncWebServerRequest * request) {
-    getLog(request);
-  });
+  //webServer.on("/getLog", HTTP_GET, [](AsyncWebServerRequest * request) {
+  //  getLog(request);
+  //});
 
   webServer.on("/getConfig", HTTP_GET, [](AsyncWebServerRequest * request) {
     getConfig(request);
@@ -385,7 +385,7 @@ void initWebServer() {
     setConfig(request);
   });
 
-  webServer.on("/rebootconfig", HTTP_POST, [](AsyncWebServerRequest * request) {
+  webServer.on("/rebootInConfigMode", HTTP_POST, [](AsyncWebServerRequest * request) {
     setBootConfigMode(request);
   });
 

@@ -114,7 +114,7 @@ void createJSONDevList() {
     a.replace("&quot;", "\"");
     DeserializationError error = deserializeJson(JSONDevList, a);
     if (error) {
-      DPRINT(F(" - JSON DeserializationError: "));DPRINTLN(error.c_str());
+      DPRINT(F(" - JSON DeserializationError: ")); DPRINTLN(error.c_str());
     } else {
       devices = JSONDevList["devices"];
       //for (uint16_t i = 0; i < devices.size(); i++) {
@@ -141,6 +141,24 @@ String getSerialFromIntAddress(int intAddr) {
     }
   }
   return "";
+}
+
+void shiftLogArray() {
+  if (logLength > 0) {
+    for (uint16_t c = logLength; c > 0; c--) {
+      memcpy(LogTable[c].fromSerial, LogTable[c - 1].fromSerial, SIZE_SERIAL);
+      memcpy(LogTable[c].toSerial, LogTable[c - 1].toSerial, SIZE_SERIAL);
+      memcpy(LogTable[c].fromAddress, LogTable[c - 1].fromAddress, SIZE_ADDRESS);
+      memcpy(LogTable[c].toAddress, LogTable[c - 1].toAddress, SIZE_ADDRESS);
+      LogTable[c].rssi = LogTable[c - 1].rssi;
+      LogTable[c].len = LogTable[c - 1].len;
+      LogTable[c].cnt = LogTable[c - 1].cnt;
+      memcpy(LogTable[c].typ, LogTable[c - 1].typ, SIZE_TYPE);
+      memcpy(LogTable[c].flags, LogTable[c - 1].flags, SIZE_FLAGS);
+      LogTable[c].time = LogTable[c - 1].time;
+      LogTable[c].lognumber = LogTable[c - 1].lognumber;
+    }
+  }
 }
 
 #endif

@@ -93,27 +93,13 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END).toCharArray(toAddress, SIZE_ADDRESS);
 
 
-  if (logLength > 0) {
-    for (uint16_t c = logLength; c > 0; c--) {
-      memcpy(LogTable[c].from, LogTable[c - 1].from, SIZE_SERIAL);
-      memcpy(LogTable[c].to, LogTable[c - 1].to, SIZE_SERIAL);
-      memcpy(LogTable[c].fromAddress, LogTable[c - 1].fromAddress, SIZE_ADDRESS);
-      memcpy(LogTable[c].toAddress, LogTable[c - 1].toAddress, SIZE_ADDRESS);
-      LogTable[c].rssi = LogTable[c - 1].rssi;
-      LogTable[c].len = LogTable[c - 1].len;
-      LogTable[c].cnt = LogTable[c - 1].cnt;
-      memcpy(LogTable[c].typ, LogTable[c - 1].typ, SIZE_TYPE);
-      memcpy(LogTable[c].flags, LogTable[c - 1].flags, SIZE_FLAGS);
-      LogTable[c].time = LogTable[c - 1].time;
-      LogTable[c].lognumber = LogTable[c - 1].lognumber;
-    }
-  }
+  shiftLogArray();
 
   LogTable[0].lognumber = allCount;
   LogTable[0].time = sb.t;
   LogTable[0].rssi = rssi;
-  memcpy(LogTable[0].from, fromStr.c_str(), SIZE_SERIAL);
-  memcpy(LogTable[0].to, toStr.c_str(), SIZE_SERIAL);
+  memcpy(LogTable[0].fromSerial, fromStr.c_str(), SIZE_SERIAL);
+  memcpy(LogTable[0].toSerial, toStr.c_str(), SIZE_SERIAL);
   memcpy(LogTable[0].fromAddress, fromAddress, SIZE_ADDRESS);
   memcpy(LogTable[0].toAddress, toAddress, SIZE_ADDRESS);
   LogTable[0].len = len;
@@ -121,63 +107,15 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   memcpy(LogTable[0].typ, typ.c_str(), SIZE_TYPE);
   memcpy(LogTable[0].flags, flags.c_str(), SIZE_FLAGS);
 
-  // Write to CSV
-  DPRINTLN(F("Preprocessing CSV"));
-  String csvLine = "";
-  String temp = "";
-  csvLine += String(allCount);
-  csvLine += ";";
-  csvLine += getDatum(LogTable[0].time) + " " + getUhrzeit(LogTable[0].time);
-  csvLine += ";";
-  csvLine += String(LogTable[0].rssi);
-  csvLine += ";";
-
-
-  temp = LogTable[0].fromAddress;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-
-  temp = LogTable[0].from;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-
-  temp = LogTable[0].toAddress;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-
-  temp = LogTable[0].to;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-
-  csvLine += String(LogTable[0].len);
-  csvLine += ";";
-  csvLine += String(LogTable[0].cnt);
-  csvLine += ";";
-  temp = LogTable[0].typ;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-  temp = LogTable[0].flags;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-
-  if (SPIFFS.totalBytes() - SPIFFS.usedBytes() > csvLine.length())
-    writeCSV(CSV_FILENAME, csvLine);
-  else
-    DPRINTLN(F("writeCSV failed - not enough space"));
+  writeLogEntryToCSV(LogTable[0]);
 
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
   DPRINTLN(F("\nAdded to LogTable: "));
   DPRINT(F(" - fromAddress : ")); DPRINTLN(LogTable[0].fromAddress);
-  DPRINT(F(" - fromSerial  : ")); DPRINTLN(LogTable[0].from);
+  DPRINT(F(" - fromSerial  : ")); DPRINTLN(LogTable[0].fromSerial);
   DPRINT(F(" - toAddress   : ")); DPRINTLN(LogTable[0].toAddress);
-  DPRINT(F(" - toSerial    : ")); DPRINTLN(LogTable[0].to);
+  DPRINT(F(" - toSerial    : ")); DPRINTLN(LogTable[0].toSerial);
   DPRINT(F(" - rssi        : ")); DPRINTLN(LogTable[0].rssi);
   DPRINT(F(" - len         : ")); DPRINTLN(LogTable[0].len);
   DPRINT(F(" - cnt         : ")); DPRINTLN(LogTable[0].cnt);

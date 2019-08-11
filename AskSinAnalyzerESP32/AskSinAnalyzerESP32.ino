@@ -101,8 +101,8 @@ uint16_t AddressTableCount = 0;
 
 struct _LogTable {
   uint32_t lognumber = 0;
-  char from[SIZE_SERIAL];
-  char to[SIZE_SERIAL];
+  char fromSerial[SIZE_SERIAL];
+  char toSerial[SIZE_SERIAL];
   char fromAddress[SIZE_ADDRESS];
   char toAddress[SIZE_ADDRESS];
   int rssi = -255;
@@ -138,10 +138,10 @@ time_t   bootTime              = 0;
 String   updateUrl             = "https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/AskSinAnalyzerESP32.bin";
 
 #include "Config.h"
+#include "NTP.h"
 #include "SDFunctions.h"
 #include "File.h"
 #include "Display.h"
-#include "NTP.h"
 #include "CCUFunctions.h"
 #include "Helper.h"
 #include "SerialIn.h"

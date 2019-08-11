@@ -176,4 +176,56 @@ void IRAM_ATTR writeCSV(const char * fileName, String &csvLine) {
     }
   }
 }
+
+void writeLogEntryToCSV(struct _LogTable lt) {
+  // Write to CSV
+  DPRINTLN(F("Preprocessing CSV"));
+  String csvLine = "";
+  String temp = "";
+  csvLine += String(allCount);
+  csvLine += ";";
+  csvLine += getDatum(lt.time) + " " + getUhrzeit(lt.time);
+  csvLine += ";";
+  csvLine += String(lt.rssi);
+  csvLine += ";";
+
+
+  temp = lt.fromAddress;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+
+  temp = lt.fromSerial;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+
+  temp = lt.toAddress;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+
+  temp = lt.toSerial;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+
+  csvLine += String(lt.len);
+  csvLine += ";";
+  csvLine += String(lt.cnt);
+  csvLine += ";";
+  temp = lt.typ;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+  temp = lt.flags;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+
+  if (SPIFFS.totalBytes() - SPIFFS.usedBytes() > csvLine.length())
+    writeCSV(CSV_FILENAME, csvLine);
+  else
+    DPRINTLN(F("writeCSV failed - not enough space"));
+}
 #endif

@@ -44,10 +44,10 @@ void checkWifi() {
 }
 
 bool doWifiConnect() {
-  DPRINT(F("- INIT WIFI CONNECT."));
+  DPRINTLN(F("- INIT WIFI CONNECT."));
   preferences.begin("wifi", false);
-  String _ssid =  preferences.getString("ssid", "none");           //NVS key ssid
-  String _psk =  preferences.getString("password", "none");   //NVS key password
+  String _ssid = preferences.getString("ssid", "none");      //NVS key ssid
+  String _psk = preferences.getString("password", "none");   //NVS key password
   preferences.end();
 
 
