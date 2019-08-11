@@ -79,8 +79,6 @@ const server = http.createServer(function(req, res) {
             "version_upper": 1,
             "version_lower": 3,
             "ccuip": "192.168.178.39",
-            "svanalyzeinput": "Analyzer_Input",
-            "svanalyzeoutput": "Analyzer_Output",
             "resolve": 1,
             "sdcardavailable": 1,
             "sdcardsizemb": 3780,
