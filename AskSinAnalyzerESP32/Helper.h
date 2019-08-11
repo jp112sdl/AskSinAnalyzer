@@ -110,7 +110,7 @@ const size_t listCapacity = JSON_ARRAY_SIZE(400) + JSON_OBJECT_SIZE(2) + 400 * J
 DynamicJsonDocument JSONDevList(listCapacity);
 void createJSONDevList() {
   if (isOnline) {
-    String a = getCCURequest("AskSinAnalyzerDevList");
+    String a = getCCURequest(CCU_SV);
     a.replace("&quot;", "\"");
     DeserializationError error = deserializeJson(JSONDevList, a);
     if (error) {

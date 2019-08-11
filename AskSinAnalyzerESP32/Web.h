@@ -113,7 +113,7 @@ void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/xml;charset=iso-8859-1");
   HTTPClient http;
   WiFiClient client;
-  http.begin(client, "http://" + String(HomeMaticConfig.ccuIP) + ":8181/ret.exe?ret=dom.GetObject(\"AskSinAnalyzerDevList\").Value()");
+  http.begin(client, "http://" + String(HomeMaticConfig.ccuIP) + ":8181/ret.exe?ret=dom.GetObject(\""+CCU_SV+"\").Value()");
   int httpCode = http.GET();
   if (httpCode > 0) {
     if (httpCode == HTTP_CODE_OK) {
@@ -291,6 +291,8 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
 
 void indexHtml(AsyncWebServerRequest * request) {
   String page = FPSTR(HTTP_INDEX);
+
+  page.replace("{branch}", WEB_BRANCH);
 
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(page.length()));
