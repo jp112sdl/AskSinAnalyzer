@@ -10,7 +10,7 @@
           <q-item-label caption>Startet den ESP neu.</q-item-label>
         </q-item-section>
       </q-item>
-      <q-item clickable v-ripple @click="rebootconfig">
+      <q-item clickable v-ripple @click="rebootInConfigMode">
         <q-item-section avatar>
           <q-avatar rounded color="primary" text-color="white" icon="settings_applications"/>
         </q-item-section>
