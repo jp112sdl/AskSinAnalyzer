@@ -130,9 +130,6 @@ void showInfoDisplay() {
   u8g.print(F("        NTP: ")); u8g.println(NetConfig.ntp); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
   u8g.println();
   u8g.print(F("     CCU IP: ")); u8g.println(HomeMaticConfig.ccuIP); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
-
-  u8g.print(F("   SV Input: ")); u8g.println(HomeMaticConfig.SVAnalyzeInput); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
-  u8g.print(F("  SV Output: ")); u8g.println(HomeMaticConfig.SVAnalyzeOutput); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
 }
 
 #endif

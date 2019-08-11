@@ -95,8 +95,6 @@ bool doWifiConnect() {
     WiFiManagerParameter custom_hostname("custom_hostname", "Hostname (leave blank to reset to default)", NetConfig.hostname, VARIABLESIZE, "pattern='[A-Za-z0-9_ -.]+'");
     WiFiManagerParameter custom_ntp("custom_ntp", "NTP-Server (leave blank to reset to default)", NetConfig.ntp, VARIABLESIZE, "pattern='[A-Za-z0-9_ -.]+'");
     WiFiManagerParameter custom_ccuip("ccu", "IP der CCU", HomeMaticConfig.ccuIP, IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
-    WiFiManagerParameter custom_svanalyzeinput("svanalyzeinput", "SV Analyze Input", HomeMaticConfig.SVAnalyzeInput, VARIABLESIZE, "pattern='[A-Za-z0-9_ -]+'");
-    WiFiManagerParameter custom_svanalyzeoutput("svanalyzeoutput", "SV Analyze Output", HomeMaticConfig.SVAnalyzeOutput, VARIABLESIZE, "pattern='[A-Za-z0-9_ -]+'");
 
     wifiManager.setSaveConfigCallback(saveConfigCallback);
 
@@ -105,8 +103,6 @@ bool doWifiConnect() {
     WiFi.mode(WIFI_STA);
 
     wifiManager.addParameter(&custom_ccuip);
-    wifiManager.addParameter(&custom_svanalyzeinput);
-    wifiManager.addParameter(&custom_svanalyzeoutput);
     wifiManager.addParameter(&custom_ip);
     wifiManager.addParameter(&custom_netmask);
     wifiManager.addParameter(&custom_gw);
@@ -158,8 +154,6 @@ bool doWifiConnect() {
       }
 
       strcpy(HomeMaticConfig.ccuIP, custom_ccuip.getValue());
-      strcpy(HomeMaticConfig.SVAnalyzeInput, custom_svanalyzeinput.getValue());
-      strcpy(HomeMaticConfig.SVAnalyzeOutput, custom_svanalyzeoutput.getValue());
 
       saveSystemConfig();
       digitalWrite(AP_MODE_LED_PIN, LOW);

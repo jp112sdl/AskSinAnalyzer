@@ -80,12 +80,12 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   String fromStr = "";
   String toStr = "";
   if (ONLINE_MODE && RESOLVE_ADDRESS) {
-    fromStr = getSerialFromAddress((sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN));
-    toStr = getSerialFromAddress((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END));
-  } else {
-    fromStr = "  " + (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN) + "  ";
-    toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END) + "  ";
+    fromStr = getSerialFromIntAddress(hexToDec((sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN)));
+    toStr = getSerialFromIntAddress(hexToDec((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END)));
   }
+  
+  if (fromStr == "")  fromStr = "  " + (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN) + "  ";
+  if (toStr == "")    toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END) + "  ";
 
   char fromAddress[SIZE_ADDRESS];
   (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN).toCharArray(fromAddress, SIZE_ADDRESS);
@@ -132,12 +132,12 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   csvLine += String(LogTable[0].rssi);
   csvLine += ";";
 
-      
+
   temp = LogTable[0].fromAddress;
   temp.trim();
   csvLine += temp;
   csvLine += ";";
-  
+
   temp = LogTable[0].from;
   temp.trim();
   csvLine += temp;
@@ -147,12 +147,12 @@ void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
   temp.trim();
   csvLine += temp;
   csvLine += ";";
-  
+
   temp = LogTable[0].to;
   temp.trim();
   csvLine += temp;
   csvLine += ";";
-  
+
   csvLine += String(LogTable[0].len);
   csvLine += ";";
   csvLine += String(LogTable[0].cnt);

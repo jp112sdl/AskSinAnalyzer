@@ -19,18 +19,6 @@ void setConfig(AsyncWebServerRequest *request) {
     DPRINT(F("  - ccuip: ")); DPRINTLN(HomeMaticConfig.ccuIP);
   }
 
-  if (request->hasParam("svanalyzeinput")) {
-    AsyncWebParameter* p = request->getParam("svanalyzeinput");
-    p->value().toCharArray(HomeMaticConfig.SVAnalyzeInput, VARIABLESIZE, 0);
-    DPRINT(F("  - svanalyzeinput: ")); DPRINTLN(HomeMaticConfig.SVAnalyzeInput);
-  }
-
-  if (request->hasParam("svanalyzeoutput")) {
-    AsyncWebParameter* p = request->getParam("svanalyzeoutput");
-    p->value().toCharArray(HomeMaticConfig.SVAnalyzeOutput, VARIABLESIZE, 0);
-    DPRINT(F("  - svanalyzeoutput: ")); DPRINTLN(HomeMaticConfig.SVAnalyzeOutput);
-  }
-
   if (request->hasParam("ntp")) {
     AsyncWebParameter* p = request->getParam("ntp");
     p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
@@ -73,6 +61,7 @@ void setConfig(AsyncWebServerRequest *request) {
 }
 
 void getConfig (AsyncWebServerRequest *request) {
+  DPRINTLN(F("::: Web.h /getConfig"));
   bool staticipconfig = String(NetConfig.ip) != "0.0.0.0";
   String json = "{";
   json += "\"staticipconfig\":" + String(staticipconfig);
@@ -90,10 +79,6 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "\"macaddress\":\"" + String(WiFi.macAddress()) + "\"";
   json += ",";
   json += "\"ccuip\":\"" + String(HomeMaticConfig.ccuIP) + "\"";
-  json += ",";
-  json += "\"svanalyzeinput\":\"" + String(HomeMaticConfig.SVAnalyzeInput) + "\"";
-  json += ",";
-  json += "\"svanalyzeoutput\":\"" + String(HomeMaticConfig.SVAnalyzeOutput) + "\"";
   json += ",";
   json += "\"resolve\":" + String(RESOLVE_ADDRESS);
   json += ",";
@@ -124,7 +109,7 @@ void getConfig (AsyncWebServerRequest *request) {
 }
 
 void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
-  DPRINT(F("\n::: getAskSinAnalyzerDevList\n"));
+  DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevList"));
   AsyncResponseStream *response = request->beginResponseStream("application/xml;charset=iso-8859-1");
   HTTPClient http;
   WiFiClient client;
@@ -149,20 +134,23 @@ void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
   } else {
     DPRINT(F(":::getAskSinAnalyzerDevList HTTP-Client failed with ")); DDECLN(httpCode);
   }
-
+  http.end();
   request->send(response);
+  //createJSONDevList();
 }
+
+
 void getLogByLogNumber (AsyncWebServerRequest * request) {
-  uint32_t lognum = 0;
+  int32_t lognum = 0;
   if (request->hasParam("lognum")) {
     AsyncWebParameter* p = request->getParam("lognum");
     lognum = p->value().toInt();
   }
+
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   response->print("[");
-
   for (uint16_t l = 0; l < logLength; l++) {
-    if (LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
+    if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
       String json = "";
       if (l > 0) json += ",";
       json += "{";
@@ -188,12 +176,12 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
     }
     if (l == MAX_LOG_ENTRIES) break;
   }
-  response->print("]");
 
+  response->print("]");
   request->send(response);
 }
 
-void getLogByTimestamp (AsyncWebServerRequest * request) {
+/*void getLogByTimestamp (AsyncWebServerRequest * request) {
   time_t ts = 0;
   if (request->hasParam("ts")) {
     AsyncWebParameter* p = request->getParam("ts");
@@ -233,7 +221,7 @@ void getLogByTimestamp (AsyncWebServerRequest * request) {
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(json.length()));
   request->send(200, "application/json", json);
-}
+}*/
 
 void getLog(AsyncWebServerRequest * request) {
 
@@ -280,7 +268,7 @@ void getLog(AsyncWebServerRequest * request) {
   request->send(200, "application/json", json);
 }
 
-void getDeviceNameBySerial(AsyncWebServerRequest * request) {
+/*void getDeviceNameBySerial(AsyncWebServerRequest * request) {
   DPRINTLN("######## getDeviceNameBySerial BEGIN ########");
   String serial = "";
   if (request->hasParam("Serial")) {
@@ -299,7 +287,7 @@ void getDeviceNameBySerial(AsyncWebServerRequest * request) {
   response->addHeader("Content-Length", String(page.length()));
   request->send(200, "application/json;charset=iso-8859-1", page);
   DPRINTLN("######## getDeviceNameBySerial END    ########\n");
-}
+}*/
 
 void indexHtml(AsyncWebServerRequest * request) {
   String page = FPSTR(HTTP_INDEX);
@@ -401,17 +389,17 @@ void initWebServer() {
     setBootConfigMode(request);
   });
 
-  webServer.on("/getDeviceNameBySerial", HTTP_GET, [](AsyncWebServerRequest * request) {
-    getDeviceNameBySerial(request);
-  });
+  //webServer.on("/getDeviceNameBySerial", HTTP_GET, [](AsyncWebServerRequest * request) {
+  //  getDeviceNameBySerial(request);
+  //});
 
   webServer.on("/getAskSinAnalyzerDevList", HTTP_GET, [](AsyncWebServerRequest * request) {
     getAskSinAnalyzerDevList(request);
   });
 
-  webServer.on("/getLogByTimestamp", HTTP_GET, [](AsyncWebServerRequest * request) {
-    getLogByTimestamp(request);
-  });
+  //webServer.on("/getLogByTimestamp", HTTP_GET, [](AsyncWebServerRequest * request) {
+  //  getLogByTimestamp(request);
+  //});
 
   webServer.on("/getLogByLogNumber", HTTP_GET, [](AsyncWebServerRequest * request) {
     getLogByLogNumber(request);

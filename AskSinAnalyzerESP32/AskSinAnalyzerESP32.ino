@@ -84,8 +84,6 @@ struct _NetConfig {
 
 struct _HomeMaticConfig {
   char ccuIP[IPSIZE]   = "";
-  char SVAnalyzeInput[VARIABLESIZE] = "";
-  char SVAnalyzeOutput[VARIABLESIZE] = "";
 } HomeMaticConfig;
 
 #define ADDRESSTABLE_LENGTH 256
@@ -122,6 +120,7 @@ struct _SerialBuffer {
   time_t   t              = 0;
 } SerialBuffer[255];
 uint8_t  msgBufferCount = 0;
+JsonArray devices;
 
 uint32_t allCount              = 0;
 unsigned long lastDebugMillis  = 0;
@@ -190,7 +189,7 @@ void setup() {
 
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);
 
-    RESOLVE_ADDRESS = isNotEmpty(HomeMaticConfig.ccuIP) && isNotEmpty(HomeMaticConfig.SVAnalyzeInput) && isNotEmpty(HomeMaticConfig.SVAnalyzeOutput);
+    RESOLVE_ADDRESS = isNotEmpty(HomeMaticConfig.ccuIP);
     DPRINT(F("- RESOLVE_ADDRESS is")); DPRINT(RESOLVE_ADDRESS ? " " : " NOT "); DPRINTLN(F("active!"));
 
     isOnline = doWifiConnect();
@@ -202,7 +201,9 @@ void setup() {
     DPRINT(F("- INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE" : "NOT AVAILABLE");
     initWebServer();
     DPRINTLN(F("- INIT WEBSERVER DONE."));
-
+    DPRINT(F("- Fetching DevList... "));
+    createJSONDevList();
+    DPRINTLN(F("DONE"));
   }
 
 #ifdef USE_DISPLAY
