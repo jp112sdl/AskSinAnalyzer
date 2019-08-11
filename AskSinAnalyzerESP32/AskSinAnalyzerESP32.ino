@@ -88,13 +88,6 @@ struct _HomeMaticConfig {
   char ccuIP[IPSIZE]   = "";
 } HomeMaticConfig;
 
-#define ADDRESSTABLE_LENGTH 256
-struct _AddressTable {
-  String Address = "";
-  String Serial = "";
-} AddressTable[ADDRESSTABLE_LENGTH];
-uint16_t AddressTableCount = 0;
-
 #define MAX_LOG_ENTRIES 51
 #define SIZE_ADDRESS   (6+1)    // address has 6 chars
 #define SIZE_SERIAL    (10+1)   // serial has 10 chars

@@ -70,15 +70,6 @@ String getTyp(String in) {
   return typ;
 }
 
-
-void initAddressTable() {
-  memset(AddressTable, 0, ADDRESSTABLE_LENGTH);
-  /*for (uint16_t c = 0; c < ADDRESSTABLE_LENGTH; c++) {
-    AddressTable[c].Address = "";
-    AddressTable[c].Serial = "";
-    }*/
-}
-
 void initLogTable() {
   memset(LogTable, 0, MAX_LOG_ENTRIES);
   /*for (uint16_t c = 0; c < MAX_LOG_ENTRIES; c++) {
