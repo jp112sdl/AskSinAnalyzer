@@ -14,52 +14,40 @@ AsyncWebServer webServer(80);
 void setConfig(AsyncWebServerRequest *request) {
   DPRINTLN(F("- setConfig"));
   if (request->hasParam("ccuip")) {
-     AsyncWebParameter* p = request->getParam("ccuip");
-     p->value().toCharArray(HomeMaticConfig.ccuIP, IPSIZE, 0);
-     DPRINT(F("  - ccuip: "));DPRINTLN(HomeMaticConfig.ccuIP);
-   }
-
-  if (request->hasParam("svanalyzeinput")) {
-     AsyncWebParameter* p = request->getParam("svanalyzeinput");
-     p->value().toCharArray(HomeMaticConfig.SVAnalyzeInput, VARIABLESIZE, 0);
-     DPRINT(F("  - svanalyzeinput: "));DPRINTLN(HomeMaticConfig.SVAnalyzeInput);
-   }
-
-  if (request->hasParam("svanalyzeoutput")) {
-     AsyncWebParameter* p = request->getParam("svanalyzeoutput");
-     p->value().toCharArray(HomeMaticConfig.SVAnalyzeOutput, VARIABLESIZE, 0);
-     DPRINT(F("  - svanalyzeoutput: "));DPRINTLN(HomeMaticConfig.SVAnalyzeOutput);
-   }
+    AsyncWebParameter* p = request->getParam("ccuip");
+    p->value().toCharArray(HomeMaticConfig.ccuIP, IPSIZE, 0);
+    DPRINT(F("  - ccuip: ")); DPRINTLN(HomeMaticConfig.ccuIP);
+  }
 
   if (request->hasParam("ntp")) {
-     AsyncWebParameter* p = request->getParam("ntp");
-     p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
-     DPRINT(F("  - ntp: "));DPRINTLN(NetConfig.ntp);
-   }
+    AsyncWebParameter* p = request->getParam("ntp");
+    p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
+    DPRINT(F("  - ntp: ")); DPRINTLN(NetConfig.ntp);
+  }
 
   if (request->hasParam("hostname")) {
-     AsyncWebParameter* p = request->getParam("hostname");
-     p->value().toCharArray(NetConfig.hostname, VARIABLESIZE, 0);
-     DPRINT(F("  - hostname: "));DPRINTLN(NetConfig.hostname);
-   }
+    AsyncWebParameter* p = request->getParam("hostname");
+    p->value().toCharArray(NetConfig.hostname, VARIABLESIZE, 0);
+    DPRINT(F("  - hostname: ")); DPRINTLN(NetConfig.hostname);
+  }
 
   if (request->hasParam("ip")) {
-     AsyncWebParameter* p = request->getParam("ip");
-     p->value().toCharArray(NetConfig.ip, IPSIZE, 0);
-     DPRINT(F("  - ip: "));DPRINTLN(NetConfig.ip);
-   }
+    AsyncWebParameter* p = request->getParam("ip");
+    p->value().toCharArray(NetConfig.ip, IPSIZE, 0);
+    DPRINT(F("  - ip: ")); DPRINTLN(NetConfig.ip);
+  }
 
   if (request->hasParam("netmask")) {
-     AsyncWebParameter* p = request->getParam("netmask");
-     p->value().toCharArray(NetConfig.netmask, IPSIZE, 0);
-     DPRINT(F("  - netmask: "));DPRINTLN(NetConfig.netmask);
-   }
+    AsyncWebParameter* p = request->getParam("netmask");
+    p->value().toCharArray(NetConfig.netmask, IPSIZE, 0);
+    DPRINT(F("  - netmask: ")); DPRINTLN(NetConfig.netmask);
+  }
 
   if (request->hasParam("gw")) {
-     AsyncWebParameter* p = request->getParam("gw");
-     p->value().toCharArray(NetConfig.gw, IPSIZE, 0);
-     DPRINT(F("  - gw: "));DPRINTLN(NetConfig.gw);
-   }
+    AsyncWebParameter* p = request->getParam("gw");
+    p->value().toCharArray(NetConfig.gw, IPSIZE, 0);
+    DPRINT(F("  - gw: ")); DPRINTLN(NetConfig.gw);
+  }
 
   DPRINTLN(F("- setConfig END"));
 
@@ -73,6 +61,7 @@ void setConfig(AsyncWebServerRequest *request) {
 }
 
 void getConfig (AsyncWebServerRequest *request) {
+  DPRINTLN(F("::: Web.h /getConfig"));
   bool staticipconfig = String(NetConfig.ip) != "0.0.0.0";
   String json = "{";
   json += "\"staticipconfig\":" + String(staticipconfig);
@@ -90,10 +79,6 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "\"macaddress\":\"" + String(WiFi.macAddress()) + "\"";
   json += ",";
   json += "\"ccuip\":\"" + String(HomeMaticConfig.ccuIP) + "\"";
-  json += ",";
-  json += "\"svanalyzeinput\":\"" + String(HomeMaticConfig.SVAnalyzeInput) + "\"";
-  json += ",";
-  json += "\"svanalyzeoutput\":\"" + String(HomeMaticConfig.SVAnalyzeOutput) + "\"";
   json += ",";
   json += "\"resolve\":" + String(RESOLVE_ADDRESS);
   json += ",";
@@ -123,27 +108,59 @@ void getConfig (AsyncWebServerRequest *request) {
   request->send(200, "application/json", json);
 }
 
-void getLogByLogNumber (AsyncWebServerRequest *request) {
-  uint32_t lognum = 0;
+void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
+  DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevList"));
+  AsyncResponseStream *response = request->beginResponseStream("application/xml;charset=iso-8859-1");
+  HTTPClient http;
+  WiFiClient client;
+  http.begin(client, "http://" + String(HomeMaticConfig.ccuIP) + ":8181/ret.exe?ret=dom.GetObject(\""+CCU_SV+"\").Value()");
+  int httpCode = http.GET();
+  if (httpCode > 0) {
+    if (httpCode == HTTP_CODE_OK) {
+      int len = http.getSize();
+      uint8_t buff[128] = { 0 };
+      WiFiClient * stream = &client;
+      while (http.connected() && (len > 0 || len == -1)) {
+        int c = stream->readBytes(buff, std::min((size_t)len, sizeof(buff)));
+        if (!c) DPRINTLN(F("getAskSinAnalyzerDevList read timeout"));
+
+        for (uint8_t a = 0; a < c; a++)
+          response->print((char)buff[a]);
+        if (len > 0)  len -= c;
+      }
+    } else {
+      DPRINT(F("::: getAskSinAnalyzerDevList HTTP GET ERROR ")); DDECLN(httpCode);
+    }
+  } else {
+    DPRINT(F(":::getAskSinAnalyzerDevList HTTP-Client failed with ")); DDECLN(httpCode);
+  }
+  http.end();
+  request->send(response);
+  //createJSONDevList();
+}
+
+
+void getLogByLogNumber (AsyncWebServerRequest * request) {
+  int32_t lognum = 0;
   if (request->hasParam("lognum")) {
     AsyncWebParameter* p = request->getParam("lognum");
     lognum = p->value().toInt();
   }
+
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   response->print("[");
-
   for (uint16_t l = 0; l < logLength; l++) {
-    if (LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
+    if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
       String json = "";
       if (l > 0) json += ",";
       json += "{";
       json += "\"lognumber\": " + String(LogTable[l].lognumber) + ", ";
       json += "\"tstamp\": " + String(LogTable[l].time) + ", ";
       json += "\"rssi\": " + String(LogTable[l].rssi) + ", ";
-      String from = String(LogTable[l].from);
+      String from = String(LogTable[l].fromAddress);
       from.trim();
       json += "\"from\": \"" + from + "\", ";
-      String to = String(LogTable[l].to);
+      String to = String(LogTable[l].toAddress);
       to.trim();
       json += "\"to\": \"" + to + "\", ";
       json += "\"len\": " + String(LogTable[l].len) + ", ";
@@ -159,12 +176,12 @@ void getLogByLogNumber (AsyncWebServerRequest *request) {
     }
     if (l == MAX_LOG_ENTRIES) break;
   }
-  response->print("]");
 
+  response->print("]");
   request->send(response);
 }
 
-void getLogByTimestamp (AsyncWebServerRequest *request) {
+/*void getLogByTimestamp (AsyncWebServerRequest * request) {
   time_t ts = 0;
   if (request->hasParam("ts")) {
     AsyncWebParameter* p = request->getParam("ts");
@@ -204,9 +221,9 @@ void getLogByTimestamp (AsyncWebServerRequest *request) {
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(json.length()));
   request->send(200, "application/json", json);
-}
+}*/
 
-void getLog(AsyncWebServerRequest *request) {
+/*void getLog(AsyncWebServerRequest * request) {
 
   uint16_t start = 0;
   bool first = false;
@@ -231,8 +248,8 @@ void getLog(AsyncWebServerRequest *request) {
       json += "{";
       json += "\"time\": \"" + getDatum(LogTable[l].time) + " " + getUhrzeit(LogTable[l].time) + "\", ";
       json += "\"rssi\": \"" + String(LogTable[l].rssi) + "\", ";
-      json += "\"from\": \"" + String(LogTable[l].from) + "\", ";
-      json += "\"to\": \"" + String(LogTable[l].to) + "\", ";
+      json += "\"from\": \"" + String(LogTable[l].fromSerial) + "\", ";
+      json += "\"to\": \"" + String(LogTable[l].toSerial) + "\", ";
       json += "\"len\": \"" + String(LogTable[l].len) + "\", ";
       json += "\"cnt\": \"" + String(LogTable[l].cnt) + "\", ";
       String t = String(LogTable[l].typ);
@@ -249,9 +266,9 @@ void getLog(AsyncWebServerRequest *request) {
 
   json += "}";
   request->send(200, "application/json", json);
-}
+}*/
 
-void getDeviceNameBySerial(AsyncWebServerRequest *request) {
+/*void getDeviceNameBySerial(AsyncWebServerRequest * request) {
   DPRINTLN("######## getDeviceNameBySerial BEGIN ########");
   String serial = "";
   if (request->hasParam("Serial")) {
@@ -270,17 +287,19 @@ void getDeviceNameBySerial(AsyncWebServerRequest *request) {
   response->addHeader("Content-Length", String(page.length()));
   request->send(200, "application/json;charset=iso-8859-1", page);
   DPRINTLN("######## getDeviceNameBySerial END    ########\n");
-}
+}*/
 
-void indexHtml(AsyncWebServerRequest *request) {
+void indexHtml(AsyncWebServerRequest * request) {
   String page = FPSTR(HTTP_INDEX);
+
+  page.replace("{branch}", WEB_BRANCH);
 
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(page.length()));
   request->send(200, "text/html", page);
 }
 
-void setBootConfigMode(AsyncWebServerRequest *request) {
+void setBootConfigMode(AsyncWebServerRequest * request) {
   if (SPIFFS.begin()) {
     DPRINTLN(F("setBootConfigMode mounted file system"));
     if (!SPIFFS.exists(BOOTCONFIGMODE_FILENAME)) {
@@ -330,13 +349,13 @@ void checkUpdate(String url) {
   }
 }
 
-void httpUpdate(AsyncWebServerRequest *request) {
+void httpUpdate(AsyncWebServerRequest * request) {
   String url = "";
   if (request->hasParam("url")) {
     AsyncWebParameter* p = request->getParam("url");
     url = p->value();
   }
-  String page = "Processing update from "+url+"\nPlease be patient - ESP32 will reboot automatically";
+  String page = "Processing update from " + url + "\nPlease be patient - ESP32 will reboot automatically";
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(page.length()));
   request->send(200, "text/plain", page);
@@ -356,9 +375,9 @@ void initWebServer() {
     ESP.restart();
   });
 
-  webServer.on("/getLog", HTTP_GET, [](AsyncWebServerRequest * request) {
-    getLog(request);
-  });
+  //webServer.on("/getLog", HTTP_GET, [](AsyncWebServerRequest * request) {
+  //  getLog(request);
+  //});
 
   webServer.on("/getConfig", HTTP_GET, [](AsyncWebServerRequest * request) {
     getConfig(request);
@@ -368,17 +387,21 @@ void initWebServer() {
     setConfig(request);
   });
 
-  webServer.on("/rebootconfig", HTTP_POST, [](AsyncWebServerRequest * request) {
+  webServer.on("/rebootInConfigMode", HTTP_POST, [](AsyncWebServerRequest * request) {
     setBootConfigMode(request);
   });
 
-  webServer.on("/getDeviceNameBySerial", HTTP_GET, [](AsyncWebServerRequest * request) {
-    getDeviceNameBySerial(request);
+  //webServer.on("/getDeviceNameBySerial", HTTP_GET, [](AsyncWebServerRequest * request) {
+  //  getDeviceNameBySerial(request);
+  //});
+
+  webServer.on("/getAskSinAnalyzerDevList", HTTP_GET, [](AsyncWebServerRequest * request) {
+    getAskSinAnalyzerDevList(request);
   });
 
-  webServer.on("/getLogByTimestamp", HTTP_GET, [](AsyncWebServerRequest * request) {
-    getLogByTimestamp(request);
-  });
+  //webServer.on("/getLogByTimestamp", HTTP_GET, [](AsyncWebServerRequest * request) {
+  //  getLogByTimestamp(request);
+  //});
 
   webServer.on("/getLogByLogNumber", HTTP_GET, [](AsyncWebServerRequest * request) {
     getLogByLogNumber(request);

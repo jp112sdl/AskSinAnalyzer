@@ -1,18 +1,12 @@
 const http = require('http');
 const { parse: parseUrl } = require('url');
+const { readFileSync } = require('fs');
+const devlist = readFileSync('./devlist.xml');
+const devlistDevices = require('./devlist.json').devices;
 
-const devices = {
-  '-ALLE-': null,
-  '-ZENTRALE-': null,
-  'OEQ1245618': 'Küche Licht Decke',
-  'OEQ1849578': 'Keller Licht',
-  'PsiDimDW07': 'Wohnzimmer Ambilight',
-  'Psi_Temp01': 'Wohnzimmer Temperatur',
-  'OEQ2565942': 'Terassenbeleuchtung',
-  'OEQ1850194': 'Wohnzimmer Licht'
-};
-
-const SNs = Object.keys(devices);
+let Addrs = devlistDevices.map(({ address }) => address.toString(16));
+Addrs.push('123gibtsnet');
+Addrs.push('987gibtsnet');
 
 const typs = [
   'INFO',
@@ -33,12 +27,12 @@ function genTelegram() {
     "tstamp": Math.round(Date.now() / 1000),
     "lognumber": lognumber,
     "rssi": -1 * Math.round(Math.random() * 120) - 20,
-    "from": SNs[Math.floor(Math.random() * SNs.length)],
-    "to": SNs[Math.floor(Math.random() * SNs.length)],
+    "from": Addrs[Math.floor(Math.random() * Addrs.length)],
+    "to": Addrs[Math.floor(Math.random() * Addrs.length)],
     "len": Math.round(Math.random() * 100),
     "cnt": Math.round(Math.random() * 100),
     "typ": typs[Math.floor(Math.random() * typs.length)],
-    "flags": flags.sort(() => Math.random() - 0.5).slice(0, Math.floor(Math.random()*3)+1).join(' ')
+    "flags": flags.sort(() => Math.random() - 0.5).slice(0, Math.floor(Math.random() * 3) + 1).join(' ')
   }
 }
 
@@ -58,6 +52,12 @@ const server = http.createServer(function(req, res) {
   const url = parseUrl(req.url, true);
   {
     switch (url.pathname) {
+
+      case '/getAskSinAnalyzerDevList':
+        res.setHeader('Content-Type', 'application/json');
+        res.write(devlist);
+        res.end();
+        break;
 
       case '/getLogByLogNumber':
         const offset = url.query && url.query.lognum;
@@ -79,8 +79,6 @@ const server = http.createServer(function(req, res) {
             "version_upper": 1,
             "version_lower": 3,
             "ccuip": "192.168.178.39",
-            "svanalyzeinput": "Analyzer_Input",
-            "svanalyzeoutput": "Analyzer_Output",
             "resolve": 1,
             "sdcardavailable": 1,
             "sdcardsizemb": 3780,
@@ -101,8 +99,8 @@ const server = http.createServer(function(req, res) {
         console.log('Simulate ESP reboot, closing listener');
         res.writeHead(200);
         res.end();
-        setTimeout(() => server.close(),1000);
-        setTimeout(() => server.listen(3000,() => console.log('Listener opened')),10*1000);
+        setTimeout(() => server.close(), 1000);
+        setTimeout(() => server.listen(3000, () => console.log('Listener opened')), 10 * 1000);
         break;
 
       case '/deletecsv':
@@ -111,12 +109,12 @@ const server = http.createServer(function(req, res) {
         res.end();
         break;
 
-      case '/getDeviceNameBySerial':
-        const sn = url.query && url.query.Serial;
-        const name = devices[sn] || null;
-        res.write(JSON.stringify(name));
-        res.end();
-        break;
+      // case '/getDeviceNameBySerial':
+      //   const sn = url.query && url.query.Serial;
+      //   const name = devices[sn] || null;
+      //   res.write(JSON.stringify(name));
+      //   res.end();
+      //   break;
 
       default:
         res.writeHead(404);

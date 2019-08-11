@@ -40,7 +40,6 @@
         const sentByDevice = {};
         const { start, stop } = this.$root.timefilter;
         this.$root.data.telegrams.forEach(t => {
-          if (t.from === '-ALLE-') return;
           if (start && t.tstamp < start) return;
           if (stop && t.tstamp > stop) return;
           if (!sentByDevice[t.from]) {
@@ -51,9 +50,6 @@
         });
         return sentByDevice;
       }
-      // devices() {
-      //   return this.$root.data.devices.filter(v => v !== '-ALLE-');
-      // }
     }
   }
 </script>

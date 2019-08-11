@@ -1,0 +1,65 @@
+string svDevList = "AskSinAnalyzerDevList";
+
+string HmIPBroadcastName = "HmIP Broadcast";
+string HmRFBroadcastName = "HMRF Broadcast";
+
+!Systemvariable anlegen, falls sie nicht bereits existiert
+object  svObj     = dom.GetObject(svDevList);
+!dom.DeleteObject(svObj);
+!dom.RTUpdate(false);
+
+if (!svObj){
+  object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
+
+  svObj = dom.CreateObject(OT_VARDP);
+
+  svObjects.Add(svObj.ID());
+
+  svObj.Name(svDevList);
+  svObj.ValueType(ivtString);
+  svObj.ValueSubType(istChar8859);
+
+  svObj.DPInfo("used by AskSinAnalyzer");
+  svObj.ValueUnit("");
+  svObj.State("");
+  svObj.Internal(false);
+  svObj.Visible(false);
+
+  dom.RTUpdate(false);
+  WriteLine("Variable "#svDevList#" angelegt.\n");
+} else {
+  WriteLine("Variable "#svDevList#" existiert.\n");
+}
+
+!alle Geräteadressen, Seriennummer und Namen erfassen
+integer tstamp = system.Date("%F %X").ToTime().ToInteger();
+string sDevId;
+string data;
+string metaData;
+string result = "{\"created_at\":"#tstamp#",\"devices\":[{\"address\":15728641,\"serial\":\"00000000000000\",\"name\":\""#HmIPBroadcastName#"\"},{\"address\":0,\"serial\":\"0000000000\",\"name\":\""#HmRFBroadcastName#"\"},";
+
+foreach(sDevId, root.Devices().EnumUsedIDs())
+{
+  var dev= dom.GetObject(sDevId);
+  if ( true == dev.ReadyConfig() )
+  {
+    metaData = dev.MetaData("DEVDESC");
+    foreach (data, metaData.Split(",")) {
+      if (data.Substr(0,10) == "RF_ADDRESS") {
+        data = data.Replace("RF_ADDRESS:","");
+        if (data != "0") {
+          result = result # "{\"address\":" #data#",\"serial\":\""#dev.Address()#"\",\"name\":\""#dev.Name()#"\"},";
+        }
+      }
+    }
+  }
+}
+result = result # "]}";
+result = result.Replace("},]","}]");
+
+
+dom.GetObject(ID_SYSTEM_VARIABLES).Get(svDevList).State(result);
+Write(result);
+
+!Abfrage im Browser mit http://ccu2:8181/ret.exe?ret=dom.GetObject("AskSinAnalyzerDevList").Value()
+

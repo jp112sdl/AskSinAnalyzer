@@ -6,6 +6,10 @@
     </div>
     <table class="esp-settings-table" v-else>
       <tr>
+        <th>Device-List:</th>
+        <td>{{ new Date($root.data.devlistCreated * 1000).toLocaleString()  }}</td>
+      </tr>
+      <tr>
         <th>Booted:</th>
         <td>{{ new Date(espConfig.boottime * 1000).toLocaleString() }}</td>
       </tr>
@@ -32,14 +36,6 @@
       <tr>
         <th>CCU-IP:</th>
         <td>{{ espConfig.ccuip }}</td>
-      </tr>
-      <tr>
-        <th>Input Sysvar:</th>
-        <td>{{ espConfig.svanalyzeinput }}</td>
-      </tr>
-      <tr>
-        <th>Output Sysvar:</th>
-        <td>{{ espConfig.svanalyzeoutput }}</td>
       </tr>
       <tr>
         <th>SD-Card:</th>

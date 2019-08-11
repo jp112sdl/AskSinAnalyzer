@@ -8,10 +8,11 @@ export default class EspService {
     errorCnt: 0,
     currentVersion: null,
     latestVersion: null,
+    devlistCreated: null,
   };
+  devlist = [];
   maxTelegrams = 100;
   refreshInterval = 2;
-  names = new Map();
 
   constructor(baseUrl = '', maxTelegrams = 20000, refreshInterval = 2, resolveNames = true) {
     this.baseUrl = baseUrl;
@@ -43,7 +44,7 @@ export default class EspService {
 
   async autorefresh() {
     try {
-      const lastLognumber = this.data.telegrams[0] && this.data.telegrams[0].lognumber || 0;
+      const lastLognumber = this.data.telegrams[0] ? this.data.telegrams[0].lognumber :- 1;
       let telegrams = await this.fetchLog(lastLognumber);
       // Quickly get more telegrams if result holds 50 (max return from esp)
       const refreshInterval = telegrams.length === 50 ? 0 : this.refreshInterval * 1000;
@@ -68,14 +69,20 @@ export default class EspService {
   async fetchLog(offset = 0) {
     const res = await this._fetch(`${ this.baseUrl }/getLogByLogNumber?lognum=${ offset }`);
     const json = await res.json();
-    if(this.resolveNames) {
-      const SNs = [... new Set(json.map(t => t.from).concat(json.map(t => t.to)))];
-      await Promise.all(SNs.map(async sn => this.resolveName(sn)));
+    if (this.resolveNames) {
       json.forEach(t => {
-        t.from = this.names.get(t.from) || t.from;
-        t.to = this.names.get(t.to) || t.to;
-        t.fromNameResolved = !!this.names.get(t.from);
-        t.toNameResolved = !!this.names.get(t.to);
+        const fromResolved = this.resolveFromDevlist(t.from);
+        t.fromNameResolved = fromResolved !== null;
+        if (fromResolved) {
+          t.from = fromResolved.name;
+          t.fromIsIp = fromResolved.isIp;
+        }
+        const toResolved = this.resolveFromDevlist(t.to);
+        t.toNameResolved = toResolved !== null;
+        if (toResolved) {
+          t.to = toResolved.name;
+          t.toIsIp = toResolved.isIp;
+        }
       });
     }
     return json;
@@ -87,7 +94,7 @@ export default class EspService {
       const espConfig = await res.json();
       espConfig.latestVersion = null; // init reactivity
       espConfig.updateAvailable = false; // init reactivity
-      if(espConfig.version_upper) {
+      if (espConfig.version_upper) {
         espConfig.currentVersion = espConfig.version_upper.toString().trim()
           + '.'
           + espConfig.version_lower.toString().trim();
@@ -108,15 +115,16 @@ export default class EspService {
 
   async fetchVersion() {
     try {
-      const res = await fetch('https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/version');
+      const res = await fetch((process.env.VUE_APP_CDN_URL || 'https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/gh-pages/dev') + '/esp-version.txt', { cache: "no-store" });
       if (res.ok) {
         this.data.espConfig.latestVersion = (await res.text()).trim();
         this.data.espConfig.updateAvailable = this.isUpdateAvailable();
       } else {
         console.error(new Error(`${ res.status }: ${ res.statusText }`));
       }
-    } catch(e) {
-      e.message = `Network error while fetching ESP-Version from Github; ${e.message}`;
+    }
+    catch (e) {
+      e.message = `Network error while fetching ESP-Version from Github; ${ e.message }`;
       console.error(e);
     }
   }
@@ -129,7 +137,8 @@ export default class EspService {
     try {
       await this._fetch(this.baseUrl + '/index.html'); // TODO: better endpoint?
       return true;
-    } catch(e) {
+    }
+    catch (e) {
       return false;
     }
   }
@@ -151,32 +160,37 @@ export default class EspService {
     }
   }
 
-  async resolveName(serial) {
-    if(['-ALLE-', '-ZENTRALE-'].includes(serial)) return null;
-    if(this.names.has(serial)) return this.names.get(serial);
-    if(serial.length !== 10) {
-      this.names.set(serial, null);
-      throw new Error(`Not resolving ${serial} due to wrong length`);
-    }
-    if(!this.data.espConfig.ccuip) throw new Error(`Not resolving ${serial} due to unknown CCU IP`);
-    try {
-      const blob = await (await this._fetch(`${ this.baseUrl }/getDeviceNameBySerial?Serial=${ serial }`)).blob();
-      const filereader = new FileReader();
-      const readed = new Promise(resolve => filereader.addEventListener('loadend', () => resolve(filereader.result)) );
-      filereader.readAsText(blob, 'iso-8859-1');
-      const name = JSON.parse(await readed);
-      this.names.set(serial, name);
-      return name;
-    } catch (e) {
-      this.names.set(serial, null);
-      console.error(e);
+  resolveFromDevlist(val) {
+    const dev = this.devlist.devices.find(({ address }) => address === parseInt(val, 16));
+    if (dev) {
+      // HmIP SN: 14 chars; HmRF: 10 chars
+      return { name: dev.name, serial: dev.serial, isIp: dev.serial.length === 14 };
     }
     return null;
   }
 
+
+  async fetchDevList() {
+    try {
+      const blob = await (await this._fetch(`${ this.baseUrl }/getAskSinAnalyzerDevList`)).blob();
+      const filereader = new FileReader();
+      const readed = new Promise(resolve => filereader.addEventListener('loadend', () => resolve(filereader.result)));
+      filereader.readAsText(blob, 'iso-8859-1');
+      const xml = await readed;
+      this.devlist = JSON.parse(xml.replace(/\r?\n|\r/g, '').match(/<ret>(.*)<\/ret>/)[1].split('&quot;').join('"'));
+      this.data.devlistCreated = this.devlist.created_at;
+    }
+    catch (e) {
+      console.error(e);
+      this.data.errors.push(`Could not fetch DeviceList from CCU. ${ e.message }`);
+    }
+    return null;
+  }
+
+
   isUpdateAvailable() {
     const { latestVersion, currentVersion } = this.data.espConfig;
-    if(!latestVersion || !currentVersion) return false;
+    if (!latestVersion || !currentVersion) return false;
     const [aU, aL] = latestVersion.split('.');
     const [bU, bL] = currentVersion.split('.');
     return aU > bU || aU === bU && aL > bL;

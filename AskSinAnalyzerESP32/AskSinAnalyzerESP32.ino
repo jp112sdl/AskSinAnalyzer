@@ -7,6 +7,8 @@
 
 
 #define USE_DISPLAY
+#define WEB_BRANCH            "dev"                     //only changed for development
+const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used system variable on the CCU containing the device list
 // #define NDEBUG
 
 #include "Debug.h"
@@ -32,8 +34,8 @@
 #define HAS_DISPLAY 0
 #endif
 
-#define VERSION_UPPER "1"
-#define VERSION_LOWER "7"
+#define VERSION_UPPER "2"
+#define VERSION_LOWER "0"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15
@@ -67,7 +69,7 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 #define CONFIG_FILENAME             "/config.json"
 #define BOOTCONFIGMODE_FILENAME     "/bootcfg.mod"
 
-#define CSV_HEADER                  "num;time;rssi;from;to;len;cnt;typ;flags;"
+#define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;"
 
 #define IPSIZE                16
 #define VARIABLESIZE          255
@@ -84,8 +86,6 @@ struct _NetConfig {
 
 struct _HomeMaticConfig {
   char ccuIP[IPSIZE]   = "";
-  char SVAnalyzeInput[VARIABLESIZE] = "";
-  char SVAnalyzeOutput[VARIABLESIZE] = "";
 } HomeMaticConfig;
 
 #define ADDRESSTABLE_LENGTH 256
@@ -96,15 +96,22 @@ struct _AddressTable {
 uint16_t AddressTableCount = 0;
 
 #define MAX_LOG_ENTRIES 51
+#define SIZE_ADDRESS   (6+1)    // address has 6 chars
+#define SIZE_SERIAL    (10+1)   // serial has 10 chars
+#define SIZE_TYPE       32
+#define SIZE_FLAGS      32
+
 struct _LogTable {
   uint32_t lognumber = 0;
-  char from[11];
-  char to[11];
+  char fromSerial[SIZE_SERIAL];
+  char toSerial[SIZE_SERIAL];
+  char fromAddress[SIZE_ADDRESS];
+  char toAddress[SIZE_ADDRESS];
   int rssi = -255;
   uint8_t len = 0;
   uint8_t cnt = 0;
-  char typ[32];
-  char flags[32];
+  char typ[SIZE_TYPE];
+  char flags[SIZE_FLAGS];
   time_t time = 0;
 } LogTable[MAX_LOG_ENTRIES + 1];
 uint16_t logLength = 0;
@@ -115,6 +122,7 @@ struct _SerialBuffer {
   time_t   t              = 0;
 } SerialBuffer[255];
 uint8_t  msgBufferCount = 0;
+JsonArray devices;
 
 uint32_t allCount              = 0;
 unsigned long lastDebugMillis  = 0;
@@ -132,10 +140,10 @@ time_t   bootTime              = 0;
 String   updateUrl             = "https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/AskSinAnalyzerESP32.bin";
 
 #include "Config.h"
+#include "NTP.h"
 #include "SDFunctions.h"
 #include "File.h"
 #include "Display.h"
-#include "NTP.h"
 #include "CCUFunctions.h"
 #include "Helper.h"
 #include "SerialIn.h"
@@ -169,6 +177,8 @@ void setup() {
   initLogTable();
 
   if (ONLINE_MODE) {
+    if (!loadSystemConfig()) startWifiManager = true;
+
     DPRINTLN(F("- Config-Modus durch bootConfigMode aktivieren? "));
     if (spiffsAvailable && SPIFFS.exists(BOOTCONFIGMODE_FILENAME)) {
       startWifiManager = true;
@@ -178,12 +188,10 @@ void setup() {
     } else {
       DPRINTLN(" -> " + String(BOOTCONFIGMODE_FILENAME) + " existiert NICHT");
     }
-
-    if (!loadSystemConfig()) startWifiManager = true;
-
+    
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);
 
-    RESOLVE_ADDRESS = isNotEmpty(HomeMaticConfig.ccuIP) && isNotEmpty(HomeMaticConfig.SVAnalyzeInput) && isNotEmpty(HomeMaticConfig.SVAnalyzeOutput);
+    RESOLVE_ADDRESS = isNotEmpty(HomeMaticConfig.ccuIP);
     DPRINT(F("- RESOLVE_ADDRESS is")); DPRINT(RESOLVE_ADDRESS ? " " : " NOT "); DPRINTLN(F("active!"));
 
     isOnline = doWifiConnect();
@@ -195,7 +203,9 @@ void setup() {
     DPRINT(F("- INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE" : "NOT AVAILABLE");
     initWebServer();
     DPRINTLN(F("- INIT WEBSERVER DONE."));
-
+    DPRINT(F("- Fetching DevList... "));
+    createJSONDevList();
+    DPRINTLN(F("DONE"));
   }
 
 #ifdef USE_DISPLAY
