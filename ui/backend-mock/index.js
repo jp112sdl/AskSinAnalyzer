@@ -95,7 +95,7 @@ const server = http.createServer(function(req, res) {
         break;
 
       case '/reboot':
-      case '/rebootconfig':
+      case '/rebootInConfigMode':
         console.log('Simulate ESP reboot, closing listener');
         res.writeHead(200);
         res.end();
