@@ -67,11 +67,11 @@
         document.location.reload();
       },
 
-      async rebootconfig(){
+      async rebootInConfigMode(){
         Loading.show({
           message: 'Der ESP wird im Config Modus gestartet.<br/>Verbinden Sie sich nun mit dem AskSinAnalyzer-AP.'
         });
-        await this.$espService.postCommand('rebootconfig');
+        await this.$espService.postCommand('rebootInConfigMode');
         await wait(5 * 1000);
         let cnt = 0;
         while (await this.$espService._fetch('http://192.168.4.1') === false && cnt < 30) {
