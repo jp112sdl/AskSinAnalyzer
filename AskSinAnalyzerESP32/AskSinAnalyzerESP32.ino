@@ -175,6 +175,8 @@ void setup() {
   initLogTable();
 
   if (ONLINE_MODE) {
+    if (!loadSystemConfig()) startWifiManager = true;
+
     DPRINTLN(F("- Config-Modus durch bootConfigMode aktivieren? "));
     if (spiffsAvailable && SPIFFS.exists(BOOTCONFIGMODE_FILENAME)) {
       startWifiManager = true;
@@ -184,9 +186,7 @@ void setup() {
     } else {
       DPRINTLN(" -> " + String(BOOTCONFIGMODE_FILENAME) + " existiert NICHT");
     }
-
-    if (!loadSystemConfig()) startWifiManager = true;
-
+    
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);
 
     RESOLVE_ADDRESS = isNotEmpty(HomeMaticConfig.ccuIP);
