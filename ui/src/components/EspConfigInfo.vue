@@ -38,14 +38,6 @@
         <td>{{ espConfig.ccuip }}</td>
       </tr>
       <tr>
-        <th>Input Sysvar:</th>
-        <td>{{ espConfig.svanalyzeinput }}</td>
-      </tr>
-      <tr>
-        <th>Output Sysvar:</th>
-        <td>{{ espConfig.svanalyzeoutput }}</td>
-      </tr>
-      <tr>
         <th>SD-Card:</th>
         <td>
           <div v-if="espConfig.sdcardavailable">
