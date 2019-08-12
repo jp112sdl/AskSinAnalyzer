@@ -10,19 +10,19 @@
       <tr>
         <td class="text-left">Zeit</td>
         <td class="text-left">
-          <q-btn label="Von" unelevated no-caps :color="filter.from.length ? 'secondary' : 'grey-7'" title="Von-Device Filter">
+          <q-btn label="Von" unelevated no-caps :color="filter.fromName.length ? 'secondary' : 'grey-7'" title="Von-Device Filter">
             <q-menu transition-show="jump-down" transition-hide="jump-up">
               <div class="q-pa-sm">
-                <select-filter v-model="filter.from" :options="$root.data.devices" autofocus label="Devices"/>
+                <select-filter v-model="filter.fromName" :options="$root.data.devices" autofocus label="Devices"/>
               </div>
             </q-menu>
           </q-btn>
         </td>
         <td class="text-left">
-          <q-btn label="An" unelevated no-caps :color="filter.to.length ? 'secondary' : 'grey-7'" title="An-Device Filter">
+          <q-btn label="An" unelevated no-caps :color="filter.toName.length ? 'secondary' : 'grey-7'" title="An-Device Filter">
             <q-menu transition-show="jump-down" transition-hide="jump-up">
               <div class="q-pa-sm">
-                <select-filter v-model="filter.to" :options="$root.data.devices" autofocus label="Devices"/>
+                <select-filter v-model="filter.toName" :options="$root.data.devices" autofocus label="Devices"/>
               </div>
             </q-menu>
           </q-btn>
@@ -124,8 +124,8 @@
         filter: {
           start: null,
           stop: null,
-          from: [],
-          to: [],
+          fromName: [],
+          toName: [],
           rssi: [],
           types: []
         }
@@ -138,8 +138,8 @@
         let result = this.value;
         if (start) result = result.filter(v => v.tstamp >= start);
         if (stop) result = result.filter(v => v.tstamp <= stop);
-        if (this.filter.from.length) result = result.filter(v => this.filter.from.includes(v.from));
-        if (this.filter.to.length) result = result.filter(v => this.filter.to.includes(v.to));
+        if (this.filter.fromName.length) result = result.filter(v => this.filter.fromName.includes(v.fromName));
+        if (this.filter.toName.length) result = result.filter(v => this.filter.toName.includes(v.toName));
         if (this.filter.rssi.length) {
           const ok = this.filter.rssi.includes('ok');
           const warn = this.filter.rssi.includes('warn');
