@@ -140,7 +140,7 @@ void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
 
 void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
   DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevListJSON"));
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  AsyncResponseStream *response = request->beginResponseStream("application/json;charset=iso-8859-1");
   String js = loadAskSinAnalyzerDevListFromCCU();
   createJSONDevList(js);  //refresh local DevList
   response->print(js);    //send DevList to Web
