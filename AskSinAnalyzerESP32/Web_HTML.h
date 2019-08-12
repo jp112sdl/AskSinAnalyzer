@@ -15,7 +15,7 @@ const char HTTP_INDEX[] PROGMEM = R"=====(
     <meta name="msapplication-TileColor" content="#027be3">
     <meta name="theme-color" content="#027be3">
     <link rel="apple-touch-icon" sizes="180x180" href="https://jp112sdl.github.io/AskSinAnalyzer/{branch}/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="https: //jp112sdl.github.io/AskSinAnalyzer/{branch}/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://jp112sdl.github.io/AskSinAnalyzer/{branch}/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="https://jp112sdl.github.io/AskSinAnalyzer/{branch}/favicon-16x16.png">
     <link rel="manifest" href="https://jp112sdl.github.io/AskSinAnalyzer/{branch}/site.webmanifest">
     <link rel="mask-icon" href="https://jp112sdl.github.io/AskSinAnalyzer/{branch}/safari-pinned-tab.svg" color="#027be3">
