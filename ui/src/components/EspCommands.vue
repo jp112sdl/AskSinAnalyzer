@@ -1,6 +1,15 @@
 <template>
   <div style="max-width: 350px">
     <q-list bordered separator>
+      <q-item clickable v-ripple @click="reloadDevlist">
+        <q-item-section avatar>
+          <q-avatar rounded color="primary" text-color="white" icon="autorenew"/>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-bold">Reload DevList</q-item-label>
+          <q-item-label caption>Lädt die Device-Liste erneut von der CCU.</q-item-label>
+        </q-item-section>
+      </q-item>
       <q-item clickable v-ripple @click="reboot">
         <q-item-section avatar>
           <q-avatar rounded color="primary" text-color="white" icon="settings_backup_restore"/>
@@ -58,6 +67,14 @@
     },
 
     methods: {
+      async reloadDevlist() {
+        Loading.show({
+          message: '<b>Der ESP wird neu gestartet ...</b>'
+        });
+        await this.$espService.fetchDevList();
+        Loading.hide();
+      },
+
       async reboot() {
         Loading.show({
           message: '<b>Der ESP wird neu gestartet ...</b>'

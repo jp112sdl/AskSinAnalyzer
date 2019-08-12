@@ -55,8 +55,8 @@
       <tbody>
       <tr v-for="(v, i) in paginated" :key="i">
         <td class="text-left">{{ v.tstamp | date }}</td>
-        <td class="text-left" :style="{ color: getDeviceColor(v, 'from') }">{{ v.from }}</td>
-        <td class="text-left" :style="{ color: getDeviceColor(v, 'to') }">{{ v.to }}</td>
+        <td class="text-left" :style="{ color: getDeviceColor(v, 'from') }">{{ v.fromName || v.from }}</td>
+        <td class="text-left" :style="{ color: getDeviceColor(v, 'to') }">{{ v.toName || v.to }}</td>
         <td class="text-right">
           <rssi-value :value="v.rssi"/>
         </td>

@@ -44,7 +44,7 @@ export default class EspService {
 
   async autorefresh() {
     try {
-      const lastLognumber = this.data.telegrams[0] ? this.data.telegrams[0].lognumber :- 1;
+      const lastLognumber = this.data.telegrams[0] ? this.data.telegrams[0].lognumber : -1;
       let telegrams = await this.fetchLog(lastLognumber);
       // Quickly get more telegrams if result holds 50 (max return from esp)
       const refreshInterval = telegrams.length === 50 ? 0 : this.refreshInterval * 1000;
@@ -70,20 +70,7 @@ export default class EspService {
     const res = await this._fetch(`${ this.baseUrl }/getLogByLogNumber?lognum=${ offset }`);
     const json = await res.json();
     if (this.resolveNames) {
-      json.forEach(t => {
-        const fromResolved = this.resolveFromDevlist(t.from);
-        t.fromNameResolved = fromResolved !== null;
-        if (fromResolved) {
-          t.from = fromResolved.name;
-          t.fromIsIp = fromResolved.isIp;
-        }
-        const toResolved = this.resolveFromDevlist(t.to);
-        t.toNameResolved = toResolved !== null;
-        if (toResolved) {
-          t.to = toResolved.name;
-          t.toIsIp = toResolved.isIp;
-        }
-      });
+      json.forEach(t => this.addNameFromDevlist(t));
     }
     return json;
   }
@@ -160,7 +147,22 @@ export default class EspService {
     }
   }
 
-  resolveFromDevlist(val) {
+  addNameFromDevlist(telegram) {
+    const fromResolved = this.resolveNameFromDevList(telegram.from);
+    telegram.fromNameResolved = fromResolved !== null;
+    if (fromResolved) {
+      telegram.fromName = fromResolved.name;
+      telegram.fromIsIp = fromResolved.isIp;
+    }
+    const toResolved = this.resolveNameFromDevList(telegram.to);
+    telegram.toNameResolved = toResolved !== null;
+    if (toResolved) {
+      telegram.toName = toResolved.name;
+      telegram.toIsIp = toResolved.isIp;
+    }
+  }
+
+  resolveNameFromDevList(val) {
     const dev = this.devlist.devices.find(({ address }) => address === parseInt(val, 16));
     if (dev) {
       // HmIP SN: 14 chars; HmRF: 10 chars
@@ -172,13 +174,17 @@ export default class EspService {
 
   async fetchDevList() {
     try {
-      const blob = await (await this._fetch(`${ this.baseUrl }/getAskSinAnalyzerDevList`)).blob();
+      const blob = await (await this._fetch(`${ this.baseUrl }/getAskSinAnalyzerDevListJSON`, { cache: 'reload' })).blob();
       const filereader = new FileReader();
       const readed = new Promise(resolve => filereader.addEventListener('loadend', () => resolve(filereader.result)));
       filereader.readAsText(blob, 'iso-8859-1');
-      const xml = await readed;
-      this.devlist = JSON.parse(xml.replace(/\r?\n|\r/g, '').match(/<ret>(.*)<\/ret>/)[1].split('&quot;').join('"'));
+      const data = await readed;
+      this.devlist = JSON.parse(data);
       this.data.devlistCreated = this.devlist.created_at;
+
+      if(this.resolveNames) {
+        this.data.telegrams.forEach(t => this.addNameFromDevlist(t));
+      }
     }
     catch (e) {
       console.error(e);

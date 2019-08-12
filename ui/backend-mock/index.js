@@ -1,10 +1,8 @@
 const http = require('http');
 const { parse: parseUrl } = require('url');
-const { readFileSync } = require('fs');
-const devlist = readFileSync('./devlist.xml');
-const devlistDevices = require('./devlist.json').devices;
+const devlist = require('./devlist.json');
 
-let Addrs = devlistDevices.map(({ address }) => address.toString(16));
+let Addrs = devlist.devices.map(({ address }) => address.toString(16));
 Addrs.push('123gibtsnet');
 Addrs.push('987gibtsnet');
 
@@ -53,9 +51,9 @@ const server = http.createServer(function(req, res) {
   {
     switch (url.pathname) {
 
-      case '/getAskSinAnalyzerDevList':
+      case '/getAskSinAnalyzerDevListJSON':
         res.setHeader('Content-Type', 'application/json');
-        res.write(devlist);
+        res.write(JSON.stringify(devlist, null,2));
         res.end();
         break;
 

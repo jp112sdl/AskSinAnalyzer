@@ -40,12 +40,13 @@
         const sentByDevice = {};
         const { start, stop } = this.$root.timefilter;
         this.$root.data.telegrams.forEach(t => {
+          const from = t.fromName || t.from;
           if (start && t.tstamp < start) return;
           if (stop && t.tstamp > stop) return;
-          if (!sentByDevice[t.from]) {
-            sentByDevice[t.from] = 1;
+          if (!sentByDevice[from]) {
+            sentByDevice[from] = 1;
           } else {
-            sentByDevice[t.from]++;
+            sentByDevice[from]++;
           }
         });
         return sentByDevice;
