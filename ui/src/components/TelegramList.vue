@@ -17,6 +17,13 @@
               </div>
             </q-menu>
           </q-btn>
+          <q-btn label="Von/An" unelevated no-caps :color="filter.fromToName.length ? 'secondary' : 'grey-7'" title="Von/An-Device Filter" style="float: right">
+            <q-menu transition-show="jump-down" transition-hide="jump-up">
+              <div class="q-pa-sm">
+                <select-filter v-model="filter.fromToName" :options="$root.data.devices" autofocus label="Devices"/>
+              </div>
+            </q-menu>
+          </q-btn>
         </td>
         <td class="text-left">
           <q-btn label="An" unelevated no-caps :color="filter.toName.length ? 'secondary' : 'grey-7'" title="An-Device Filter">
@@ -125,6 +132,7 @@
           start: null,
           stop: null,
           fromName: [],
+          fromToName: [],
           toName: [],
           rssi: [],
           types: []
@@ -139,6 +147,9 @@
         if (start) result = result.filter(v => v.tstamp >= start);
         if (stop) result = result.filter(v => v.tstamp <= stop);
         if (this.filter.fromName.length) result = result.filter(v => this.filter.fromName.includes(v.fromName));
+        if (this.filter.fromToName.length) result = result.filter(v => {
+          return this.filter.fromToName.includes(v.fromName) || this.filter.fromToName.includes(v.toName);
+        });
         if (this.filter.toName.length) result = result.filter(v => this.filter.toName.includes(v.toName));
         if (this.filter.rssi.length) {
           const ok = this.filter.rssi.includes('ok');
