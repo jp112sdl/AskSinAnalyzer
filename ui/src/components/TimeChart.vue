@@ -38,7 +38,7 @@
         },
         xAxis: {
           events: {
-            setExtremes(ev) {
+            afterSetExtremes(ev) {
               setTimeFilterDebounced(ev.min, ev.max);
             }
           }
