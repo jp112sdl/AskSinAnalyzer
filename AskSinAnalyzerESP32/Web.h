@@ -136,9 +136,16 @@ void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
   }
   http.end();
   request->send(response);
-  //createJSONDevList();
 }
 
+void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
+  DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevListJSON"));
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  String js = loadAskSinAnalyzerDevListFromCCU();
+  createJSONDevList(js);  //refresh local DevList
+  response->print(js);    //send DevList to Web
+  request->send(response);
+}
 
 void getLogByLogNumber (AsyncWebServerRequest * request) {
   int32_t lognum = 0;
@@ -180,114 +187,6 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
   response->print("]");
   request->send(response);
 }
-
-/*void getLogByTimestamp (AsyncWebServerRequest * request) {
-  time_t ts = 0;
-  if (request->hasParam("ts")) {
-    AsyncWebParameter* p = request->getParam("ts");
-    ts = strtol(p->value().c_str(), 0, 10);
-  }
-
-  String json = "[";
-
-  for (uint16_t l = 0; l < logLength; l++) {
-    if (LogTable[l].time > ts && l < MAX_LOG_ENTRIES) {
-      json += "{";
-      json += "\"tstamp\": " + String(LogTable[l].time) + ", ";
-      json += "\"rssi\": " + String(LogTable[l].rssi) + ", ";
-      String from = String(LogTable[l].from);
-      from.trim();
-      json += "\"from\": \"" + from + "\", ";
-      String to = String(LogTable[l].to);
-      to.trim();
-      json += "\"to\": \"" + to + "\", ";
-      json += "\"len\": " + String(LogTable[l].len) + ", ";
-      json += "\"cnt\": " + String(LogTable[l].cnt) + ", ";
-      String t = String(LogTable[l].typ);
-      t.trim();
-      json += "\"typ\": \"" + t + "\", ";
-      String fl = String(LogTable[l].flags);
-      fl.trim();
-      json += "\"flags\": \"" + fl + "\"";
-      json += "}";
-      json += ",";
-    }
-    if (l == MAX_LOG_ENTRIES) break;
-  }
-
-  json += "]";
-  json.replace("},]", "}]");
-
-  AsyncWebServerResponse *response = request->beginResponse(200);
-  response->addHeader("Content-Length", String(json.length()));
-  request->send(200, "application/json", json);
-}*/
-
-/*void getLog(AsyncWebServerRequest * request) {
-
-  uint16_t start = 0;
-  bool first = false;
-
-  if (request->hasParam("first")) {
-    AsyncWebParameter* p = request->getParam("first");
-    first = (p->value() == "1");
-  }
-
-  if (request->hasParam("start")) {
-    AsyncWebParameter* p = request->getParam("start");
-    start = (first == true) ? allCount - MAX_LOG_ENTRIES : p->value().toInt();
-  }
-
-  uint16_t jsonlogLength = ((start) <= allCount) ? allCount - start : allCount;
-
-  String json = "{\"loglength\":\"" + String(allCount) + "\", \"logentries\": [";
-
-  if (jsonlogLength > 0) {
-
-    for (int16_t l = jsonlogLength - 1; l >= 0; l--) {
-      json += "{";
-      json += "\"time\": \"" + getDatum(LogTable[l].time) + " " + getUhrzeit(LogTable[l].time) + "\", ";
-      json += "\"rssi\": \"" + String(LogTable[l].rssi) + "\", ";
-      json += "\"from\": \"" + String(LogTable[l].fromSerial) + "\", ";
-      json += "\"to\": \"" + String(LogTable[l].toSerial) + "\", ";
-      json += "\"len\": \"" + String(LogTable[l].len) + "\", ";
-      json += "\"cnt\": \"" + String(LogTable[l].cnt) + "\", ";
-      String t = String(LogTable[l].typ);
-      t.trim();
-      json += "\"typ\": \"" + t + "\", ";
-      String fl = String(LogTable[l].flags);
-      fl.trim();
-      json += "\"flags\": \"" + fl + "\"";
-      json += "}";
-      if (l > 0) json += ",";
-    }
-  }
-  json += "]";
-
-  json += "}";
-  request->send(200, "application/json", json);
-}*/
-
-/*void getDeviceNameBySerial(AsyncWebServerRequest * request) {
-  DPRINTLN("######## getDeviceNameBySerial BEGIN ########");
-  String serial = "";
-  if (request->hasParam("Serial")) {
-    AsyncWebParameter* p = request->getParam("Serial");
-    serial = p->value();
-  }
-
-  String page = "";
-  if (serial.length() == 10) {
-    page = setCCURequest("(xmlrpc.GetObjectByHSSAddress(interfaces.Get(\"BidCos-RF\"),\"" + serial + ":0\")).Name()");
-  }
-
-  if (page != "null") page = "\"" + page.substring(0, page.length() - 2) + "\""; //:0 aus Ergebnis abschneiden
-
-  AsyncWebServerResponse *response = request->beginResponse(200);
-  response->addHeader("Content-Length", String(page.length()));
-  request->send(200, "application/json;charset=iso-8859-1", page);
-  DPRINTLN("######## getDeviceNameBySerial END    ########\n");
-}*/
 
 void indexHtml(AsyncWebServerRequest * request) {
   String page = FPSTR(HTTP_INDEX);
@@ -375,10 +274,6 @@ void initWebServer() {
     ESP.restart();
   });
 
-  //webServer.on("/getLog", HTTP_GET, [](AsyncWebServerRequest * request) {
-  //  getLog(request);
-  //});
-
   webServer.on("/getConfig", HTTP_GET, [](AsyncWebServerRequest * request) {
     getConfig(request);
   });
@@ -391,17 +286,13 @@ void initWebServer() {
     setBootConfigMode(request);
   });
 
-  //webServer.on("/getDeviceNameBySerial", HTTP_GET, [](AsyncWebServerRequest * request) {
-  //  getDeviceNameBySerial(request);
-  //});
-
   webServer.on("/getAskSinAnalyzerDevList", HTTP_GET, [](AsyncWebServerRequest * request) {
     getAskSinAnalyzerDevList(request);
   });
 
-  //webServer.on("/getLogByTimestamp", HTTP_GET, [](AsyncWebServerRequest * request) {
-  //  getLogByTimestamp(request);
-  //});
+  webServer.on("/getAskSinAnalyzerDevListJSON", HTTP_GET, [](AsyncWebServerRequest * request) {
+    getAskSinAnalyzerDevListJSON(request);
+  });
 
   webServer.on("/getLogByLogNumber", HTTP_GET, [](AsyncWebServerRequest * request) {
     getLogByLogNumber(request);

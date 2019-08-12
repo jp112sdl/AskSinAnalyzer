@@ -198,8 +198,7 @@ void setup() {
     DPRINT(F("- INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE" : "NOT AVAILABLE");
     initWebServer();
     DPRINTLN(F("- INIT WEBSERVER DONE."));
-    DPRINT(F("- Fetching DevList... "));
-    createJSONDevList();
+    createJSONDevList(loadAskSinAnalyzerDevListFromCCU());
     DPRINTLN(F("DONE"));
   }
 
