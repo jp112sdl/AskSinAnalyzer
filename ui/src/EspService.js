@@ -35,8 +35,8 @@ export default class EspService {
     // Generate unique devices list
     let devices = new Set();
     this.data.telegrams.forEach(({ fromName, toName }) => {
-      if (!devices.has(fromName)) devices.add(fromName);
-      if (!devices.has(toName)) devices.add(toName);
+      if (fromName && !devices.has(fromName)) devices.add(fromName);
+      if (toName && !devices.has(toName)) devices.add(toName);
     });
     devices = [...devices].sort();
     this.data.devices.splice(0, this.data.devices.length, ...devices);
