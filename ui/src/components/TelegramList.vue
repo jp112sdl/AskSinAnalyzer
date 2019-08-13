@@ -178,7 +178,7 @@
     methods: {
       getDeviceColor(item, what) {
         if (!item[what + 'NameResolved']) return 'red';
-        if (item[what + 'IsIp']) return '#027BE3';
+        if (item[what + 'IsIp'] || item[what] === 'HmIP-RF') return '#027BE3';
         return 'black';
       },
     }
