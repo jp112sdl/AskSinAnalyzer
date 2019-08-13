@@ -31,6 +31,44 @@ if (!svObj){
   WriteLine("Variable "#svDevList#" existiert.\n");
 }
 
+!phys. Zentralen-Adresse HmIP auslesen
+string stdout;
+string stderr;
+system.Exec("grep Adapter.1.Address /etc/config/hmip_address.conf|awk -F'\=' {'print $2'}", &stdout, &stderr);
+!WriteLine(stdout);
+
+!Hex-Ausgabe in Dezimal umwandeln
+string  inHex    = stdout.Trim();
+
+integer inLen    = inHex.Length();
+integer outDec   = 0;
+if (inLen == 6) {
+  integer hexBase = 16;
+  
+  string i;
+  foreach(i, system.GenerateEnum(0,inLen - 1))
+  {
+    integer idx = i.ToInteger();
+    var sChar = inHex.Substr(idx, 1).ToUpper();
+    integer sDec = 0;
+    if     (sChar == "A") { sDec = 10; }
+    elseif (sChar == "B") { sDec = 11; }
+    elseif (sChar == "C") { sDec = 12; }
+    elseif (sChar == "D") { sDec = 13; }
+    elseif (sChar == "E") { sDec = 14; }
+    elseif (sChar == "F") { sDec = 15; }
+    else   {sDec = sChar.ToInteger();  }
+
+    integer bytePos = idx % 2;
+    integer byteIdx  = ((inLen / 2) - 1) - idx / 2;
+
+    outDec = outDec + sDec * hexBase.Pow((byteIdx * 2)+(1-bytePos));
+  
+    !WriteLine(bytePos#" "#byteIdx# " "#sDec);
+  }
+}
+integer HmIPCentral = outDec;
+
 !alle Geräteadressen, Seriennummer und Namen erfassen
 integer tstamp = system.Date("%F %X").ToTime().ToInteger();
 string sDevId;
@@ -48,7 +86,9 @@ foreach(sDevId, root.Devices().EnumUsedIDs())
       if (data.Substr(0,10) == "RF_ADDRESS") {
         data = data.Replace("RF_ADDRESS:","");
         if (data != "0") {
-          result = result # "{\"address\":" #data#",\"serial\":\""#dev.Address()#"\",\"name\":\""#dev.Name()#"\"},";
+		  string ser = dev.Address();
+		  if ((HmIPCentral > 0) && (data == HmIPCentral)) { ser = "HmIP-RF"; }
+          result = result # "{\"address\":" #data#",\"serial\":\""#ser#"\",\"name\":\""#dev.Name()#"\"},";
         }
       }
     }
@@ -62,4 +102,3 @@ dom.GetObject(ID_SYSTEM_VARIABLES).Get(svDevList).State(result);
 Write(result);
 
 !Abfrage im Browser mit http://ccu2:8181/ret.exe?ret=dom.GetObject("AskSinAnalyzerDevList").Value()
-
