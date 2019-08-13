@@ -177,7 +177,7 @@ void IRAM_ATTR writeCSV(const char * fileName, String &csvLine) {
   }
 }
 
-void writeLogEntryToCSV(struct _LogTable lt) {
+void writeLogEntryToCSV(const _LogTable &lt) {
   // Write to CSV
   DPRINTLN(F("Preprocessing CSV"));
   String csvLine = "";

@@ -61,7 +61,7 @@ void receiveMessages() {
 #define STRPOS_TO_BEGIN       17
 #define STRPOS_TO_END         23
 
-void fillLogTable(struct _SerialBuffer sb, uint8_t b) {
+void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   DPRINTLN(F("######## PROCESSING NEW MESSAGE ########"));
   DPRINTLN("I #" + String(b) + ": " + sb.Msg);
 
