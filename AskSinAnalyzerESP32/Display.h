@@ -69,13 +69,13 @@ void refreshDisplayLog() {
     u8g.setForegroundColor( String(LogTable[c].typ).startsWith("HMIP") ? ILI9341_CYAN : ILI9341_WHITE);
 
     String from = LogTable[c].fromSerial;
-    if (from.startsWith("BidCoS-RF")) from = "-ZENTRALE-";
+    if (from.startsWith("BidCoS-RF") || from.startsWith("HmIP-RF")) from = "-ZENTRALE-";
     u8g.print(from);
     u8g.print(" ");
 
     String to = LogTable[c].toSerial;
     if (to == "0000000000") to = "  -ALLE-  ";
-    else if (to.startsWith("BidCoS-RF")) to = "-ZENTRALE-";
+    else if (to.startsWith("BidCoS-RF") || to.startsWith("HmIP-RF")) to = "-ZENTRALE-";
     u8g.print(to);
     u8g.print(" ");
 
