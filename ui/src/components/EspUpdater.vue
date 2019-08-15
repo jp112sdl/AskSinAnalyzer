@@ -28,7 +28,7 @@
         </tr>
       </table>
       <div class="q-mt-lg" v-if="$root.espConfig.updateAvailable">
-        <q-btn label="Update durchführen" type="submit" color="primary" icon="system_update" @click="update"/>
+        <q-btn label="Update durchführen" type="submit" color="primary" icon="system_update" @click="$espService.execUpdate()"/>
       </div>
     </div>
   </div>
@@ -40,13 +40,6 @@
   export default {
     name: "EspUpdater",
     components: { QIcon, QBtn },
-
-    methods: {
-      update() {
-        const file = `AskSinAnalyzerESP32${ this.$root.espConfig.display ? '' : '-ND'}.bin`;
-        document.location.href = `${ this.$espService.baseUrl }/httpupdate?url=https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/${ file }`;
-      }
-    }
   }
 </script>
 

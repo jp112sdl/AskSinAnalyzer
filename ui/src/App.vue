@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <q-layout view="lHh Lpr lFf">
     <q-header elevated reveal>
       <q-toolbar>
@@ -34,6 +34,20 @@
     </q-header>
 
     <q-page-container>
+      <div class="page" style="padding-bottom: 0" v-if="$espService.isUpdateAvailable()">
+        <q-banner class="text-white bg-red" inline-actions>
+          <template v-slot:avatar>
+            <q-icon name="warning" color="white"/>
+          </template>
+          <span class="text-bold">
+            Die ESP-Firmware ist veraltet! Der Analyzer funktioniert eventuell nicht korrekt.
+          </span>
+          <template v-slot:action>
+            <q-btn color="white" class="text-black" label="ESP Update" @click="$router.push('/settings')"/>
+          </template>
+        </q-banner>
+      </div>
+
       <transition name="route" mode="out-in" :appear="true">
         <router-view/>
       </transition>
@@ -54,6 +68,7 @@
     QSpace,
     QMenu,
     QList, QItem, QItemSection,
+    QBanner
   } from 'quasar';
 
   export default {
@@ -71,6 +86,7 @@
       QSpace,
       QMenu,
       QList, QItem, QItemSection,
+      QBanner
     },
 
     computed: {

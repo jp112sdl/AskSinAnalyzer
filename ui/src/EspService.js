@@ -202,4 +202,8 @@ export default class EspService {
     return aU > bU || aU === bU && aL > bL;
   }
 
+  execUpdate() {
+    const file = `AskSinAnalyzerESP32${ this.data.espConfig.display ? '' : '-ND' }.bin`;
+    document.location.href = `${ this.baseUrl }/httpupdate?url=https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/${ file }`;
+  }
 }
