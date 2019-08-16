@@ -33,7 +33,7 @@ void printWifiStatus() {
 }
 
 void checkWifi() {
-  if (WiFi.status() != WL_CONNECTED) {
+  if (isOnline && WiFi.status() != WL_CONNECTED) {
     if (millis() - lastReconnectMillis > 10000) {
       DPRINTLN("Wifi disconnected. Reconnect initiated.");
       WiFi.disconnect();
@@ -80,7 +80,10 @@ bool doWifiConnect() {
       delay(500);
       DPRINT(".");
       connect_count++;
-      if (connect_count > 60) return false;
+      if (connect_count > 60) {
+        DPRINTLN("");
+        return false;
+      }
     }
     connect_count = 0;
     DPRINTLN(F("\n - Connected to the WiFi network"));
