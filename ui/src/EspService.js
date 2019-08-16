@@ -166,7 +166,11 @@ export default class EspService {
     const dev = this.devlist.devices.find(({ address }) => address === parseInt(val, 16));
     if (dev) {
       // HmIP SN: 14 chars; HmRF: 10 chars
-      return { name: dev.name, serial: dev.serial, isIp: dev.serial.length === 14 };
+      return {
+        name: dev.name,
+        serial: dev.serial,
+        isIp: dev.serial.length === 14 || dev.serial === 'HmIP-RF',
+      };
     }
     return null;
   }
