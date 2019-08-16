@@ -108,6 +108,7 @@ void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   memcpy(LogTable[0].flags, flags.c_str(), SIZE_FLAGS);
 
   writeLogEntryToCSV(LogTable[0]);
+  writeLogEntryToWebSocket(LogTable[0]);
 
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 

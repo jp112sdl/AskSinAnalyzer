@@ -10,6 +10,71 @@
 #include "Web_HTML.h"
 
 AsyncWebServer webServer(80);
+AsyncWebSocket ws("/ws");
+#define MAX_WSCLIENTS 3
+AsyncWebSocketClient * wsClients[MAX_WSCLIENTS] = {NULL};
+
+void sendTextToWebSocket(String text) {
+ // if (wsClient != NULL) {
+ //   wsClient->text(text);
+//  }
+}
+
+void writeLogEntryToWebSocket(const _LogTable &lt) {
+  for (AsyncWebSocketClient * wsClient : wsClients)  {
+    if (wsClient != NULL) {
+    String json = "{";
+    json += "\"lognumber\": " + String(lt.lognumber) + ", ";
+    json += "\"tstamp\": " + String(lt.time) + ", ";
+    json += "\"rssi\": " + String(lt.rssi) + ", ";
+    String from = String(lt.fromAddress);
+    from.trim();
+    json += "\"from\": \"" + from + "\", ";
+    String to = String(lt.toAddress);
+    to.trim();
+    json += "\"to\": \"" + to + "\", ";
+    json += "\"len\": " + String(lt.len) + ", ";
+    json += "\"cnt\": " + String(lt.cnt) + ", ";
+    String t = String(lt.typ);
+    t.trim();
+    json += "\"typ\": \"" + t + "\", ";
+    String fl = String(lt.flags);
+    fl.trim();
+    json += "\"flags\": \"" + fl + "\"";
+    json += "}";
+    wsClient->text(json);
+    }
+  }
+}
+
+void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
+  if(type == WS_EVT_CONNECT){
+    bool clientAdded = false;
+    for (uint8_t i = 0; i < MAX_WSCLIENTS; i++){
+      if (wsClients[i] == NULL) {
+        wsClients[i] = client;
+        client->ping();
+        clientAdded = true;
+        DPRINT(F("- wsClient Connect: ID "));DDEC(client->id());DPRINT(F(" from "));DPRINTLN(client->remoteIP());
+        break;
+      }
+    }
+    if (!clientAdded) {
+      client->close();
+      DPRINTLN(F("- wsClient Connect: NO FREE SLOTS"));
+    }
+  } else if(type == WS_EVT_DISCONNECT){
+    for (uint8_t i = 0; i < MAX_WSCLIENTS; i++){
+      if (wsClients[i] != NULL && wsClients[i]->id() == client->id()) {
+        wsClients[i] = NULL;
+        DPRINT("- wsClient Disconnect ID ");DDECLN(client->id());
+        break;
+      }
+    }
+  } else if(type == WS_EVT_ERROR){
+    DPRINT(F("-wsClient Error "));DPRINTLN((char*)data);
+  }
+}
 
 void setConfig(AsyncWebServerRequest *request) {
   DPRINTLN(F("- setConfig"));
@@ -346,6 +411,8 @@ void initWebServer() {
   });
 
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
+  ws.onEvent(onWsEvent);
+  webServer.addHandler(&ws);
   webServer.begin();
   MDNS.addService("http", "tcp", 80);
 }
