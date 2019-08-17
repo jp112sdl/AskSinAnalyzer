@@ -14,48 +14,50 @@ AsyncWebSocket ws("/ws");
 #define MAX_WSCLIENTS 3
 AsyncWebSocketClient * wsClients[MAX_WSCLIENTS] = {NULL};
 
-void sendTextToWebSocket(String text) {
- // if (wsClient != NULL) {
- //   wsClient->text(text);
-//  }
-}
-
 void writeLogEntryToWebSocket(const _LogTable &lt) {
   for (AsyncWebSocketClient * wsClient : wsClients)  {
     if (wsClient != NULL) {
-    String json = "{";
-    json += "\"lognumber\": " + String(lt.lognumber) + ", ";
-    json += "\"tstamp\": " + String(lt.time) + ", ";
-    json += "\"rssi\": " + String(lt.rssi) + ", ";
-    String from = String(lt.fromAddress);
-    from.trim();
-    json += "\"from\": \"" + from + "\", ";
-    String to = String(lt.toAddress);
-    to.trim();
-    json += "\"to\": \"" + to + "\", ";
-    json += "\"len\": " + String(lt.len) + ", ";
-    json += "\"cnt\": " + String(lt.cnt) + ", ";
-    String t = String(lt.typ);
-    t.trim();
-    json += "\"typ\": \"" + t + "\", ";
-    String fl = String(lt.flags);
-    fl.trim();
-    json += "\"flags\": \"" + fl + "\"";
-    json += "}";
-    wsClient->text(json);
+      String json = "{";
+      json += "\"lognumber\": " + String(lt.lognumber) + ", ";
+      json += "\"tstamp\": " + String(lt.time) + ", ";
+      json += "\"rssi\": " + String(lt.rssi) + ", ";
+      String from = String(lt.fromAddress);
+      from.trim();
+      json += "\"from\": \"" + from + "\", ";
+      String to = String(lt.toAddress);
+      to.trim();
+      json += "\"to\": \"" + to + "\", ";
+      json += "\"len\": " + String(lt.len) + ", ";
+      json += "\"cnt\": " + String(lt.cnt) + ", ";
+      String t = String(lt.typ);
+      t.trim();
+      json += "\"typ\": \"" + t + "\", ";
+      String fl = String(lt.flags);
+      fl.trim();
+      json += "\"flags\": \"" + fl + "\"";
+      json += "}";
+      wsClient->text(json);
     }
   }
 }
 
-void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
-  if(type == WS_EVT_CONNECT){
+void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
+  if (type == WS_EVT_CONNECT) {
     bool clientAdded = false;
-    for (uint8_t i = 0; i < MAX_WSCLIENTS; i++){
+    for (uint8_t i = 0; i < MAX_WSCLIENTS; i++) {
       if (wsClients[i] == NULL) {
         wsClients[i] = client;
-        client->ping();
+        delay(50);
+        for (uint16_t l = logLength; l > 0; l--) {
+          if ((int32_t)LogTable[l].lognumber > -1 && l < MAX_LOG_ENTRIES) {
+            writeLogEntryToWebSocket(LogTable[l-1]);
+            delay(16);
+          }
+          if (l == MAX_LOG_ENTRIES) break;
+        }
+
         clientAdded = true;
-        DPRINT(F("- wsClient Connect: ID "));DDEC(client->id());DPRINT(F(" from "));DPRINTLN(client->remoteIP());
+        DPRINT(F("- wsClient Connect: ID ")); DDEC(client->id()); DPRINT(F(" from ")); DPRINTLN(client->remoteIP());
         break;
       }
     }
@@ -63,16 +65,16 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
       client->close();
       DPRINTLN(F("- wsClient Connect: NO FREE SLOTS"));
     }
-  } else if(type == WS_EVT_DISCONNECT){
-    for (uint8_t i = 0; i < MAX_WSCLIENTS; i++){
+  } else if (type == WS_EVT_DISCONNECT) {
+    for (uint8_t i = 0; i < MAX_WSCLIENTS; i++) {
       if (wsClients[i] != NULL && wsClients[i]->id() == client->id()) {
         wsClients[i] = NULL;
-        DPRINT("- wsClient Disconnect ID ");DDECLN(client->id());
+        DPRINT("- wsClient Disconnect ID "); DDECLN(client->id());
         break;
       }
     }
-  } else if(type == WS_EVT_ERROR){
-    DPRINT(F("-wsClient Error "));DPRINTLN((char*)data);
+  } else if (type == WS_EVT_ERROR) {
+    DPRINT(F("-wsClient Error ")); DPRINTLN((char*)data);
   }
 }
 
