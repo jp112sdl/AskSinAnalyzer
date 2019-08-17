@@ -173,36 +173,6 @@ void getConfig (AsyncWebServerRequest *request) {
   request->send(200, "application/json", json);
 }
 
-void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
-  DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevList"));
-  AsyncResponseStream *response = request->beginResponseStream("application/xml;charset=iso-8859-1");
-  HTTPClient http;
-  WiFiClient client;
-  http.begin(client, "http://" + String(HomeMaticConfig.ccuIP) + ":8181/ret.exe?ret=dom.GetObject(\""+CCU_SV+"\").Value()");
-  int httpCode = http.GET();
-  if (httpCode > 0) {
-    if (httpCode == HTTP_CODE_OK) {
-      int len = http.getSize();
-      uint8_t buff[128] = { 0 };
-      WiFiClient * stream = &client;
-      while (http.connected() && (len > 0 || len == -1)) {
-        int c = stream->readBytes(buff, std::min((size_t)len, sizeof(buff)));
-        if (!c) DPRINTLN(F("getAskSinAnalyzerDevList read timeout"));
-
-        for (uint8_t a = 0; a < c; a++)
-          response->print((char)buff[a]);
-        if (len > 0)  len -= c;
-      }
-    } else {
-      DPRINT(F("::: getAskSinAnalyzerDevList HTTP GET ERROR ")); DDECLN(httpCode);
-    }
-  } else {
-    DPRINT(F(":::getAskSinAnalyzerDevList HTTP-Client failed with ")); DDECLN(httpCode);
-  }
-  http.end();
-  request->send(response);
-}
-
 void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
   DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevListJSON"));
   AsyncResponseStream *response = request->beginResponseStream("application/json;charset=iso-8859-1");
@@ -349,10 +319,6 @@ void initWebServer() {
 
   webServer.on("/rebootInConfigMode", HTTP_POST, [](AsyncWebServerRequest * request) {
     setBootConfigMode(request);
-  });
-
-  webServer.on("/getAskSinAnalyzerDevList", HTTP_GET, [](AsyncWebServerRequest * request) {
-    getAskSinAnalyzerDevList(request);
   });
 
   webServer.on("/getAskSinAnalyzerDevListJSON", HTTP_GET, [](AsyncWebServerRequest * request) {
