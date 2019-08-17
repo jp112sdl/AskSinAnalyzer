@@ -141,9 +141,9 @@ String   updateUrl             = "https://raw.githubusercontent.com/jp112sdl/Ask
 #include "Display.h"
 #include "CCUFunctions.h"
 #include "Helper.h"
-#include "SerialIn.h"
 #include "Web.h"
 #include "WManager.h"
+#include "SerialIn.h"
 
 void setup() {
   DINIT(57600, F("\nASKSINANALYZER ESP32 " VERSION_UPPER "." VERSION_LOWER " (" __DATE__ " " __TIME__ ")\n--------------------------------"));

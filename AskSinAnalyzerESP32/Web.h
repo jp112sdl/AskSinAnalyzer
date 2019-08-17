@@ -10,6 +10,73 @@
 #include "Web_HTML.h"
 
 AsyncWebServer webServer(80);
+AsyncWebSocket ws("/ws");
+#define MAX_WSCLIENTS 3
+AsyncWebSocketClient * wsClients[MAX_WSCLIENTS] = {NULL};
+
+void writeLogEntryToWebSocket(const _LogTable &lt) {
+  for (AsyncWebSocketClient * wsClient : wsClients)  {
+    if (wsClient != NULL) {
+      String json = "{";
+      json += "\"lognumber\": " + String(lt.lognumber) + ", ";
+      json += "\"tstamp\": " + String(lt.time) + ", ";
+      json += "\"rssi\": " + String(lt.rssi) + ", ";
+      String from = String(lt.fromAddress);
+      from.trim();
+      json += "\"from\": \"" + from + "\", ";
+      String to = String(lt.toAddress);
+      to.trim();
+      json += "\"to\": \"" + to + "\", ";
+      json += "\"len\": " + String(lt.len) + ", ";
+      json += "\"cnt\": " + String(lt.cnt) + ", ";
+      String t = String(lt.typ);
+      t.trim();
+      json += "\"typ\": \"" + t + "\", ";
+      String fl = String(lt.flags);
+      fl.trim();
+      json += "\"flags\": \"" + fl + "\"";
+      json += "}";
+      wsClient->text(json);
+    }
+  }
+}
+
+void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
+  if (type == WS_EVT_CONNECT) {
+    bool clientAdded = false;
+    for (uint8_t i = 0; i < MAX_WSCLIENTS; i++) {
+      if (wsClients[i] == NULL) {
+        wsClients[i] = client;
+        delay(50);
+        for (uint16_t l = logLength; l > 0; l--) {
+          if ((int32_t)LogTable[l].lognumber > -1 && l < MAX_LOG_ENTRIES) {
+            writeLogEntryToWebSocket(LogTable[l-1]);
+            delay(16);
+          }
+          if (l == MAX_LOG_ENTRIES) break;
+        }
+
+        clientAdded = true;
+        DPRINT(F("- wsClient Connect: ID ")); DDEC(client->id()); DPRINT(F(" from ")); DPRINTLN(client->remoteIP());
+        break;
+      }
+    }
+    if (!clientAdded) {
+      client->close();
+      DPRINTLN(F("- wsClient Connect: NO FREE SLOTS"));
+    }
+  } else if (type == WS_EVT_DISCONNECT) {
+    for (uint8_t i = 0; i < MAX_WSCLIENTS; i++) {
+      if (wsClients[i] != NULL && wsClients[i]->id() == client->id()) {
+        wsClients[i] = NULL;
+        DPRINT("- wsClient Disconnect ID "); DDECLN(client->id());
+        break;
+      }
+    }
+  } else if (type == WS_EVT_ERROR) {
+    DPRINT(F("-wsClient Error ")); DPRINTLN((char*)data);
+  }
+}
 
 void setConfig(AsyncWebServerRequest *request) {
   DPRINTLN(F("- setConfig"));
@@ -108,43 +175,18 @@ void getConfig (AsyncWebServerRequest *request) {
   request->send(200, "application/json", json);
 }
 
-void getAskSinAnalyzerDevList (AsyncWebServerRequest *request) {
-  DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevList"));
-  AsyncResponseStream *response = request->beginResponseStream("application/xml;charset=iso-8859-1");
-  HTTPClient http;
-  WiFiClient client;
-  http.begin(client, "http://" + String(HomeMaticConfig.ccuIP) + ":8181/ret.exe?ret=dom.GetObject(\""+CCU_SV+"\").Value()");
-  int httpCode = http.GET();
-  if (httpCode > 0) {
-    if (httpCode == HTTP_CODE_OK) {
-      int len = http.getSize();
-      uint8_t buff[128] = { 0 };
-      WiFiClient * stream = &client;
-      while (http.connected() && (len > 0 || len == -1)) {
-        int c = stream->readBytes(buff, std::min((size_t)len, sizeof(buff)));
-        if (!c) DPRINTLN(F("getAskSinAnalyzerDevList read timeout"));
-
-        for (uint8_t a = 0; a < c; a++)
-          response->print((char)buff[a]);
-        if (len > 0)  len -= c;
-      }
-    } else {
-      DPRINT(F("::: getAskSinAnalyzerDevList HTTP GET ERROR ")); DDECLN(httpCode);
-    }
-  } else {
-    DPRINT(F(":::getAskSinAnalyzerDevList HTTP-Client failed with ")); DDECLN(httpCode);
-  }
-  http.end();
-  request->send(response);
-}
-
 void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
   DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevListJSON"));
-  AsyncResponseStream *response = request->beginResponseStream("application/json;charset=iso-8859-1");
   String js = loadAskSinAnalyzerDevListFromCCU();
-  createJSONDevList(js);  //refresh local DevList
-  response->print(js);    //send DevList to Web
-  request->send(response);
+  if (js != "null") {
+    AsyncResponseStream *response = request->beginResponseStream("application/json;charset=iso-8859-1");
+    createJSONDevList(js);  //refresh local DevList
+    response->print(js);    //send DevList to Web
+    request->send(response);
+  } else {
+    DPRINTLN(F("-> FEHLER: js == null"));
+    request->send(422, "text/plain", "Fehler beim Abruf der SV");
+  }
 }
 
 void getLogByLogNumber (AsyncWebServerRequest * request) {
@@ -286,10 +328,6 @@ void initWebServer() {
     setBootConfigMode(request);
   });
 
-  webServer.on("/getAskSinAnalyzerDevList", HTTP_GET, [](AsyncWebServerRequest * request) {
-    getAskSinAnalyzerDevList(request);
-  });
-
   webServer.on("/getAskSinAnalyzerDevListJSON", HTTP_GET, [](AsyncWebServerRequest * request) {
     getAskSinAnalyzerDevListJSON(request);
   });
@@ -346,6 +384,8 @@ void initWebServer() {
   });
 
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
+  ws.onEvent(onWsEvent);
+  webServer.addHandler(&ws);
   webServer.begin();
   MDNS.addService("http", "tcp", 80);
 }
