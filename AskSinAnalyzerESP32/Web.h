@@ -177,11 +177,16 @@ void getConfig (AsyncWebServerRequest *request) {
 
 void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
   DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevListJSON"));
-  AsyncResponseStream *response = request->beginResponseStream("application/json;charset=iso-8859-1");
   String js = loadAskSinAnalyzerDevListFromCCU();
-  createJSONDevList(js);  //refresh local DevList
-  response->print(js);    //send DevList to Web
-  request->send(response);
+  if (js != "null") {
+    AsyncResponseStream *response = request->beginResponseStream("application/json;charset=iso-8859-1");
+    createJSONDevList(js);  //refresh local DevList
+    response->print(js);    //send DevList to Web
+    request->send(response);
+  } else {
+    DPRINTLN(F("-> FEHLER: js == null"));
+    request->send(422, "text/plain", "Fehler beim Abruf der SV");
+  }
 }
 
 void getLogByLogNumber (AsyncWebServerRequest * request) {
