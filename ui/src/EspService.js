@@ -69,6 +69,7 @@ export default class EspService {
   async fetchLog(offset = 0) {
     const res = await this._fetch(`${ this.baseUrl }/getLogByLogNumber?lognum=${ offset }`);
     const json = await res.json();
+    if(offset === -1) res.reverse();
     if (this.resolveNames) {
       json.forEach(t => this.addNameFromDevlist(t));
     }
