@@ -184,15 +184,15 @@ String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
     csvLine += String(lt.len);
     csvLine += ";";
     csvLine += String(lt.cnt);
-    csvLine += ";\"";
+    csvLine += ";";
     temp = lt.typ;
     temp.trim();
     csvLine += temp;
-    csvLine += "\";\"";
+    csvLine += ";";
     temp = lt.flags;
     temp.trim();
     csvLine += temp;
-    csvLine += "\";";
+    csvLine += ";";
     return csvLine;
 }
 
