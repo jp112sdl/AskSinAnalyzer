@@ -114,16 +114,7 @@ void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
   DPRINTLN(F("\nAdded to LogTable: "));
-  DPRINT(F(" - fromAddress : ")); DPRINTLN(LogTable[0].fromAddress);
-  DPRINT(F(" - fromSerial  : ")); DPRINTLN(LogTable[0].fromSerial);
-  DPRINT(F(" - toAddress   : ")); DPRINTLN(LogTable[0].toAddress);
-  DPRINT(F(" - toSerial    : ")); DPRINTLN(LogTable[0].toSerial);
-  DPRINT(F(" - rssi        : ")); DPRINTLN(LogTable[0].rssi);
-  DPRINT(F(" - len         : ")); DPRINTLN(LogTable[0].len);
-  DPRINT(F(" - cnt         : ")); DPRINTLN(LogTable[0].cnt);
-  DPRINT(F(" - typ         : ")); DPRINTLN(LogTable[0].typ);
-  DPRINT(F(" - flags       : ")); DPRINTLN(LogTable[0].flags);
-  DPRINT(F(" - time        : ")); DPRINTLN(getDatum(LogTable[0].time) + " " + getUhrzeit(LogTable[0].time));
+  dumpLogTableEntry(LogTable[0]);
   //DPRINTLN(" => messages received: " + String(allCount));
   //DPRINTLN("logLength        = " + String(logLength));
   //DPRINTLN("logLengthDisplay = " + String(logLengthDisplay));

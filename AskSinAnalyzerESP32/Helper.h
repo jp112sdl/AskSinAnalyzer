@@ -219,4 +219,17 @@ String createJSONFromLogTableEntry(_LogTable &lt) {
   return json;
 }
 
+void dumpLogTableEntry(_LogTable &lt) {
+  DPRINT(F(" - fromAddress : ")); DPRINTLN(lt.fromAddress);
+  DPRINT(F(" - fromSerial  : ")); DPRINTLN(lt.fromSerial);
+  DPRINT(F(" - toAddress   : ")); DPRINTLN(lt.toAddress);
+  DPRINT(F(" - toSerial    : ")); DPRINTLN(lt.toSerial);
+  DPRINT(F(" - rssi        : ")); DPRINTLN(lt.rssi);
+  DPRINT(F(" - len         : ")); DPRINTLN(lt.len);
+  DPRINT(F(" - cnt         : ")); DPRINTLN(lt.cnt);
+  DPRINT(F(" - typ         : ")); DPRINTLN(lt.typ);
+  DPRINT(F(" - flags       : ")); DPRINTLN(lt.flags);
+  DPRINT(F(" - time        : ")); DPRINTLN(getDatum(lt.time) + " " + getUhrzeit(lt.time));
+}
+
 #endif
