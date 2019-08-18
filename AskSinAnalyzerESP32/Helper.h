@@ -147,4 +147,76 @@ void shiftLogArray() {
   }
 }
 
+String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
+  String csvLine = "";
+    String temp = "";
+    csvLine += String(allCount);
+    csvLine += ";";
+    csvLine += lng ? getDatum(lt.time) + " " + getUhrzeit(lt.time) : now();
+    csvLine += ";";
+    csvLine += String(lt.rssi);
+    csvLine += ";";
+
+    temp = lt.fromAddress;
+    temp.trim();
+    csvLine += temp;
+    csvLine += ";";
+
+    if (lng) {
+      temp = lt.fromSerial;
+      temp.trim();
+      csvLine += temp;
+      csvLine += ";";
+    }
+
+    temp = lt.toAddress;
+    temp.trim();
+    csvLine += temp;
+    csvLine += ";";
+
+    if (lng) {
+      temp = lt.toSerial;
+      temp.trim();
+      csvLine += temp;
+      csvLine += ";";
+    }
+
+    csvLine += String(lt.len);
+    csvLine += ";";
+    csvLine += String(lt.cnt);
+    csvLine += ";\"";
+    temp = lt.typ;
+    temp.trim();
+    csvLine += temp;
+    csvLine += "\";\"";
+    temp = lt.flags;
+    temp.trim();
+    csvLine += temp;
+    csvLine += "\";";
+    return csvLine;
+}
+
+String createJSONFromLogTableEntry(_LogTable &lt) {
+  String json = "{";
+  json += "\"lognumber\": " + String(lt.lognumber) + ", ";
+  json += "\"tstamp\": " + String(lt.time) + ", ";
+  json += "\"rssi\": " + String(lt.rssi) + ", ";
+  String from = String(lt.fromAddress);
+  from.trim();
+  json += "\"from\": \"" + from + "\", ";
+  String to = String(lt.toAddress);
+  to.trim();
+  json += "\"to\": \"" + to + "\", ";
+  json += "\"len\": " + String(lt.len) + ", ";
+  json += "\"cnt\": " + String(lt.cnt) + ", ";
+  String t = String(lt.typ);
+  t.trim();
+  json += "\"typ\": \"" + t + "\", ";
+  String fl = String(lt.flags);
+  fl.trim();
+  json += "\"flags\": \"" + fl + "\"";
+  json += "}";
+  return json;
+}
+
 #endif
