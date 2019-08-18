@@ -150,7 +150,7 @@ void shiftLogArray() {
 String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
   String csvLine = "";
     String temp = "";
-    csvLine += String(allCount);
+    csvLine += String(lt.lognumber);
     csvLine += ";";
     csvLine += lng ? getDatum(lt.time) + " " + getUhrzeit(lt.time) : now();
     csvLine += ";";
