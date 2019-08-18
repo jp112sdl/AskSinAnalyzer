@@ -210,7 +210,7 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
       AsyncWebServerResponse *response = request->beginResponse(SPIFFS, SPIFFS_SESSIONLOG_FILENAME, String());
       request->send(response);
     } else {
-      AsyncResponseStream *response = request->beginResponseStream("application/text");
+      AsyncResponseStream *response = request->beginResponseStream("text/comma-separated-values");
       for (uint16_t l = 0; l < logLength; l++) {
         if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
           response->println(createCSVFromLogTableEntry(LogTable[l], false));
