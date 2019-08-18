@@ -28,7 +28,7 @@
           <q-item-label caption>Startet den ESP im Config-Modus neu.</q-item-label>
         </q-item-section>
       </q-item>
-      <q-item clickable v-ripple @click="downloadcsv" :disabled="!$root.espConfig.sdcardavailable">
+      <q-item clickable v-ripple @click="downloadcsv" :disabled="!sdcardavailable">
         <q-item-section avatar>
           <q-avatar rounded color="primary" text-color="white" icon="save_alt"/>
         </q-item-section>
@@ -37,7 +37,7 @@
           <q-item-label caption>CSV mit empfangenen Telegrammen herunterladen.</q-item-label>
         </q-item-section>
       </q-item>
-      <q-item clickable v-ripple @click="deletecsv" :disabled="!$root.espConfig.sdcardavailable">
+      <q-item clickable v-ripple @click="deletecsv" :disabled="!sdcardavailable">
         <q-item-section avatar>
           <q-avatar rounded color="primary" text-color="white" icon="delete_sweep"/>
         </q-item-section>
@@ -62,8 +62,10 @@
       QAvatar, QList, QItem, QItemSection, QItemLabel
     },
 
-    data() {
-      return {}
+    computed: {
+      sdcardavailable() {
+        return this.$root.espConfig && this.$root.espConfig.sdcardavailable;
+      }
     },
 
     methods: {

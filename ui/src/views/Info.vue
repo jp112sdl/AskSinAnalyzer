@@ -34,6 +34,29 @@
             dann blockieren die meisten Browser eine unserichere Verbindung (http). Man muss dies für die
             WebUI zulassen, oft ist in der Adressbar ein Icon was darauf hinweist.
           </div>
+          <div class="text-bold">Flags</div>
+          <div class="q-mb-md">
+            <span class="flag-chip"><flag-chip value="WKUP"/></span>
+            <span class="flag-desc">Receiver shall stay awake for short time.</span>
+            <br/>
+            <span class="flag-chip"><flag-chip value="WKMEUP"/></span>
+            <span class="flag-desc">Sender indicates that it is still awake for short time.</span>
+            <br/>
+            <span class="flag-chip"><flag-chip value="BCAST"/></span>
+            <span class="flag-desc">Telegram is a broadcast to all.</span>
+            <br/>
+            <span class="flag-chip"><flag-chip value="BURST"/></span>
+            <span class="flag-desc">Telegram has been sent with a burst.</span>
+            <br/>
+            <span class="flag-chip"><flag-chip value="BIDI"/></span>
+            <span class="flag-desc">Telegram must be acknowledged by the receiver for bidirectional communication.</span>
+            <br/>
+            <span class="flag-chip"><flag-chip value="RPTED"/></span>
+            <span class="flag-desc">Telegram has already been repeated by a repeater.</span>
+            <br/>
+            <span class="flag-chip"><flag-chip value="RPTEN"/></span>
+            <span class="flag-desc">Telegram is allowed to be repeated by a repeater.</span>
+          </div>
         </div>
       </q-card-section>
     </q-card>
@@ -61,7 +84,7 @@
         <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/de/" rel="noopener noreferrer" target="_blank">
           CC BY-NC-SA 3.0 DE
         </a>
-        <br />
+        <br/>
         It is NOT free for commercial and governmental use!
       </q-card-section>
     </q-card>
@@ -88,10 +111,11 @@
 
 <script>
   import { QCard, QCardSection } from 'quasar';
+  import FlagChip from '../components/FlagChip';
 
   export default {
     name: 'InfoView',
-    components: { QCard, QCardSection }
+    components: { QCard, QCardSection, FlagChip }
   }
 </script>
 
@@ -106,4 +130,9 @@
   .tech-logos
     > a
       margin-right 1.5rem
+
+  .flag-chip
+    display inline-block
+    width 70px
+    margin-right 10px
 </style>
