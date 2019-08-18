@@ -361,10 +361,8 @@ void initWebServer() {
     if (sdAvailable) {
       DPRINTLN(F("Downloading CSV from SD Card"));
       response = request->beginResponse(SD, CSV_FILENAME, String());
-    }
-    else {
-      DPRINTLN(F("Downloading CSV from SPIFFS"));
-      response = request->beginResponse(SPIFFS, CSV_FILENAME, String());
+    } else {
+      DPRINTLN(F("SD Card not available"));
     }
     response->addHeader("Server", "AskSinAnalyzer");
     request->send(response);
