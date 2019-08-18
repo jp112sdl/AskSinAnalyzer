@@ -193,33 +193,32 @@ void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
 }
 
 void getLogByLogNumber (AsyncWebServerRequest * request) {
+  bool formatIsCSV = false;
+  if (request->hasParam("format")) {
+    AsyncWebParameter* p = request->getParam("format");
+    formatIsCSV = (p->value() == "csv");
+  }
+
   int32_t lognum = 0;
   if (request->hasParam("lognum")) {
     AsyncWebParameter* p = request->getParam("lognum");
     lognum = p->value().toInt();
   }
 
-  if (lognum == -1) {
-
-    AsyncWebServerResponse *response;
-    response = request->beginResponse(SPIFFS, SPIFFS_SESSIONLOG_FILENAME, String());
-    response->addHeader("Server", "AskSinAnalyzer");
-    request->send(response);
-
-    /*AsyncResponseStream *response = request->beginResponseStream("application/json");
-    if (spiffsAvailable) {
-      if (SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
-        //AsyncWebServerResponse *response;
-        //response = request->beginResponse(SPIFFS, SPIFFS_SESSIONLOG_FILENAME, String());
-        File file = SPIFFS.open(SPIFFS_SESSIONLOG_FILENAME, FILE_READ);
-        while (file.available()) {
-          response->print((char)file.read());
+  if (formatIsCSV) {
+    if (lognum == -1) {
+      AsyncWebServerResponse *response = request->beginResponse(SPIFFS, SPIFFS_SESSIONLOG_FILENAME, String());
+      request->send(response);
+    } else {
+      AsyncResponseStream *response = request->beginResponseStream("application/text");
+      for (uint16_t l = 0; l < logLength; l++) {
+        if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
+          response->println(createCSVFromLogTableEntry(LogTable[l], false));
         }
-        response->print("]");
+        if (l == MAX_LOG_ENTRIES) break;
       }
+      request->send(response);
     }
-    request->send(response);*/
-
   } else {
     AsyncResponseStream *response = request->beginResponseStream("application/json");
     response->print("[");
@@ -227,25 +226,7 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
       if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
         String json = "";
         if (l > 0) json += ",";
-        json += "{";
-        json += "\"lognumber\": " + String(LogTable[l].lognumber) + ", ";
-        json += "\"tstamp\": " + String(LogTable[l].time) + ", ";
-        json += "\"rssi\": " + String(LogTable[l].rssi) + ", ";
-        String from = String(LogTable[l].fromAddress);
-        from.trim();
-        json += "\"from\": \"" + from + "\", ";
-        String to = String(LogTable[l].toAddress);
-        to.trim();
-        json += "\"to\": \"" + to + "\", ";
-        json += "\"len\": " + String(LogTable[l].len) + ", ";
-        json += "\"cnt\": " + String(LogTable[l].cnt) + ", ";
-        String t = String(LogTable[l].typ);
-        t.trim();
-        json += "\"typ\": \"" + t + "\", ";
-        String fl = String(LogTable[l].flags);
-        fl.trim();
-        json += "\"flags\": \"" + fl + "\"";
-        json += "}";
+        json += createJSONFromLogTableEntry(LogTable[l]);
         response->print(json);
       }
       if (l == MAX_LOG_ENTRIES) break;

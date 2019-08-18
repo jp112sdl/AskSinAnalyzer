@@ -171,27 +171,9 @@ void IRAM_ATTR writeSessionLogToSPIFFS(_LogTable &lt) {
       DPRINTLN(F(" - SPIFFS Session Log : failed to open file for appending"));
     }
 
-    String logline = (lt.lognumber == 0) ? "[{" : ",{";
-    logline += "\"lognumber\": " + String(lt.lognumber) + ", ";
-    logline += "\"tstamp\": " + String(lt.time) + ", ";
-    logline += "\"rssi\": " + String(lt.rssi) + ", ";
-    String from = String(lt.fromAddress);
-    from.trim();
-    logline += "\"from\": \"" + from + "\", ";
-    String to = String(lt.toAddress);
-    to.trim();
-    logline += "\"to\": \"" + to + "\", ";
-    logline += "\"len\": " + String(lt.len) + ", ";
-    logline += "\"cnt\": " + String(lt.cnt) + ", ";
-    String t = String(lt.typ);
-    t.trim();
-    logline += "\"typ\": \"" + t + "\", ";
-    String fl = String(lt.flags);
-    fl.trim();
-    logline += "\"flags\": \"" + fl + "\"";
-    logline += "}";
+    String logline =  createCSVFromLogTableEntry(lt, false);
 
-    if (file.print(logline)) {
+    if (file.println(logline)) {
       DPRINTLN(F(" - SPIFFS Session Log : message appended"));
       file.close();
     } else {
@@ -205,52 +187,12 @@ void IRAM_ATTR writeSessionLogToSPIFFS(_LogTable &lt) {
 void writeLogEntryToCSV(const _LogTable &lt) {
   // Write to CSV
   DPRINTLN(F("Preprocessing CSV"));
-  String csvLine = "";
-  String temp = "";
-  csvLine += String(allCount);
-  csvLine += ";";
-  csvLine += getDatum(lt.time) + " " + getUhrzeit(lt.time);
-  csvLine += ";";
-  csvLine += String(lt.rssi);
-  csvLine += ";";
 
+  String csvLine = createCSVFromLogTableEntry(lt, true);
 
-  temp = lt.fromAddress;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-
-  temp = lt.fromSerial;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-
-  temp = lt.toAddress;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-
-  temp = lt.toSerial;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-
-  csvLine += String(lt.len);
-  csvLine += ";";
-  csvLine += String(lt.cnt);
-  csvLine += ";";
-  temp = lt.typ;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-  temp = lt.flags;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
-
-  if (SPIFFS.totalBytes() - SPIFFS.usedBytes() > csvLine.length())
+  if (getSDCardTotalSpaceMB() - getSDCardUsedSpaceMB() > csvLine.length())
     writeCSVtoSD(CSV_FILENAME, csvLine);
   else
-    DPRINTLN(F("writeCSVtoSD failed - not enough space"));
+    DPRINTLN(F("writeLogEntryToCSV failed - not enough space"));
 }
 #endif
