@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { Quasar, Ripple } from 'quasar';
+import { Quasar, Ripple, ClosePopup } from 'quasar';
 import lang from 'quasar/lang/de.js'
 import './styles/quasar.styl'
 import '@quasar/extras/material-icons/material-icons.css'
@@ -42,7 +42,7 @@ Vue.prototype.$debounce = function(fn, delay) {
 };
 
 // Init Vue
-Vue.use(Quasar, { lang, directives: { Ripple } });
+Vue.use(Quasar, { lang, directives: { Ripple, ClosePopup } });
 Vue.config.productionTip = false;
 
 const vm = new Vue({
