@@ -37,12 +37,12 @@ function genTelegram() {
 let data = [];
 
 setInterval(() => {
-  const cnt = Math.random() * 7;
+  const cnt = Math.random() * 3;
   for (let i = 0; i < cnt; i++) {
     data.unshift(genTelegram());
   }
   data = data.slice(0, 200);
-}, 1000);
+}, 2000);
 
 
 function telegram2Csv(obj) {

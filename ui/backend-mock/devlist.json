@@ -2,7 +2,7 @@
   "created_at": 1565165859,
   "devices": [
     {
-      "address": 158641,
+      "address": 1574120,
       "serial": "HMIPBCAST",
       "name": "HmIP Broadcast"
     },
@@ -12,44 +12,39 @@
       "name": "HmRF Broadcast"
     },
     {
-      "address": 7619,
-      "serial": "JPLCSW4001",
+      "address": 6722,
+      "serial": "ASDCSW4001",
       "name": "4fach Schaltaktor Garten"
     },
     {
-      "address": 159857,
-      "serial": "JPCAPM0001",
+      "address": 151237,
+      "serial": "ASDAPM0001",
       "name": "Bodenfeuchtesensor"
     },
     {
-      "address": 5138554,
-      "serial": "NEQ0942706",
-      "name": "Briefkasten Einwurf"
+      "address": 5432154,
+      "serial": "NEQ8741706",
+      "name": "Briefkasten"
     },
     {
-      "address": 454712,
-      "serial": "000457098CEFA9",
+      "address": 455587,
+      "serial": "000123456CEFA9",
       "name": "iSense Nachtbetrieb"
     },
     {
-      "address": 4183610,
+      "address": 7788643,
       "serial": "BidCoS-RF",
       "name": "ZentraleHM"
     },
     {
-      "address": 1525481,
-      "serial": "61A7D7128E11B4",
+      "address": 1528521,
+      "serial": "61A7A2147E11B4",
       "name": "ZentraleHMiP"
     },
     {
-      "address": 67774,
-      "serial": "LTK0123634",
-      "name": "Zwischenstecker Anbau"
-    },
-    {
-      "address": 159529,
-      "serial": "JPBEACON01",
-      "name": "ZZZ-DUMMY-BEACON"
+      "address": 52214,
+      "serial": "NQ4123634",
+      "name": "Zwischenstecker"
     }
   ]
 }
