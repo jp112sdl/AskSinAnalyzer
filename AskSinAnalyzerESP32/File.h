@@ -172,13 +172,18 @@ void IRAM_ATTR writeSessionLogToSPIFFS(_LogTable &lt) {
     }
 
     String logline =  createCSVFromLogTableEntry(lt, false);
-
-    if (file.println(logline)) {
-      DPRINTLN(F(" - SPIFFS Session Log : message appended"));
-      file.close();
+    uint32_t freeBytes = SPIFFS.totalBytes() - SPIFFS.usedBytes();
+    if (freeBytes > logline.length()) {
+      if (file.println(logline)) {
+        DPRINTLN(F(" - SPIFFS Session Log : message appended"));
+        file.close();
+      } else {
+        DPRINTLN(F(" - SPIFFS Session Log : append failed"));
+      }
     } else {
-      DPRINTLN(F(" - SPIFFS Session Log : append failed"));
+      DPRINT(F(" - SPIFFS Session Log : no space left. Free Bytes: "));DDECLN(freeBytes);
     }
+
   } else {
     DPRINTLN(F(" - SPIFFS Session Log not written; SPIFFS not available!"));
   }
