@@ -59,9 +59,9 @@ const server = http.createServer(function(req, res) {
 
       case '/getLogByLogNumber':
         const offset = url.query && url.query.lognum;
-        res.write(JSON.stringify(
-          data.filter(item => item.lognumber > offset).slice(-50),
-          null, 2)
+        let resData = data.filter(item => item.lognumber > offset).slice(-50);
+        if(offset === "-1") resData.reverse();
+        res.write(JSON.stringify(resData,null, 2)
         ); //write a response
         res.end(); //end the response
         break;
