@@ -45,6 +45,10 @@ setInterval(() => {
 }, 1000);
 
 
+function telegram2Csv(obj) {
+  return `${obj.lognumber};${obj.tstamp};${ obj.rssi };${ obj.from };${ obj.to };${ obj.len };${ obj.cnt };${ obj.typ };${ obj.flags };`
+}
+
 const server = http.createServer(function(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const url = parseUrl(req.url, true);
@@ -59,10 +63,14 @@ const server = http.createServer(function(req, res) {
 
       case '/getLogByLogNumber':
         const offset = url.query && url.query.lognum;
+        const format = url.query && url.query.format;
         let resData = data.filter(item => item.lognumber > offset).slice(-50);
         if(offset === "-1") resData.reverse();
-        res.write(JSON.stringify(resData,null, 2)
-        ); //write a response
+        if(format === "csv") {
+          res.write(resData.map(item => telegram2Csv(item)).join("\n"));
+        } else {
+          res.write(JSON.stringify(resData, null, 2)); //write a response
+        }
         res.end(); //end the response
         break;
 

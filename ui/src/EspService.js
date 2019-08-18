@@ -67,9 +67,13 @@ export default class EspService {
   }
 
   async fetchLog(offset = 0) {
-    const res = await this._fetch(`${ this.baseUrl }/getLogByLogNumber?lognum=${ offset }`);
-    let json = await res.json();
-    json = json.sort((a,b) => b.lognumber - a.lognumber);
+    const res = await this._fetch(`${ this.baseUrl }/getLogByLogNumber?format=csv&lognum=${ offset }`);
+    let text = await res.text();
+    const json = text
+      .split(/\r?\n/)
+      .map(line => this.csvToObj(line))
+      .filter(obj => obj !== null)
+      .sort((a,b) => b.lognumber - a.lognumber);
     if (this.resolveNames) {
       json.forEach(t => this.addNameFromDevlist(t));
     }
@@ -176,6 +180,22 @@ export default class EspService {
     return null;
   }
 
+  csvToObj(strLine) {
+    if(strLine.length < 3) return null;
+    const splt = strLine.split(';');
+    if(splt.length < 9) return null;
+    return {
+      lognumber: +splt[0],
+      tstamp: +splt[1],
+      rssi: +splt[2],
+      from: splt[3],
+      to: splt[4],
+      len: +splt[5],
+      cnt: +splt[6],
+      typ: splt[7],
+      flags: splt[8],
+    }
+  }
 
   async fetchDevList() {
     try {
