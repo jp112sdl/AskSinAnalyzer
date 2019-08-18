@@ -24,6 +24,15 @@ uint32_t getSPIFFSUsedKB() {
   return (uint32_t)SPIFFS.usedBytes() / 1024UL;
 }
 
+void initSessionLogOnSPIFFS() {
+  if (spiffsAvailable) {
+    if (SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
+      DPRINTLN(F(" - SPIFFS deleting old Session Log file"));
+      deleteFile(SPIFFS, SPIFFS_SESSIONLOG_FILENAME);
+    }
+  }
+}
+
 bool initSPIFFS() {
   DPRINTLN(F("- INIT SPIFFS"));
   if (!SPIFFS.begin(true)) {
@@ -43,7 +52,7 @@ bool initSPIFFS() {
   DPRINTLN(getSPIFFSUsedKB());
   DPRINT(F(" - SPIFFS: Free  kb: "));
   DPRINTLN(getSPIFFSSizeKB() - getSPIFFSUsedKB());
-
+  
   return true;
 }
 
@@ -115,7 +124,7 @@ uint8_t IRAM_ATTR deleteCSV(const char * fileName, bool createBackup) {
   }
 }
 
-void IRAM_ATTR writeCSV(const char * fileName, String &csvLine) {
+void IRAM_ATTR writeCSVtoSD(const char * fileName, String &csvLine) {
   DPRINTLN(F(" - writing CSV file"));
   if (sdAvailable) {
     if (!SD.exists(fileName)) {
@@ -144,36 +153,52 @@ void IRAM_ATTR writeCSV(const char * fileName, String &csvLine) {
       DPRINTLN(F(" - SD csv : append failed"));
     }
   }
-  else {
-    if (spiffsAvailable) {
-      if (!SPIFFS.exists(fileName)) {
-        DPRINTLN(F(" - failed to open file - creating new"));
-        File file = SPIFFS.open(fileName, FILE_WRITE);
-        if (!file) {
-          DPRINTLN(F(" - SPIFFS failed to open file for writing"));
-          return;
-        } else {
-          if (file.println(CSV_HEADER)) {
-          } else {
-            DPRINTLN(F(" - SPIFFS failed to write line into file"));
-          }
-          file.close();
-        }
-      }
+}
 
-      File file = SPIFFS.open(fileName, FILE_APPEND);
+void IRAM_ATTR writeSessionLogToSPIFFS(_LogTable &lt) {
+  if (spiffsAvailable) {
+    if (!SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
+      DPRINTLN(F(" - failed to open file - creating new"));
+      File file = SPIFFS.open(SPIFFS_SESSIONLOG_FILENAME, FILE_WRITE);
       if (!file) {
-        DPRINTLN(F(" - SPIFFS csv : failed to open file for appending"));
+        DPRINTLN(F(" - SPIFFS failed to open file for writing"));
+        return;
       }
-      if (file.println(csvLine)) {
-        DPRINTLN(F(" - SPIFFS csv : message appended"));
-        file.close();
-      } else {
-        DPRINTLN(F(" - SPIFFS csv : append failed"));
-      }
-    } else {
-      DPRINTLN(F(" - SPIFFS writeCSV not done; SPIFFS not available!"));
     }
+
+    File file = SPIFFS.open(SPIFFS_SESSIONLOG_FILENAME, FILE_APPEND);
+    if (!file) {
+      DPRINTLN(F(" - SPIFFS Session Log : failed to open file for appending"));
+    }
+
+    String logline = (lt.lognumber == 0) ? "[{" : ",{";
+    logline += "\"lognumber\": " + String(lt.lognumber) + ", ";
+    logline += "\"tstamp\": " + String(lt.time) + ", ";
+    logline += "\"rssi\": " + String(lt.rssi) + ", ";
+    String from = String(lt.fromAddress);
+    from.trim();
+    logline += "\"from\": \"" + from + "\", ";
+    String to = String(lt.toAddress);
+    to.trim();
+    logline += "\"to\": \"" + to + "\", ";
+    logline += "\"len\": " + String(lt.len) + ", ";
+    logline += "\"cnt\": " + String(lt.cnt) + ", ";
+    String t = String(lt.typ);
+    t.trim();
+    logline += "\"typ\": \"" + t + "\", ";
+    String fl = String(lt.flags);
+    fl.trim();
+    logline += "\"flags\": \"" + fl + "\"";
+    logline += "}";
+
+    if (file.print(logline)) {
+      DPRINTLN(F(" - SPIFFS Session Log : message appended"));
+      file.close();
+    } else {
+      DPRINTLN(F(" - SPIFFS Session Log : append failed"));
+    }
+  } else {
+    DPRINTLN(F(" - SPIFFS Session Log not written; SPIFFS not available!"));
   }
 }
 
@@ -224,8 +249,8 @@ void writeLogEntryToCSV(const _LogTable &lt) {
   csvLine += ";";
 
   if (SPIFFS.totalBytes() - SPIFFS.usedBytes() > csvLine.length())
-    writeCSV(CSV_FILENAME, csvLine);
+    writeCSVtoSD(CSV_FILENAME, csvLine);
   else
-    DPRINTLN(F("writeCSV failed - not enough space"));
+    DPRINTLN(F("writeCSVtoSD failed - not enough space"));
 }
 #endif

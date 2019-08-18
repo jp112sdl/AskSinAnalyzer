@@ -3,6 +3,7 @@
 // 2019-06-01 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 // 2019-06-01 psi-4ward Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 //- -----------------------------------------------------------------------------------------------------------------------
+//AsyncTCP Commit [ff5c8b2]01db9cf9cea0d62e42d6c1a62dbd4b53d 22.06.2019
 
 #ifndef __WEB__H_
 #define __WEB__H_
@@ -47,14 +48,16 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
     for (uint8_t i = 0; i < MAX_WSCLIENTS; i++) {
       if (wsClients[i] == NULL) {
         wsClients[i] = client;
-        delay(50);
-        for (uint16_t l = logLength; l > 0; l--) {
+
+        /*
+          for (uint16_t l = 0; l < logLength; l++) {
           if ((int32_t)LogTable[l].lognumber > -1 && l < MAX_LOG_ENTRIES) {
-            writeLogEntryToWebSocket(LogTable[l-1]);
-            delay(16);
+            writeLogEntryToWebSocket(LogTable[logLength - l - 1]);
+            delay(20);
           }
           if (l == MAX_LOG_ENTRIES) break;
-        }
+          }
+        */
 
         clientAdded = true;
         DPRINT(F("- wsClient Connect: ID ")); DDEC(client->id()); DPRINT(F(" from ")); DPRINTLN(client->remoteIP());
@@ -169,7 +172,7 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"version_lower\":" + String(VERSION_LOWER);
   json += "}";
-  DPRINT("/getConfig JSON: "); DPRINTLN(json);
+  DPRINT(F("::: /getConfig JSON: ")); DPRINTLN(json);
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(json.length()));
   request->send(200, "application/json", json);
@@ -196,38 +199,60 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
     lognum = p->value().toInt();
   }
 
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-  response->print("[");
-  for (uint16_t l = 0; l < logLength; l++) {
-    if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
-      String json = "";
-      if (l > 0) json += ",";
-      json += "{";
-      json += "\"lognumber\": " + String(LogTable[l].lognumber) + ", ";
-      json += "\"tstamp\": " + String(LogTable[l].time) + ", ";
-      json += "\"rssi\": " + String(LogTable[l].rssi) + ", ";
-      String from = String(LogTable[l].fromAddress);
-      from.trim();
-      json += "\"from\": \"" + from + "\", ";
-      String to = String(LogTable[l].toAddress);
-      to.trim();
-      json += "\"to\": \"" + to + "\", ";
-      json += "\"len\": " + String(LogTable[l].len) + ", ";
-      json += "\"cnt\": " + String(LogTable[l].cnt) + ", ";
-      String t = String(LogTable[l].typ);
-      t.trim();
-      json += "\"typ\": \"" + t + "\", ";
-      String fl = String(LogTable[l].flags);
-      fl.trim();
-      json += "\"flags\": \"" + fl + "\"";
-      json += "}";
-      response->print(json);
-    }
-    if (l == MAX_LOG_ENTRIES) break;
-  }
+  if (lognum == -1) {
 
-  response->print("]");
-  request->send(response);
+    AsyncWebServerResponse *response;
+    response = request->beginResponse(SPIFFS, SPIFFS_SESSIONLOG_FILENAME, String());
+    response->addHeader("Server", "AskSinAnalyzer");
+    request->send(response);
+
+    /*AsyncResponseStream *response = request->beginResponseStream("application/json");
+    if (spiffsAvailable) {
+      if (SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
+        //AsyncWebServerResponse *response;
+        //response = request->beginResponse(SPIFFS, SPIFFS_SESSIONLOG_FILENAME, String());
+        File file = SPIFFS.open(SPIFFS_SESSIONLOG_FILENAME, FILE_READ);
+        while (file.available()) {
+          response->print((char)file.read());
+        }
+        response->print("]");
+      }
+    }
+    request->send(response);*/
+
+  } else {
+    AsyncResponseStream *response = request->beginResponseStream("application/json");
+    response->print("[");
+    for (uint16_t l = 0; l < logLength; l++) {
+      if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
+        String json = "";
+        if (l > 0) json += ",";
+        json += "{";
+        json += "\"lognumber\": " + String(LogTable[l].lognumber) + ", ";
+        json += "\"tstamp\": " + String(LogTable[l].time) + ", ";
+        json += "\"rssi\": " + String(LogTable[l].rssi) + ", ";
+        String from = String(LogTable[l].fromAddress);
+        from.trim();
+        json += "\"from\": \"" + from + "\", ";
+        String to = String(LogTable[l].toAddress);
+        to.trim();
+        json += "\"to\": \"" + to + "\", ";
+        json += "\"len\": " + String(LogTable[l].len) + ", ";
+        json += "\"cnt\": " + String(LogTable[l].cnt) + ", ";
+        String t = String(LogTable[l].typ);
+        t.trim();
+        json += "\"typ\": \"" + t + "\", ";
+        String fl = String(LogTable[l].flags);
+        fl.trim();
+        json += "\"flags\": \"" + fl + "\"";
+        json += "}";
+        response->print(json);
+      }
+      if (l == MAX_LOG_ENTRIES) break;
+    }
+    response->print("]");
+    request->send(response);
+  }
 }
 
 void indexHtml(AsyncWebServerRequest * request) {

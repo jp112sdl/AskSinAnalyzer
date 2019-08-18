@@ -37,7 +37,7 @@ void receiveMessages() {
       }
       if (messageFound) {
         SerialBuffer[msgBufferCount].Msg = inStr;
-        SerialBuffer[msgBufferCount].t = now();// ((timeOK == true)  ? now() : millis());
+        SerialBuffer[msgBufferCount].t = now();
         msgBufferCount++;
         if (msgBufferCount > 1) {
           DPRINTLN(F("****************"));
@@ -109,6 +109,7 @@ void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
 
   writeLogEntryToCSV(LogTable[0]);
   writeLogEntryToWebSocket(LogTable[0]);
+  writeSessionLogToSPIFFS(LogTable[0]);
 
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
