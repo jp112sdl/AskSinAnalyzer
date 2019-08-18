@@ -52,7 +52,7 @@ bool initSPIFFS() {
   DPRINTLN(getSPIFFSUsedKB());
   DPRINT(F(" - SPIFFS: Free  kb: "));
   DPRINTLN(getSPIFFSSizeKB() - getSPIFFSUsedKB());
-  
+
   return true;
 }
 
@@ -184,15 +184,14 @@ void IRAM_ATTR writeSessionLogToSPIFFS(_LogTable &lt) {
   }
 }
 
-void writeLogEntryToCSV(const _LogTable &lt) {
-  // Write to CSV
-  DPRINTLN(F("Preprocessing CSV"));
+void writeLogEntryToSD(const _LogTable &lt) {
+  if (sdAvailable) {
+    String csvLine = createCSVFromLogTableEntry(lt, true);
 
-  String csvLine = createCSVFromLogTableEntry(lt, true);
-
-  if (getSDCardTotalSpaceMB() - getSDCardUsedSpaceMB() > csvLine.length())
-    writeCSVtoSD(CSV_FILENAME, csvLine);
-  else
-    DPRINTLN(F("writeLogEntryToCSV failed - not enough space"));
+    if (getSDCardTotalSpaceMB() - getSDCardUsedSpaceMB() > csvLine.length())
+      writeCSVtoSD(CSV_FILENAME, csvLine);
+    else
+      DPRINTLN(F("writeLogEntryToCSV failed - not enough space"));
+  }
 }
 #endif
