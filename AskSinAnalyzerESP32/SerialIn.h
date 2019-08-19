@@ -37,7 +37,7 @@ void receiveMessages() {
       }
       if (messageFound) {
         SerialBuffer[msgBufferCount].Msg = inStr;
-        SerialBuffer[msgBufferCount].t = now();// ((timeOK == true)  ? now() : millis());
+        SerialBuffer[msgBufferCount].t = now();
         msgBufferCount++;
         if (msgBufferCount > 1) {
           DPRINTLN(F("****************"));
@@ -83,7 +83,7 @@ void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
     fromStr = getSerialFromIntAddress(hexToDec((sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN)));
     toStr = getSerialFromIntAddress(hexToDec((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END)));
   }
-  
+
   if (fromStr == "")  fromStr = "  " + (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN) + "  ";
   if (toStr == "")    toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END) + "  ";
 
@@ -107,22 +107,14 @@ void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   memcpy(LogTable[0].typ, typ.c_str(), SIZE_TYPE);
   memcpy(LogTable[0].flags, flags.c_str(), SIZE_FLAGS);
 
-  writeLogEntryToCSV(LogTable[0]);
+  writeLogEntryToSD(LogTable[0]);
   writeLogEntryToWebSocket(LogTable[0]);
+  writeSessionLogToSPIFFS(LogTable[0]);
 
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
   DPRINTLN(F("\nAdded to LogTable: "));
-  DPRINT(F(" - fromAddress : ")); DPRINTLN(LogTable[0].fromAddress);
-  DPRINT(F(" - fromSerial  : ")); DPRINTLN(LogTable[0].fromSerial);
-  DPRINT(F(" - toAddress   : ")); DPRINTLN(LogTable[0].toAddress);
-  DPRINT(F(" - toSerial    : ")); DPRINTLN(LogTable[0].toSerial);
-  DPRINT(F(" - rssi        : ")); DPRINTLN(LogTable[0].rssi);
-  DPRINT(F(" - len         : ")); DPRINTLN(LogTable[0].len);
-  DPRINT(F(" - cnt         : ")); DPRINTLN(LogTable[0].cnt);
-  DPRINT(F(" - typ         : ")); DPRINTLN(LogTable[0].typ);
-  DPRINT(F(" - flags       : ")); DPRINTLN(LogTable[0].flags);
-  DPRINT(F(" - time        : ")); DPRINTLN(getDatum(LogTable[0].time) + " " + getUhrzeit(LogTable[0].time));
+  dumpLogTableEntry(LogTable[0]);
   //DPRINTLN(" => messages received: " + String(allCount));
   //DPRINTLN("logLength        = " + String(logLength));
   //DPRINTLN("logLengthDisplay = " + String(logLengthDisplay));

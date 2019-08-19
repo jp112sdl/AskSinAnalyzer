@@ -28,7 +28,7 @@
           <q-item-label caption>Startet den ESP im Config-Modus neu.</q-item-label>
         </q-item-section>
       </q-item>
-      <q-item clickable v-ripple @click="downloadcsv">
+      <q-item clickable v-ripple @click="downloadcsv" v-if="sdcardavailable">
         <q-item-section avatar>
           <q-avatar rounded color="primary" text-color="white" icon="save_alt"/>
         </q-item-section>
@@ -37,7 +37,7 @@
           <q-item-label caption>CSV mit empfangenen Telegrammen herunterladen.</q-item-label>
         </q-item-section>
       </q-item>
-      <q-item clickable v-ripple @click="deletecsv">
+      <q-item clickable v-ripple @click="deletecsv" v-if="sdcardavailable">
         <q-item-section avatar>
           <q-avatar rounded color="primary" text-color="white" icon="delete_sweep"/>
         </q-item-section>
@@ -46,24 +46,51 @@
           <q-item-label caption>Löscht die gespeicherten CSV Daten.</q-item-label>
         </q-item-section>
       </q-item>
+      <q-item clickable v-ripple @click="csvUploadModal = true">
+        <q-item-section avatar>
+          <q-avatar rounded color="primary" text-color="white" icon="publish"/>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-bold">CSV Import</q-item-label>
+          <q-item-label caption>Visualisiert CSV Daten in der WebUI.</q-item-label>
+        </q-item-section>
+      </q-item>
     </q-list>
+    <q-dialog v-model="csvUploadModal">
+      <csv-import @imported="csvUploadModal = false"/>
+    </q-dialog>
   </div>
 </template>
 
 <script>
-  import { QAvatar, QItem, QItemLabel, QItemSection, QList, Loading } from 'quasar';
+  import {
+    QAvatar,
+    QItem,
+    QItemLabel,
+    QItemSection,
+    QList,
+    Loading,
+    QDialog,
+  } from 'quasar';
+  import CsvImport from './CsvImport';
 
   const wait = time => new Promise(res => setTimeout(res, time));
 
 
   export default {
     name: "EspCommands",
-    components: {
-      QAvatar, QList, QItem, QItemSection, QItemLabel
-    },
+    components: { QAvatar, QList, QItem, QItemSection, QItemLabel, QDialog, CsvImport },
 
     data() {
-      return {}
+      return {
+        csvUploadModal: false
+      }
+    },
+
+    computed: {
+      sdcardavailable() {
+        return this.$root.espConfig && this.$root.espConfig.sdcardavailable;
+      }
     },
 
     methods: {

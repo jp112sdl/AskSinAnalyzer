@@ -31,6 +31,7 @@ String getFlags(String in) {
   if (flagsInt & 0x20) flags += "BIDI ";
   if (flagsInt & 0x40) flags += "RPTED ";
   if (flagsInt & 0x80) flags += "RPTEN ";
+  if (flagsInt == 0x00) flags = "HMIP_UNKNOWN";
   uint8_t flagslen = flags.length();
   if (flags.length() < 30)
     for (uint8_t i = 0; i < (30 - flagslen); i++)
@@ -72,12 +73,44 @@ String getTyp(String in) {
 
 void initLogTable() {
   memset(LogTable, 0, MAX_LOG_ENTRIES);
-  /*for (uint16_t c = 0; c < MAX_LOG_ENTRIES; c++) {
-    memset(LogTable[c].from, 0, 11);
-    memset(LogTable[c].to, 0, 11);
-    memset(LogTable[c].typ, 0, 32);
-    memset(LogTable[c].flags, 0, 32);
-    }*/
+}
+
+String loadAskSinAnalyzerDevListFromCCU() {
+  if (isOnline && WiFi.status() == WL_CONNECTED) {
+    DPRINTLN(F("- Loading DevList from CCU... "));
+#ifdef USE_DISPLAY
+    drawStatusCircle(ILI9341_BLUE);
+#endif
+    HTTPClient http;
+    //http.setTimeout(HTTPTimeOut);
+    String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + CCU_SV + "%22).Value()";
+    //DPRINTLN("loadAskSinAnalyzerDevListFromCCU url: " + url);
+    http.begin(url);
+    int httpCode = http.GET();
+    String payload = "ERROR";
+    if (httpCode > 0) {
+      payload = http.getString();
+    }
+    if (httpCode != 200) {
+      DPRINT("HTTP failed with code "); DDECLN(httpCode);
+    }
+    http.end();
+
+    payload = payload.substring(payload.indexOf("<ret>"));
+    payload = payload.substring(5, payload.indexOf("</ret>"));
+    payload.replace("&quot;", "\"");
+    //DPRINTLN("result: " + payload);
+#ifdef USE_DISPLAY
+    drawStatusCircle(ILI9341_GREEN);
+#endif
+    return payload;
+  }
+
+  DPRINTLN(" - loadAskSinAnalyzerDevListFromCCU: ERROR");
+#ifdef USE_DISPLAY
+  drawStatusCircle(ILI9341_RED);
+#endif
+  return "ERROR";
 }
 
 unsigned int hexToDec(String hexString) {
@@ -105,7 +138,7 @@ void createJSONDevList(String js) {
     DPRINT(F(" - JSON DeserializationError: ")); DPRINTLN(error.c_str());
   } else {
     devices = JSONDevList["devices"];
-    DPRINT(F("- Device List created with "));DDEC(devices.size());DPRINTLN(F(" entries"));
+    DPRINT(F(" - Device List created with ")); DDEC(devices.size()); DPRINTLN(F(" entries"));
     //for (uint16_t i = 0; i < devices.size(); i++) {
     //  JsonObject device = devices[i];
     //  DPRINTLN("(" + String(device["address"].as<unsigned int>()) + ") - " + device["serial"].as<String>() + " - " + device["name"].as<String>());
@@ -145,6 +178,91 @@ void shiftLogArray() {
       LogTable[c].lognumber = LogTable[c - 1].lognumber;
     }
   }
+}
+
+String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
+  String csvLine = "";
+  String temp = "";
+  csvLine += String(lt.lognumber);
+  csvLine += ";";
+  csvLine += lng ? getDatum(lt.time) + " " + getUhrzeit(lt.time) : now();
+  csvLine += ";";
+  csvLine += String(lt.rssi);
+  csvLine += ";";
+
+  temp = lt.fromAddress;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+
+  if (lng) {
+    temp = lt.fromSerial;
+    temp.trim();
+    csvLine += temp;
+    csvLine += ";";
+  }
+
+  temp = lt.toAddress;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+
+  if (lng) {
+    temp = lt.toSerial;
+    temp.trim();
+    csvLine += temp;
+    csvLine += ";";
+  }
+
+  csvLine += String(lt.len);
+  csvLine += ";";
+  csvLine += String(lt.cnt);
+  csvLine += ";";
+  temp = lt.typ;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+  temp = lt.flags;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+  return csvLine;
+}
+
+String createJSONFromLogTableEntry(_LogTable &lt) {
+  String json = "{";
+  json += "\"lognumber\": " + String(lt.lognumber) + ", ";
+  json += "\"tstamp\": " + String(lt.time) + ", ";
+  json += "\"rssi\": " + String(lt.rssi) + ", ";
+  String from = String(lt.fromAddress);
+  from.trim();
+  json += "\"from\": \"" + from + "\", ";
+  String to = String(lt.toAddress);
+  to.trim();
+  json += "\"to\": \"" + to + "\", ";
+  json += "\"len\": " + String(lt.len) + ", ";
+  json += "\"cnt\": " + String(lt.cnt) + ", ";
+  String t = String(lt.typ);
+  t.trim();
+  json += "\"typ\": \"" + t + "\", ";
+  String fl = String(lt.flags);
+  fl.trim();
+  json += "\"flags\": \"" + fl + "\"";
+  json += "}";
+  return json;
+}
+
+void dumpLogTableEntry(_LogTable &lt) {
+  DPRINT(F(" - fromAddress : ")); DPRINTLN(lt.fromAddress);
+  DPRINT(F(" - fromSerial  : ")); DPRINTLN(lt.fromSerial);
+  DPRINT(F(" - toAddress   : ")); DPRINTLN(lt.toAddress);
+  DPRINT(F(" - toSerial    : ")); DPRINTLN(lt.toSerial);
+  DPRINT(F(" - rssi        : ")); DPRINTLN(lt.rssi);
+  DPRINT(F(" - len         : ")); DPRINTLN(lt.len);
+  DPRINT(F(" - cnt         : ")); DPRINTLN(lt.cnt);
+  DPRINT(F(" - typ         : ")); DPRINTLN(lt.typ);
+  DPRINT(F(" - flags       : ")); DPRINTLN(lt.flags);
+  DPRINT(F(" - time        : ")); DPRINTLN(getDatum(lt.time) + " " + getUhrzeit(lt.time));
 }
 
 #endif

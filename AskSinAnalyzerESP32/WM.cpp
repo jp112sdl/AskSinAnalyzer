@@ -64,13 +64,13 @@ WiFiManager::WiFiManager() {
 }
 
 void WiFiManager::addParameter(WiFiManagerParameter *p) {
-  if(_paramsCount + 1 > WIFI_MANAGER_MAX_PARAMS)
+  if (_paramsCount + 1 > WIFI_MANAGER_MAX_PARAMS)
   {
     //Max parameters exceeded!
-  DEBUG_WM("WIFI_MANAGER_MAX_PARAMS exceeded, increase number (in WiFiManager.h) before adding more parameters!");
-  DEBUG_WM("Skipping parameter with ID:");
-  DEBUG_WM(p->getID());
-  return;
+    DEBUG_WM("WIFI_MANAGER_MAX_PARAMS exceeded, increase number (in WiFiManager.h) before adding more parameters!");
+    DEBUG_WM("Skipping parameter with ID:");
+    DEBUG_WM(p->getID());
+    return;
   }
   _params[_paramsCount] = p;
   _paramsCount++;
@@ -161,16 +161,16 @@ boolean WiFiManager::autoConnect(char const *apName, char const *apPassword) {
   return startConfigPortal(apName, apPassword);
 }
 
-boolean WiFiManager::configPortalHasTimeout(){
+boolean WiFiManager::configPortalHasTimeout() {
 #if defined(ESP8266)
-    if(_configPortalTimeout == 0 || wifi_softap_get_station_num() > 0){
+  if (_configPortalTimeout == 0 || wifi_softap_get_station_num() > 0) {
 #else
-    if(_configPortalTimeout == 0){  // TODO
+  if (_configPortalTimeout == 0) { // TODO
 #endif
-      _configPortalStart = millis(); // kludge, bump configportal start time to skew timeouts
-      return false;
-    }
-    return (millis() > _configPortalStart + _configPortalTimeout);
+    _configPortalStart = millis(); // kludge, bump configportal start time to skew timeouts
+    return false;
+  }
+  return (millis() > _configPortalStart + _configPortalTimeout);
 }
 
 boolean WiFiManager::startConfigPortal() {
@@ -194,10 +194,10 @@ boolean  WiFiManager::startConfigPortal(char const *apName, char const *apPasswo
   connect = false;
   setupConfigPortal();
 
-  while(1){
+  while (1) {
 
     // check if timeout
-    if(configPortalHasTimeout()) break;
+    if (configPortalHasTimeout()) break;
 
     //DNS
     dnsServer->processNextRequest();
@@ -325,7 +325,7 @@ void WiFiManager::startWPS() {
 #endif
 }
 
-  String WiFiManager::getSSID() {
+String WiFiManager::getSSID() {
   if (_ssid == "") {
     DEBUG_WM(F("Reading SSID"));
     _ssid = WiFi.SSID();
@@ -333,9 +333,9 @@ void WiFiManager::startWPS() {
     DEBUG_WM(_ssid);
   }
   return _ssid;
-  }
+}
 
-  String WiFiManager::getPassword() {
+String WiFiManager::getPassword() {
   if (_pass == "") {
     DEBUG_WM(F("Reading Password"));
     _pass = WiFi.psk();
@@ -343,7 +343,7 @@ void WiFiManager::startWPS() {
     //DEBUG_WM(_pass);
   }
   return _pass;
-  }
+}
 
 String WiFiManager::getConfigPortalSSID() {
   return _apName;

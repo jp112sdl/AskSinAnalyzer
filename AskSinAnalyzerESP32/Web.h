@@ -3,6 +3,7 @@
 // 2019-06-01 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 // 2019-06-01 psi-4ward Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 //- -----------------------------------------------------------------------------------------------------------------------
+//AsyncTCP Commit [ff5c8b2]01db9cf9cea0d62e42d6c1a62dbd4b53d 22.06.2019
 
 #ifndef __WEB__H_
 #define __WEB__H_
@@ -47,14 +48,16 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
     for (uint8_t i = 0; i < MAX_WSCLIENTS; i++) {
       if (wsClients[i] == NULL) {
         wsClients[i] = client;
-        delay(50);
-        for (uint16_t l = logLength; l > 0; l--) {
+
+        /*
+          for (uint16_t l = 0; l < logLength; l++) {
           if ((int32_t)LogTable[l].lognumber > -1 && l < MAX_LOG_ENTRIES) {
-            writeLogEntryToWebSocket(LogTable[l-1]);
-            delay(16);
+            writeLogEntryToWebSocket(LogTable[logLength - l - 1]);
+            delay(20);
           }
           if (l == MAX_LOG_ENTRIES) break;
-        }
+          }
+        */
 
         clientAdded = true;
         DPRINT(F("- wsClient Connect: ID ")); DDEC(client->id()); DPRINT(F(" from ")); DPRINTLN(client->remoteIP());
@@ -169,7 +172,7 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"version_lower\":" + String(VERSION_LOWER);
   json += "}";
-  DPRINT("/getConfig JSON: "); DPRINTLN(json);
+  DPRINT(F("::: /getConfig JSON: ")); DPRINTLN(json);
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(json.length()));
   request->send(200, "application/json", json);
@@ -184,50 +187,52 @@ void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
     response->print(js);    //send DevList to Web
     request->send(response);
   } else {
-    DPRINTLN(F("-> FEHLER: js == null"));
+    DPRINTLN(F("-> E: js == null"));
     request->send(422, "text/plain", "Fehler beim Abruf der SV");
   }
 }
 
 void getLogByLogNumber (AsyncWebServerRequest * request) {
+  bool formatIsCSV = false;
+  if (request->hasParam("format")) formatIsCSV = (request->getParam("format")->value() == "csv");
+
   int32_t lognum = 0;
-  if (request->hasParam("lognum")) {
-    AsyncWebParameter* p = request->getParam("lognum");
-    lognum = p->value().toInt();
-  }
+  if (request->hasParam("lognum")) lognum = request->getParam("lognum")->value().toInt();
 
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-  response->print("[");
-  for (uint16_t l = 0; l < logLength; l++) {
-    if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
-      String json = "";
-      if (l > 0) json += ",";
-      json += "{";
-      json += "\"lognumber\": " + String(LogTable[l].lognumber) + ", ";
-      json += "\"tstamp\": " + String(LogTable[l].time) + ", ";
-      json += "\"rssi\": " + String(LogTable[l].rssi) + ", ";
-      String from = String(LogTable[l].fromAddress);
-      from.trim();
-      json += "\"from\": \"" + from + "\", ";
-      String to = String(LogTable[l].toAddress);
-      to.trim();
-      json += "\"to\": \"" + to + "\", ";
-      json += "\"len\": " + String(LogTable[l].len) + ", ";
-      json += "\"cnt\": " + String(LogTable[l].cnt) + ", ";
-      String t = String(LogTable[l].typ);
-      t.trim();
-      json += "\"typ\": \"" + t + "\", ";
-      String fl = String(LogTable[l].flags);
-      fl.trim();
-      json += "\"flags\": \"" + fl + "\"";
-      json += "}";
-      response->print(json);
+  if (formatIsCSV) {
+    if (lognum == -1) {
+      AsyncWebServerResponse *response;
+      if (SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
+        response = request->beginResponse(SPIFFS, SPIFFS_SESSIONLOG_FILENAME, "text/comma-separated-values");
+        request->send(response);
+      } else {
+        request->send(200, "text/comma-separated-values", "");
+      }
+    } else {
+      AsyncResponseStream *response = request->beginResponseStream("text/comma-separated-values");
+      for (uint16_t l = 0; l < logLength; l++) {
+        if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
+          response->println(createCSVFromLogTableEntry(LogTable[l], false));
+        }
+        if (l == MAX_LOG_ENTRIES) break;
+      }
+      request->send(response);
     }
-    if (l == MAX_LOG_ENTRIES) break;
+  } else {
+    AsyncResponseStream *response = request->beginResponseStream("application/json");
+    response->print("[");
+    for (uint16_t l = 0; l < logLength; l++) {
+      if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
+        String json = "";
+        if (l > 0) json += ",";
+        json += createJSONFromLogTableEntry(LogTable[l]);
+        response->print(json);
+      }
+      if (l == MAX_LOG_ENTRIES) break;
+    }
+    response->print("]");
+    request->send(response);
   }
-
-  response->print("]");
-  request->send(response);
 }
 
 void indexHtml(AsyncWebServerRequest * request) {
@@ -292,16 +297,12 @@ void checkUpdate(String url) {
 
 void httpUpdate(AsyncWebServerRequest * request) {
   String url = "";
-  if (request->hasParam("url")) {
-    AsyncWebParameter* p = request->getParam("url");
-    url = p->value();
-  }
+  if (request->hasParam("url")) url = request->getParam("url")->value();
+
   String page = "Processing update from " + url + "\nPlease be patient - ESP32 will reboot automatically";
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(page.length()));
   request->send(200, "text/plain", page);
-
-
 
   if (url.length() > 10) {
     updateUrl = url;
@@ -352,30 +353,14 @@ void initWebServer() {
 
   webServer.on("/downloadcsv", HTTP_GET, [](AsyncWebServerRequest * request) {
     AsyncWebServerResponse *response;
-    if (sdAvailable) {
+    if (sdAvailable && SD.exists(CSV_FILENAME)) {
       DPRINTLN(F("Downloading CSV from SD Card"));
       response = request->beginResponse(SD, CSV_FILENAME, String());
-    }
-    else {
-      DPRINTLN(F("Downloading CSV from SPIFFS"));
-      response = request->beginResponse(SPIFFS, CSV_FILENAME, String());
-    }
-    response->addHeader("Server", "AskSinAnalyzer");
-    request->send(response);
-  });
-
-  webServer.on("/dl", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (request->hasArg("filename")) {
-      String fileName =  request->arg("filename");
-      if (!fileName.startsWith("/"))
-        fileName = "/" + fileName;
-      if (SPIFFS.exists(fileName)) {
-        AsyncWebServerResponse *response = request->beginResponse(SPIFFS, fileName, String());
-        response->addHeader("Server", "AskSinAnalyzer");
-        request->send(response);
-      } else {
-        request->send(404, "text/plain", "file " + fileName + " not found");
-      }
+      response->addHeader("Server", "AskSinAnalyzer");
+      request->send(response);
+    } else {
+      DPRINTLN(F("SD Card or CSV file not available"));
+      request->send(204, "text/plain", "SD Card or CSV file not available");
     }
   });
 

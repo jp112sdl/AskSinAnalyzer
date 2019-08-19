@@ -35,7 +35,7 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #endif
 
 #define VERSION_UPPER "2"
-#define VERSION_LOWER "1"
+#define VERSION_LOWER "2"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15
@@ -68,6 +68,7 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 #define CSV_FILENAME                "/log.csv"
 #define CONFIG_FILENAME             "/config.json"
 #define BOOTCONFIGMODE_FILENAME     "/bootcfg.mod"
+#define SPIFFS_SESSIONLOG_FILENAME  "/session.log"
 
 #define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;"
 
@@ -137,10 +138,9 @@ String   updateUrl             = "https://raw.githubusercontent.com/jp112sdl/Ask
 #include "Config.h"
 #include "NTP.h"
 #include "SDFunctions.h"
-#include "File.h"
 #include "Display.h"
-#include "CCUFunctions.h"
 #include "Helper.h"
+#include "File.h"
 #include "Web.h"
 #include "WManager.h"
 #include "SerialIn.h"
@@ -164,6 +164,7 @@ void setup() {
 
   spiffsAvailable = initSPIFFS();
   DPRINT(F("- INIT SPIFFS  DONE. SPIFFS  IS ")); DPRINTLN(spiffsAvailable ? "AVAILABLE" : "NOT AVAILABLE");
+  initSessionLogOnSPIFFS();
 
 #ifdef USE_DISPLAY
   initTFT();
@@ -183,7 +184,7 @@ void setup() {
     } else {
       DPRINTLN(" -> " + String(BOOTCONFIGMODE_FILENAME) + " existiert NICHT");
     }
-    
+
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);
 
     RESOLVE_ADDRESS = isNotEmpty(HomeMaticConfig.ccuIP);
