@@ -365,18 +365,6 @@ void initWebServer() {
 
   });
 
-  webServer.on("/dl", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (request->hasArg("filename")) {
-      String fileName =  request->arg("filename");
-      if (!fileName.startsWith("/"))
-        fileName = "/" + fileName;
-      if (SPIFFS.exists(fileName)) {
-        AsyncWebServerResponse *response = request->beginResponse(SPIFFS, fileName, String());
-        response->addHeader("Server", "AskSinAnalyzer");
-        request->send(response);
-      } else {
-        request->send(404, "text/plain", "file " + fileName + " not found");
-      }
     }
   });
 
