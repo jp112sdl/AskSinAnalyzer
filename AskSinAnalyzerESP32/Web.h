@@ -207,8 +207,13 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
 
   if (formatIsCSV) {
     if (lognum == -1) {
-      AsyncWebServerResponse *response = request->beginResponse(SPIFFS, SPIFFS_SESSIONLOG_FILENAME, String());
-      request->send(response);
+      AsyncWebServerResponse *response;
+      if (SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
+        response = request->beginResponse(SPIFFS, SPIFFS_SESSIONLOG_FILENAME, "text/comma-separated-values");
+        request->send(response);
+      } else {
+        request->send(200, "text/comma-separated-values", "");
+      }
     } else {
       AsyncResponseStream *response = request->beginResponseStream("text/comma-separated-values");
       for (uint16_t l = 0; l < logLength; l++) {
