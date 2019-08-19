@@ -72,12 +72,6 @@ String getTyp(String in) {
 
 void initLogTable() {
   memset(LogTable, 0, MAX_LOG_ENTRIES);
-  /*for (uint16_t c = 0; c < MAX_LOG_ENTRIES; c++) {
-    memset(LogTable[c].from, 0, 11);
-    memset(LogTable[c].to, 0, 11);
-    memset(LogTable[c].typ, 0, 32);
-    memset(LogTable[c].flags, 0, 32);
-    }*/
 }
 
 unsigned int hexToDec(String hexString) {
