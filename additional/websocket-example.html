@@ -1,0 +1,72 @@
+<html lang="en">
+<head>
+  <title>AskSinAnalyzer Websocket Example</title>
+  <link href="https://cdn.jsdelivr.net/npm/quasar/dist/quasar.min.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/vue@^2.6.10/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quasar@^1.0.5/dist/quasar.umd.min.js"></script>
+
+<div id="q-app">
+  <div class="q-pa-md">
+    <h5 style="margin-top: 0; margin-bottom: 1rem">AskSinAnalyzer Websocket Example</h5>
+    <q-input
+      filled
+      v-model="esp"
+      label="AskSinAnalyzer Host (or IP)"
+    >
+      <template v-slot:after>
+        <q-btn label="connect" color="primary" @click="connect" v-if="!connected"></q-btn>
+        <q-btn label="disconnect" color="red" @click="disconnect" v-else></q-btn>
+      </template>
+    </q-input>
+  </div>
+
+  <div class="q-pa-md">
+    <strong v-if="connected">
+      <pre>Connected to {{ 'ws://' + esp + '/ws' }}, waiting for messages...</pre>
+    </strong>
+    <pre style="height: calc(100vh - 230px); overflow: auto">{{ messages | json }}</pre>
+  </div>
+</div>
+
+<script>
+  new Vue({
+    el: '#q-app',
+    ws: null,
+    data: function() {
+      return {
+        esp: 'asksinanalyzer',
+        connected: false,
+        messages: [],
+      }
+    },
+    methods: {
+      connect: function() {
+        /* WebSocket Connection */
+        var self = this;
+        // Connect to WebSocket on ws://asksinanalyzer/ws
+        this.ws = new WebSocket('ws://' + this.esp + '/ws');
+        // Listen to open event
+        this.ws.onopen = function() {
+          self.connected = true;
+        };
+        // Listen to close event
+        this.ws.onclose = function() {
+          self.connected = false;
+        };
+        // AskSinAnalyzer emits each telegram as JSON message
+        this.ws.onmessage = function(event) {
+          var message = event.data;
+          var json = JSON.parse(message);
+          self.messages.unshift(json);
+        }
+      },
+      disconnect: function() {
+        this.ws.close();
+      }
+    }
+  })
+</script>
+</body>
+</html>
