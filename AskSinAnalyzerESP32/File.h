@@ -181,7 +181,7 @@ void IRAM_ATTR writeSessionLogToSPIFFS(_LogTable &lt) {
         DPRINTLN(F(" - SPIFFS Session Log : append failed"));
       }
     } else {
-      DPRINT(F(" - SPIFFS Session Log : no space left. Free Bytes: "));DDECLN(freeBytes);
+      DPRINT(F(" - SPIFFS Session Log : no space left. Free Bytes: ")); DDECLN(freeBytes);
     }
 
   } else {

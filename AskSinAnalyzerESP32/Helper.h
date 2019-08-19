@@ -105,7 +105,7 @@ void createJSONDevList(String js) {
     DPRINT(F(" - JSON DeserializationError: ")); DPRINTLN(error.c_str());
   } else {
     devices = JSONDevList["devices"];
-    DPRINT(F("- Device List created with "));DDEC(devices.size());DPRINTLN(F(" entries"));
+    DPRINT(F("- Device List created with ")); DDEC(devices.size()); DPRINTLN(F(" entries"));
     //for (uint16_t i = 0; i < devices.size(); i++) {
     //  JsonObject device = devices[i];
     //  DPRINTLN("(" + String(device["address"].as<unsigned int>()) + ") - " + device["serial"].as<String>() + " - " + device["name"].as<String>());
@@ -149,51 +149,51 @@ void shiftLogArray() {
 
 String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
   String csvLine = "";
-    String temp = "";
-    csvLine += String(lt.lognumber);
-    csvLine += ";";
-    csvLine += lng ? getDatum(lt.time) + " " + getUhrzeit(lt.time) : now();
-    csvLine += ";";
-    csvLine += String(lt.rssi);
-    csvLine += ";";
+  String temp = "";
+  csvLine += String(lt.lognumber);
+  csvLine += ";";
+  csvLine += lng ? getDatum(lt.time) + " " + getUhrzeit(lt.time) : now();
+  csvLine += ";";
+  csvLine += String(lt.rssi);
+  csvLine += ";";
 
-    temp = lt.fromAddress;
+  temp = lt.fromAddress;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+
+  if (lng) {
+    temp = lt.fromSerial;
     temp.trim();
     csvLine += temp;
     csvLine += ";";
+  }
 
-    if (lng) {
-      temp = lt.fromSerial;
-      temp.trim();
-      csvLine += temp;
-      csvLine += ";";
-    }
+  temp = lt.toAddress;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
 
-    temp = lt.toAddress;
+  if (lng) {
+    temp = lt.toSerial;
     temp.trim();
     csvLine += temp;
     csvLine += ";";
+  }
 
-    if (lng) {
-      temp = lt.toSerial;
-      temp.trim();
-      csvLine += temp;
-      csvLine += ";";
-    }
-
-    csvLine += String(lt.len);
-    csvLine += ";";
-    csvLine += String(lt.cnt);
-    csvLine += ";";
-    temp = lt.typ;
-    temp.trim();
-    csvLine += temp;
-    csvLine += ";";
-    temp = lt.flags;
-    temp.trim();
-    csvLine += temp;
-    csvLine += ";";
-    return csvLine;
+  csvLine += String(lt.len);
+  csvLine += ";";
+  csvLine += String(lt.cnt);
+  csvLine += ";";
+  temp = lt.typ;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+  temp = lt.flags;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
+  return csvLine;
 }
 
 String createJSONFromLogTableEntry(_LogTable &lt) {

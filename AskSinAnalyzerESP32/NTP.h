@@ -74,9 +74,9 @@ boolean summertime(time_t t, byte tzHours) {
   if (month(t) < 3 || month(t) > 10) return false; // keine Sommerzeit in Jan, Feb, Nov, Dez
   if (month(t) > 3 && month(t) < 10) return true; // Sommerzeit in Apr, Mai, Jun, Jul, Aug, Sep
   if ((month(t) == 3
-      && (hour(t) + 24 * day(t)) >= (1 + tzHours + 24 * (31 - (5 * year(t) / 4 + 4) % 7)))
+       && (hour(t) + 24 * day(t)) >= (1 + tzHours + 24 * (31 - (5 * year(t) / 4 + 4) % 7)))
       || (month(t) == 10
-      && (hour(t) + 24 * day(t)) < (1 + tzHours + 24 * (31 - (5 * year(t) / 4 + 1) % 7))))
+          && (hour(t) + 24 * day(t)) < (1 + tzHours + 24 * (31 - (5 * year(t) / 4 + 1) % 7))))
     return true;
   else
     return false;
