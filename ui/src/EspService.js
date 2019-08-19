@@ -13,6 +13,8 @@ export default class EspService {
   devlist = [];
   maxTelegrams = 100;
   refreshInterval = 2;
+  refreshTimeout = null;
+  resolveNames = true;
 
   constructor(baseUrl = '', maxTelegrams = 20000, refreshInterval = 2, resolveNames = true) {
     this.baseUrl = baseUrl;
@@ -51,19 +53,23 @@ export default class EspService {
       this.data.errors = [];
       this.data.errorCnt = 0;
       if (telegrams.length) this.addTelegrams(telegrams);
-      setTimeout(() => this.autorefresh(), refreshInterval)
+      this.refreshTimeout = setTimeout(() => this.autorefresh(), refreshInterval)
     }
     catch (err) {
       const msg = `API Error getLogByLogNumber: ${ err.message }`;
       if (!this.data.errors.includes(msg)) this.data.errors.unshift(msg);
       this.data.errorCnt++;
       if (this.data.errorCnt < 5) {
-        setTimeout(() => this.autorefresh(), this.refreshInterval * 1000);
+        this.refreshTimeout = setTimeout(() => this.autorefresh(), this.refreshInterval * 1000);
       } else {
         this.data.errors.unshift('Too many errors, telegram fetching stopped. Reload App to retry.')
       }
       console.error(err);
     }
+  }
+
+  stopAutorefresh() {
+    clearTimeout(this.refreshTimeout);
   }
 
   async fetchLog(offset = 0) {
