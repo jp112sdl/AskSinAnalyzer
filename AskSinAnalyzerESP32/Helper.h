@@ -74,6 +74,44 @@ void initLogTable() {
   memset(LogTable, 0, MAX_LOG_ENTRIES);
 }
 
+String loadAskSinAnalyzerDevListFromCCU() {
+  if (isOnline && WiFi.status() == WL_CONNECTED) {
+    DPRINTLN(F("- Loading DevList from CCU... "));
+#ifdef USE_DISPLAY
+    drawStatusCircle(ILI9341_BLUE);
+#endif
+    HTTPClient http;
+    //http.setTimeout(HTTPTimeOut);
+    String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + CCU_SV + "%22).Value()";
+    //DPRINTLN("loadAskSinAnalyzerDevListFromCCU url: " + url);
+    http.begin(url);
+    int httpCode = http.GET();
+    String payload = "ERROR";
+    if (httpCode > 0) {
+      payload = http.getString();
+    }
+    if (httpCode != 200) {
+      DPRINT("HTTP failed with code "); DDECLN(httpCode);
+    }
+    http.end();
+
+    payload = payload.substring(payload.indexOf("<ret>"));
+    payload = payload.substring(5, payload.indexOf("</ret>"));
+    payload.replace("&quot;", "\"");
+    //DPRINTLN("result: " + payload);
+#ifdef USE_DISPLAY
+    drawStatusCircle(ILI9341_GREEN);
+#endif
+    return payload;
+  }
+
+  DPRINTLN(" - loadAskSinAnalyzerDevListFromCCU: ERROR");
+#ifdef USE_DISPLAY
+  drawStatusCircle(ILI9341_RED);
+#endif
+  return "ERROR";
+}
+
 unsigned int hexToDec(String hexString) {
   unsigned int decValue = 0;
   int nextInt;
