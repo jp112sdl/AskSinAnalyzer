@@ -3,6 +3,8 @@
   - Loggen in die CSV Datei erfolgt nur noch auf SD-Karte
     - bei Geräten ohne SD Kartenleser ist keine CSV-Datei mehr herunterladbar
   - fixed [#34](https://github.com/jp112sdl/AskSinAnalyzer/issues/34)
+  - Einführung von WebSocket
+    - an `/ws` können sich bis zu 3 WebSocket-Clients verbinden und Daten im JSON-Format (jeweils 1 Zeile pro Telegramm) empfangen, z.B.: `{"lognumber": 305, "tstamp": 1566241748, "rssi": -88, "from": "098765", "to": "102938", "len": 26, "cnt": 210, "typ": "WEATHER", "flags": "BCAST RPTEN"}`
 - **WebUI:** 
   - Begrenzung der letzten 50 Telegramme beim initialen Laden der Webseite aufgehoben
     - die aktuelle Sitzung wird nun in einer lokalen Logdatei (im SPIFFS) des ESP32 gespeichert
