@@ -137,7 +137,7 @@ void createJSONDevList(String js) {
     DPRINT(F(" - JSON DeserializationError: ")); DPRINTLN(error.c_str());
   } else {
     devices = JSONDevList["devices"];
-    DPRINT(F("- Device List created with ")); DDEC(devices.size()); DPRINTLN(F(" entries"));
+    DPRINT(F(" - Device List created with ")); DDEC(devices.size()); DPRINTLN(F(" entries"));
     //for (uint16_t i = 0; i < devices.size(); i++) {
     //  JsonObject device = devices[i];
     //  DPRINTLN("(" + String(device["address"].as<unsigned int>()) + ") - " + device["serial"].as<String>() + " - " + device["name"].as<String>());
