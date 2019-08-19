@@ -6,8 +6,7 @@
     </div>
     <div v-else>
       <div class="text-blue text-bold q-mb-sm" v-if="$root.espConfig.updateAvailable">
-        <q-icon name="info"/>
-        Es ist ein Update verfügbar.
+        <q-icon name="info"/> Es ist ein Update verfügbar.
       </div>
       <div class="text-blue text-bold q-mb-sm" v-else>
         <q-icon name="check"/>
@@ -27,19 +26,28 @@
           </td>
         </tr>
       </table>
+      <div class="q-my-sm text-bold">
+          <q-checkbox  v-model="changelogGelesen" />
+          <a href="https://github.com/jp112sdl/AskSinAnalyzer/blob/master/CHANGELOG.md" target="_blank" ref="noreferrer noopener">CHANGELOG</a> gelesen
+      </div>
       <div class="q-mt-lg" v-if="$root.espConfig.updateAvailable">
-        <q-btn label="Update durchführen" type="submit" color="primary" icon="system_update" @click="$espService.execUpdate()"/>
+        <q-btn label="Update durchführen" type="submit" color="primary" icon="system_update" @click="$espService.execUpdate()" :disabled="!changelogGelesen"/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  import { QIcon, QBtn } from 'quasar';
+  import { QIcon, QBtn, QCheckbox } from 'quasar';
 
   export default {
     name: "EspUpdater",
-    components: { QIcon, QBtn },
+    components: { QIcon, QBtn, QCheckbox },
+    data() {
+      return {
+        changelogGelesen: false
+      }
+    }
   }
 </script>
 

@@ -113,7 +113,7 @@
 
       async rebootInConfigMode(){
         Loading.show({
-          message: 'Der ESP wird im Config Modus gestartet.<br/>Verbinden Sie sich nun mit dem AskSinAnalyzer-AP.'
+          message: 'Der ESP wird im Config Modus gestartet.<br/>Verbinden Sie sich nun mit dem AskSinAnalyzer AccessPoint.'
         });
         await this.$espService.postCommand('rebootInConfigMode');
         await wait(5 * 1000);
