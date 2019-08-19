@@ -187,23 +187,17 @@ void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
     response->print(js);    //send DevList to Web
     request->send(response);
   } else {
-    DPRINTLN(F("-> FEHLER: js == null"));
+    DPRINTLN(F("-> E: js == null"));
     request->send(422, "text/plain", "Fehler beim Abruf der SV");
   }
 }
 
 void getLogByLogNumber (AsyncWebServerRequest * request) {
   bool formatIsCSV = false;
-  if (request->hasParam("format")) {
-    AsyncWebParameter* p = request->getParam("format");
-    formatIsCSV = (p->value() == "csv");
-  }
+  if (request->hasParam("format")) formatIsCSV = (request->getParam("format")->value() == "csv");
 
   int32_t lognum = 0;
-  if (request->hasParam("lognum")) {
-    AsyncWebParameter* p = request->getParam("lognum");
-    lognum = p->value().toInt();
-  }
+  if (request->hasParam("lognum")) lognum = request->getParam("lognum")->value().toInt();
 
   if (formatIsCSV) {
     if (lognum == -1) {
@@ -303,16 +297,12 @@ void checkUpdate(String url) {
 
 void httpUpdate(AsyncWebServerRequest * request) {
   String url = "";
-  if (request->hasParam("url")) {
-    AsyncWebParameter* p = request->getParam("url");
-    url = p->value();
-  }
+  if (request->hasParam("url")) url = request->getParam("url")->value();
+
   String page = "Processing update from " + url + "\nPlease be patient - ESP32 will reboot automatically";
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(page.length()));
   request->send(200, "text/plain", page);
-
-
 
   if (url.length() > 10) {
     updateUrl = url;
@@ -366,11 +356,13 @@ void initWebServer() {
     if (sdAvailable) {
       DPRINTLN(F("Downloading CSV from SD Card"));
       response = request->beginResponse(SD, CSV_FILENAME, String());
+      response->addHeader("Server", "AskSinAnalyzer");
+      request->send(response);
     } else {
       DPRINTLN(F("SD Card not available"));
+      request->send(204,"text/plain","SD Card not available");
     }
-    response->addHeader("Server", "AskSinAnalyzer");
-    request->send(response);
+
   });
 
   webServer.on("/dl", HTTP_GET, [](AsyncWebServerRequest * request) {
