@@ -56,7 +56,7 @@ bool initSPIFFS() {
   return true;
 }
 
-uint8_t IRAM_ATTR deleteCSV(const char * fileName, bool createBackup) {
+uint8_t deleteCSV(const char * fileName, bool createBackup) {
   if (sdAvailable) {
     if (SD.exists(fileName)) {
       if (createBackup) {
@@ -124,7 +124,7 @@ uint8_t IRAM_ATTR deleteCSV(const char * fileName, bool createBackup) {
   }
 }
 
-void IRAM_ATTR writeCSVtoSD(const char * fileName, String &csvLine) {
+void writeCSVtoSD(const char * fileName, String &csvLine) {
   DPRINTLN(F(" - writing CSV file"));
   if (sdAvailable) {
     if (!SD.exists(fileName)) {
@@ -155,7 +155,7 @@ void IRAM_ATTR writeCSVtoSD(const char * fileName, String &csvLine) {
   }
 }
 
-void IRAM_ATTR writeSessionLogToSPIFFS(_LogTable &lt) {
+void writeSessionLogToSPIFFS(_LogTable &lt) {
   if (spiffsAvailable) {
     if (!SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
       DPRINTLN(F(" - failed to open file - creating new"));
