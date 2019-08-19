@@ -26,11 +26,11 @@
           </td>
         </tr>
       </table>
-      <div class="q-my-sm text-bold">
-          <q-checkbox  v-model="changelogGelesen" />
+      <div class="q-mt-md" v-if="$root.espConfig.updateAvailable">
+        <div class="q-my-md text-bold">
+          <q-checkbox v-model="changelogGelesen"/>
           <a href="https://github.com/jp112sdl/AskSinAnalyzer/blob/master/CHANGELOG.md" target="_blank" ref="noreferrer noopener">CHANGELOG</a> gelesen
-      </div>
-      <div class="q-mt-lg" v-if="$root.espConfig.updateAvailable">
+        </div>
         <q-btn label="Update durchführen" type="submit" color="primary" icon="system_update" @click="$espService.execUpdate()" :disabled="!changelogGelesen"/>
       </div>
     </div>
