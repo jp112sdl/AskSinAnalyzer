@@ -4,9 +4,9 @@
     - bei Geräten ohne SD Kartenleser ist keine CSV-Datei mehr herunterladbar
   - fixed [#34](https://github.com/jp112sdl/AskSinAnalyzer/issues/34)
 - **WebUI:** 
-  - Begrenzung des Loggings der letzten 50 Telegramme aufgehoben
-    - die aktuelle Sitzung wird in einer lokalen Logdatei (im SPIFFS) gespeichert
-    - die WebUI lädt nun alle Telegramme, die seit Start aufgezeichnet wurden und zeigt sie an
+  - Begrenzung der letzten 50 Telegramme beim initialen Laden der Webseite aufgehoben
+    - die aktuelle Sitzung wird nun in einer lokalen Logdatei (im SPIFFS) des ESP32 gespeichert
+    - die WebUI lädt alle Telegramme, die seit Start aufgezeichnet wurden aus der Datei und zeigt sie an
   - Import von CSV Dateien
     - eine heruntergeladene CSV Datei kann jederzeit importiert und dessen Inhalt angezeigt werden
     - wird eine CSV importiert, stoppt der Live-Abruf vom ESP32
