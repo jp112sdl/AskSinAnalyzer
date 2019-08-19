@@ -353,18 +353,14 @@ void initWebServer() {
 
   webServer.on("/downloadcsv", HTTP_GET, [](AsyncWebServerRequest * request) {
     AsyncWebServerResponse *response;
-    if (sdAvailable) {
+    if (sdAvailable && SD.exists(CSV_FILENAME)) {
       DPRINTLN(F("Downloading CSV from SD Card"));
       response = request->beginResponse(SD, CSV_FILENAME, String());
       response->addHeader("Server", "AskSinAnalyzer");
       request->send(response);
     } else {
-      DPRINTLN(F("SD Card not available"));
-      request->send(204,"text/plain","SD Card not available");
-    }
-
-  });
-
+      DPRINTLN(F("SD Card or CSV file not available"));
+      request->send(204, "text/plain", "SD Card or CSV file not available");
     }
   });
 
