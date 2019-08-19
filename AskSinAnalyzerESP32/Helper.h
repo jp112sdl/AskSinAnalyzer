@@ -31,6 +31,7 @@ String getFlags(String in) {
   if (flagsInt & 0x20) flags += "BIDI ";
   if (flagsInt & 0x40) flags += "RPTED ";
   if (flagsInt & 0x80) flags += "RPTEN ";
+  if (flagsInt == 0x00) flags = "HMIP_UNKNOWN";
   uint8_t flagslen = flags.length();
   if (flags.length() < 30)
     for (uint8_t i = 0; i < (30 - flagslen); i++)
