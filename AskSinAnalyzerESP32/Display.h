@@ -56,8 +56,6 @@ void initTFT() {
   u8g.println("   FROM        TO      RSSI LEN CNT");
   u8g.setCursor(78, 10);
   u8g.setForegroundColor(ILI9341_WHITE);
-  u8g.setFont(u8g2_font_7x13_mr);
-  u8g.print(F("(#0)"));
   drawRowLines();
   DPRINTLN(F("- INIT TFT DONE."));
 }
@@ -115,10 +113,12 @@ void refreshDisplayLog() {
     }
   }
 
-  u8g.setCursor(78, 10);
   u8g.setForegroundColor(ILI9341_WHITE);
   u8g.setFont(u8g2_font_7x13_mr);
-  u8g.print("(#" + String(allCount) + ")");
+  String allCntStr = String(allCount);
+  int16_t allCntStrLen = u8g.getUTF8Width(allCntStr.c_str());
+  u8g.setCursor(88 - allCntStrLen/2, 10);
+  u8g.print("(#" + allCntStr + ")");
 }
 
 
