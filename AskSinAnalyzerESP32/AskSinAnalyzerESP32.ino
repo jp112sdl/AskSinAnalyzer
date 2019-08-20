@@ -66,7 +66,6 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 #endif
 
 #define CSV_FILENAME                "/log.csv"
-#define CONFIG_FILENAME             "/config.json"
 #define SPIFFS_SESSIONLOG_FILENAME  "/session.log"
 
 #define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;"
@@ -172,7 +171,6 @@ void setup() {
 
   initLogTable();
 
-
   if (ONLINE_MODE) {
     if (!loadSystemConfig()) startWifiManager = true;
 
@@ -224,7 +222,6 @@ void loop() {
       DPRINT(F("- Formatting SPIFFS... "));
       SPIFFS.format();
       DPRINTLN(F("DONE"));
-      saveSystemConfig();
       //Wifi will be reconnected by checkWifi(); in loop()
     }
 

@@ -12,78 +12,52 @@
 #define JSONCONFIG_NTP                    "ntp"
 #define JSONCONFIG_CCUIP                  "ccuip"
 
+void dumpSystemConfig() {
+  DPRINTLN(F("- dump config:"));
+  DPRINT(F(" - Hostname    : ")); DPRINTLN(NetConfig.hostname);
+  DPRINT(F(" - CCU IP      : ")); DPRINTLN(HomeMaticConfig.ccuIP);
+  DPRINT(F(" - NTP         : ")); DPRINTLN(NetConfig.ntp);
+  DPRINT(F(" - Static IP   : ")); DPRINTLN(NetConfig.ip);
+  DPRINT(F(" - Static Mask : ")); DPRINTLN(NetConfig.netmask);
+  DPRINT(F(" - Static GW   : ")); DPRINTLN(NetConfig.gw);
+}
+
 bool loadSystemConfig() {
   DPRINTLN(F("- LOADING CONFIG"));
-  if (spiffsAvailable == true) {
-    DPRINTLN(F(" - mounted file system"));
-    if (SPIFFS.exists(CONFIG_FILENAME)) {
-      //file exists, reading and loading
-      DPRINTLN(F(" - reading config file"));
-      File configFile = SPIFFS.open(CONFIG_FILENAME, "r");
-      if (configFile) {
-        DPRINTLN(F(" - opened config file"));
-        size_t size = configFile.size();
-        // Allocate a buffer to store contents of the file.
-        std::unique_ptr<char[]> buf(new char[size]);
-
-        configFile.readBytes(buf.get(), size);
-        StaticJsonDocument<1024> doc;
-        DeserializationError error = deserializeJson(doc, buf.get());
-        if (error) {
-          DPRINT(F(" - JSON DeserializationError")); DPRINTLN(error.c_str());
-          return false;
-        } else {
-          JsonObject json = doc.as<JsonObject>();
-          DPRINTLN(F(" - Content of JSON Configfile:"));
-          serializeJson(doc, Serial);
-          DPRINTLN(F("\n - > JSON OK"));
-
-          ((json[JSONCONFIG_IP]).as<String>()).toCharArray(NetConfig.ip, IPSIZE);
-          ((json[JSONCONFIG_NETMASK]).as<String>()).toCharArray(NetConfig.netmask, IPSIZE);
-          ((json[JSONCONFIG_GW]).as<String>()).toCharArray(NetConfig.gw, IPSIZE);
-
-          String _hostname = (json[JSONCONFIG_HOSTNAME]).as<String>();
-          strcpy(NetConfig.hostname, (_hostname == "null") ? DEFAULT_HOSTNAME : _hostname.c_str());
-
-          String _ntp = (json[JSONCONFIG_NTP]).as<String>();
-          strcpy(NetConfig.ntp, (_ntp == "null") ? DEFAULT_NTP_SERVER : _ntp.c_str());
-
-          ((json[JSONCONFIG_CCUIP]).as<String>()).toCharArray(HomeMaticConfig.ccuIP, IPSIZE);
-        }
-      }
-    } else {
-      DPRINT(F(" - CONFIG File")); DPRINT(CONFIG_FILENAME); DPRINTLN(F(" does not exist."));
-      return false;
-    }
-  } else {
-    DPRINTLN(F(" - SPIFFS not available."));
+  Preferences configPreferences;
+  configPreferences.begin("config", false);
+  String hostname = configPreferences.getString("hostname", "");
+  if (hostname == "") {
+    DPRINTLN(F("Hostname is empty. Maybe a fresh ESP32 installation? Start config mode..."));
+    configPreferences.end();
     return false;
   }
-  DPRINTLN(F("- LOADING CONFIG: SUCCESSFUL"));
+
+  hostname.toCharArray(NetConfig.hostname, VARIABLESIZE, 0);
+  configPreferences.getString("ntp", DEFAULT_NTP_SERVER).toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
+  configPreferences.getString("ccuip", "").toCharArray(HomeMaticConfig.ccuIP, IPSIZE, 0);
+
+  configPreferences.getString("ip", "0.0.0.0").toCharArray(NetConfig.ip, IPSIZE, 0);
+  configPreferences.getString("netmask", "0.0.0.0").toCharArray(NetConfig.netmask, IPSIZE, 0);
+  configPreferences.getString("gw", "0.0.0.0").toCharArray(NetConfig.gw, IPSIZE, 0);
+
+  configPreferences.end();
+  dumpSystemConfig();
   return true;
 }
 
 bool saveSystemConfig() {
   DPRINTLN(F(" - saveSystemConfig(): saving config"));
-  StaticJsonDocument<1024> doc;
-  JsonObject json = doc.to<JsonObject>();
-
-  json[JSONCONFIG_IP] = NetConfig.ip;
-  json[JSONCONFIG_NETMASK] = NetConfig.netmask;
-  json[JSONCONFIG_GW] = NetConfig.gw;
-  json[JSONCONFIG_HOSTNAME] = NetConfig.hostname;
-  json[JSONCONFIG_NTP] = NetConfig.ntp;
-  json[JSONCONFIG_CCUIP] = HomeMaticConfig.ccuIP;
-
-  File configFile = SPIFFS.open(CONFIG_FILENAME, "w");
-  if (!configFile) {
-    DPRINTLN(F(" - saveSystemConfig(): failed to open config file for writing"));
-    return false;
-  }
-  serializeJson(doc, Serial);
-  DPRINTLN(F(""));
-  serializeJson(doc, configFile);
-  configFile.close();
+  Preferences configPreferences;
+  configPreferences.begin("config", false);
+  configPreferences.putString("ip", NetConfig.ip);
+  configPreferences.putString("netmask", NetConfig.netmask);
+  configPreferences.putString("gw", NetConfig.gw);
+  configPreferences.putString("ntp", NetConfig.ntp);
+  configPreferences.putString("hostname", NetConfig.hostname);
+  configPreferences.putString("ccuip", HomeMaticConfig.ccuIP);
+  delay(300);
+  configPreferences.end();
   return true;
 }
 

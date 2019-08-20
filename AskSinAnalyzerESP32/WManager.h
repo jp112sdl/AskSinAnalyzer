@@ -131,8 +131,7 @@ bool doWifiConnect() {
       delay(300);
       wifiPreferences.end();
 
-
-      if (String(custom_ip.getValue()).length() > 5) {
+     if (String(custom_ip.getValue()).length() > 5) {
         DPRINTLN("Custom static IP Address is set!");
         strcpy(NetConfig.ip, custom_ip.getValue());
         strcpy(NetConfig.netmask, custom_netmask.getValue());
