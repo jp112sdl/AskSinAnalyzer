@@ -246,22 +246,11 @@ void indexHtml(AsyncWebServerRequest * request) {
 }
 
 void setBootConfigMode(AsyncWebServerRequest * request) {
-  if (SPIFFS.begin()) {
-    DPRINTLN(F("setBootConfigMode mounted file system"));
-    if (!SPIFFS.exists(BOOTCONFIGMODE_FILENAME)) {
-      File bootConfigModeFile = SPIFFS.open(BOOTCONFIGMODE_FILENAME, "w");
-      bootConfigModeFile.print("0");
-      bootConfigModeFile.close();
-      SPIFFS.end();
-      DPRINTLN(F("Boot to ConfigMode requested. Restarting..."));
-      request->send(200, "text/plain", F("<state>enableBootConfigMode - Rebooting</state>"));
-      delay(500);
-      ESP.restart();
-    } else {
-      request->send(200, "text/plain", F("<state>enableBootConfigMode - FAILED!</state>"));
-      SPIFFS.end();
-    }
-  }
+  bootConfigMode(true);
+  DPRINTLN(F("Boot to ConfigMode requested. Restarting..."));
+  request->send(200, "text/plain", F("enableBootConfigMode - Rebooting"));
+  delay(500);
+  ESP.restart();
 }
 
 void checkUpdate(String url) {

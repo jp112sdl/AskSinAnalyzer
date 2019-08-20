@@ -67,7 +67,6 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 
 #define CSV_FILENAME                "/log.csv"
 #define CONFIG_FILENAME             "/config.json"
-#define BOOTCONFIGMODE_FILENAME     "/bootcfg.mod"
 #define SPIFFS_SESSIONLOG_FILENAME  "/session.log"
 
 #define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;"
@@ -173,17 +172,17 @@ void setup() {
 
   initLogTable();
 
+
   if (ONLINE_MODE) {
     if (!loadSystemConfig()) startWifiManager = true;
 
     DPRINTLN(F("- Config-Modus durch bootConfigMode aktivieren? "));
-    if (spiffsAvailable && SPIFFS.exists(BOOTCONFIGMODE_FILENAME)) {
+    if (bootConfigMode() == true) {
+      bootConfigMode(false);
       startWifiManager = true;
-      DPRINTLN(" -> " + String(BOOTCONFIGMODE_FILENAME) + " existiert, starte Config-Modus");
-      SPIFFS.remove(BOOTCONFIGMODE_FILENAME);
-      SPIFFS.end();
+      DPRINTLN(F(" -> bootConfigMode aktiviert, starte Config-Modus"));
     } else {
-      DPRINTLN(" -> " + String(BOOTCONFIGMODE_FILENAME) + " existiert NICHT");
+      DPRINTLN(F(" -> bootConfigMode existiert NICHT"));
     }
 
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);

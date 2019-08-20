@@ -87,5 +87,20 @@ bool saveSystemConfig() {
   return true;
 }
 
+bool bootConfigMode() {
+  Preferences configPreferences;
+  configPreferences.begin("config", false);
+  bool b = configPreferences.getBool("bootConfigMode", false);
+  configPreferences.end();
+  return b;
+}
+
+void bootConfigMode(bool b) {
+  Preferences configPreferences;
+  configPreferences.begin("config", false);
+  configPreferences.putBool("bootConfigMode", b);
+  delay(300);
+  configPreferences.end();
+}
 
 #endif
