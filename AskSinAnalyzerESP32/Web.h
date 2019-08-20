@@ -49,15 +49,12 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
       if (wsClients[i] == NULL) {
         wsClients[i] = client;
 
-        /*
-          for (uint16_t l = 0; l < logLength; l++) {
-          if ((int32_t)LogTable[l].lognumber > -1 && l < MAX_LOG_ENTRIES) {
+        /*for (uint16_t l = 0; l < logLength; l++) {
+          if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
             writeLogEntryToWebSocket(LogTable[logLength - l - 1]);
-            delay(20);
           }
           if (l == MAX_LOG_ENTRIES) break;
-          }
-        */
+          }*/
 
         clientAdded = true;
         DPRINT(F("- wsClient Connect: ID ")); DDEC(client->id()); DPRINT(F(" from ")); DPRINTLN(client->remoteIP());
@@ -78,6 +75,12 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
     }
   } else if (type == WS_EVT_ERROR) {
     DPRINT(F("-wsClient Error ")); DPRINTLN((char*)data);
+  } else if (type == WS_EVT_DATA) {
+    AwsFrameInfo * info = (AwsFrameInfo*)arg;
+    if (info->final && info->index == 0 && info->len == len) {
+      DPRINT(F("WS_EVT_DATA: "));
+      DPRINTLN((char*)data);
+    }
   }
 }
 
