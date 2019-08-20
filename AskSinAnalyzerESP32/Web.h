@@ -295,6 +295,10 @@ void checkUpdate(String url) {
   }
 }
 
+void formatSPIFFS(AsyncWebServerRequest * request) {
+  runFormatSPIFFS = true;
+}
+
 void httpUpdate(AsyncWebServerRequest * request) {
   String url = "";
   if (request->hasParam("url")) url = request->getParam("url")->value();
@@ -323,6 +327,10 @@ void initWebServer() {
 
   webServer.on("/setConfig", HTTP_POST, [](AsyncWebServerRequest * request) {
     setConfig(request);
+  });
+
+  webServer.on("/formatspiffs", HTTP_POST, [](AsyncWebServerRequest * request) {
+    formatSPIFFS(request);
   });
 
   webServer.on("/rebootInConfigMode", HTTP_POST, [](AsyncWebServerRequest * request) {

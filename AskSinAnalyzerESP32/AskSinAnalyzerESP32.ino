@@ -123,6 +123,7 @@ JsonArray devices;
 uint32_t allCount              = 0;
 unsigned long lastDebugMillis  = 0;
 bool     updating              = false;
+bool     runFormatSPIFFS       = false;
 bool     showInfoDisplayActive = false;
 bool     isOnline              = false;
 bool     timeOK                = false;
@@ -217,6 +218,17 @@ void loop() {
   }
 
   if (updating == false) {
+
+    if (runFormatSPIFFS) {
+      runFormatSPIFFS = false;
+      WiFi.disconnect(0, 0); //disconnect WiFi due to possible wdt restart
+      DPRINT(F("- Formatting SPIFFS... "));
+      SPIFFS.format();
+      DPRINTLN(F("DONE"));
+      saveSystemConfig();
+      //Wifi will be reconnected by checkWifi(); in loop()
+    }
+
     receiveMessages();
 
     if (ONLINE_MODE) {
