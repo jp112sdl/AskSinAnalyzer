@@ -2,6 +2,8 @@
 // AskSinAnalyzer
 // 2019-06-01 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 //- -----------------------------------------------------------------------------------------------------------------------
+#ifndef CONFIG_H_
+#define CONFIG_H_
 
 #define JSONCONFIG_IP                     "ip"
 #define JSONCONFIG_NETMASK                "netmask"
@@ -85,3 +87,5 @@ bool saveSystemConfig() {
   return true;
 }
 
+
+#endif
