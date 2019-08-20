@@ -321,7 +321,7 @@ void initWebServer() {
     getConfig(request);
   });
 
-  webServer.on("/setConfig", HTTP_GET, [](AsyncWebServerRequest * request) {
+  webServer.on("/setConfig", HTTP_POST, [](AsyncWebServerRequest * request) {
     setConfig(request);
   });
 
