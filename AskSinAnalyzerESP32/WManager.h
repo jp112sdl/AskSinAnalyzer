@@ -8,7 +8,7 @@
 
 unsigned long lastReconnectMillis = 0;
 
-Preferences preferences;
+Preferences wifiPreferences;
 
 //flag for saving data
 bool shouldSaveConfig = false;
@@ -45,10 +45,10 @@ void checkWifi() {
 
 bool doWifiConnect() {
   DPRINTLN(F("- INIT WIFI CONNECT."));
-  preferences.begin("wifi", false);
-  String _ssid = preferences.getString("ssid", "none");      //NVS key ssid
-  String _psk = preferences.getString("password", "none");   //NVS key password
-  preferences.end();
+  wifiPreferences.begin("wifi", false);
+  String _ssid = wifiPreferences.getString("ssid", "none");      //NVS key ssid
+  String _psk = wifiPreferences.getString("password", "none");   //NVS key password
+  wifiPreferences.end();
 
 
   //DPRINTLN("ssid; " + _ssid);
@@ -122,14 +122,14 @@ bool doWifiConnect() {
     DPRINTLN("Wifi Connected");
 
     if (shouldSaveConfig) {
-      preferences.begin("wifi", false); // Note: Namespace name is limited to 15 chars
+      wifiPreferences.begin("wifi", false); // Note: Namespace name is limited to 15 chars
       DPRINTLN("Writing new ssid");
-      preferences.putString("ssid", WiFi.SSID());
+      wifiPreferences.putString("ssid", WiFi.SSID());
 
       DPRINTLN("Writing new pass");
-      preferences.putString("password", WiFi.psk());
+      wifiPreferences.putString("password", WiFi.psk());
       delay(300);
-      preferences.end();
+      wifiPreferences.end();
 
 
       if (String(custom_ip.getValue()).length() > 5) {
