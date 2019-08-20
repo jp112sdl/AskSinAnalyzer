@@ -83,38 +83,38 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
 
 void setConfig(AsyncWebServerRequest *request) {
   DPRINTLN(F("- setConfig"));
-  if (request->hasParam("ccuip")) {
-    AsyncWebParameter* p = request->getParam("ccuip");
+  if (request->hasParam("ccuip", true)) {
+    AsyncWebParameter* p = request->getParam("ccuip", true);
     p->value().toCharArray(HomeMaticConfig.ccuIP, IPSIZE, 0);
     DPRINT(F("  - ccuip: ")); DPRINTLN(HomeMaticConfig.ccuIP);
   }
 
-  if (request->hasParam("ntp")) {
-    AsyncWebParameter* p = request->getParam("ntp");
+  if (request->hasParam("ntp", true)) {
+    AsyncWebParameter* p = request->getParam("ntp", true);
     p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
     DPRINT(F("  - ntp: ")); DPRINTLN(NetConfig.ntp);
   }
 
-  if (request->hasParam("hostname")) {
-    AsyncWebParameter* p = request->getParam("hostname");
+  if (request->hasParam("hostname", true)) {
+    AsyncWebParameter* p = request->getParam("hostname", true);
     p->value().toCharArray(NetConfig.hostname, VARIABLESIZE, 0);
     DPRINT(F("  - hostname: ")); DPRINTLN(NetConfig.hostname);
   }
 
-  if (request->hasParam("ip")) {
-    AsyncWebParameter* p = request->getParam("ip");
+  if (request->hasParam("ip", true)) {
+    AsyncWebParameter* p = request->getParam("ip", true);
     p->value().toCharArray(NetConfig.ip, IPSIZE, 0);
     DPRINT(F("  - ip: ")); DPRINTLN(NetConfig.ip);
   }
 
-  if (request->hasParam("netmask")) {
-    AsyncWebParameter* p = request->getParam("netmask");
+  if (request->hasParam("netmask", true)) {
+    AsyncWebParameter* p = request->getParam("netmask", true);
     p->value().toCharArray(NetConfig.netmask, IPSIZE, 0);
     DPRINT(F("  - netmask: ")); DPRINTLN(NetConfig.netmask);
   }
 
-  if (request->hasParam("gw")) {
-    AsyncWebParameter* p = request->getParam("gw");
+  if (request->hasParam("gw", true)) {
+    AsyncWebParameter* p = request->getParam("gw", true);
     p->value().toCharArray(NetConfig.gw, IPSIZE, 0);
     DPRINT(F("  - gw: ")); DPRINTLN(NetConfig.gw);
   }
