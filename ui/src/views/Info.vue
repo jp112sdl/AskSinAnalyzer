@@ -61,6 +61,14 @@
       </q-card-section>
     </q-card>
 
+
+    <h2 class="q-mt-xl">Changelog</h2>
+    <q-card flat>
+      <q-card-section>
+        <Changelog/>
+      </q-card-section>
+    </q-card>
+
     <h2 class="q-mt-xl">Tech</h2>
     <q-card flat>
       <q-card-section>
@@ -112,10 +120,11 @@
 <script>
   import { QCard, QCardSection } from 'quasar';
   import FlagChip from '../components/FlagChip';
+  import Changelog from '../components/Changelog';
 
   export default {
     name: 'InfoView',
-    components: { QCard, QCardSection, FlagChip }
+    components: { QCard, QCardSection, FlagChip, Changelog }
   }
 </script>
 

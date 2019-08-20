@@ -27,25 +27,38 @@
         </tr>
       </table>
       <div class="q-mt-md" v-if="$root.espConfig.updateAvailable">
-        <div class="q-my-md text-bold">
-          <q-checkbox v-model="changelogGelesen"/>
-          <a href="https://github.com/jp112sdl/AskSinAnalyzer/blob/master/CHANGELOG.md" target="_blank" ref="noreferrer noopener">CHANGELOG</a> gelesen
-        </div>
-        <q-btn label="Update durchführen" type="submit" color="primary" icon="system_update" @click="$espService.execUpdate()" :disabled="!changelogGelesen"/>
+        <q-btn label="Update durchführen" type="submit" color="primary" icon="system_update" @click="updateDialog = true"/>
       </div>
     </div>
+    <q-dialog v-model="updateDialog">
+      <q-card style="width: 700px; max-width: 100vw;">
+        <q-card-section class="row items-center">
+          <div class="text-h6">ESP Update</div>
+          <q-space/>
+          <q-btn icon="close" flat round dense v-close-popup/>
+        </q-card-section>
+        <q-card-section style="max-height: 60vh" class="scroll">
+          <Changelog/>
+        </q-card-section>
+        <q-card-actions align="between">
+          <q-btn label="abbrechen" color="warning" v-close-popup/>
+          <q-btn label="Update durchführen" color="primary" @click="$espService.execUpdate()"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script>
-  import { QIcon, QBtn, QCheckbox } from 'quasar';
+  import { QIcon, QBtn, QCheckbox, QDialog, QCard, QCardSection, QCardActions, QSpace } from 'quasar';
+  import Changelog from './Changelog';
 
   export default {
     name: "EspUpdater",
-    components: { QIcon, QBtn, QCheckbox },
+    components: { QIcon, QBtn, QCheckbox, QDialog, QCard, QCardSection, QCardActions, QSpace, Changelog },
     data() {
       return {
-        changelogGelesen: false
+        updateDialog: false
       }
     }
   }
