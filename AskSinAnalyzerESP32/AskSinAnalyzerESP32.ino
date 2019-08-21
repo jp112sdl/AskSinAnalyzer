@@ -22,7 +22,7 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #include <ArduinoJson.h>
 #include <WiFiUdp.h>
 #include <FS.h>
-#include <SPIFFS.h>
+#include <FFat.h>
 #include <SD.h>
 #include <Wire.h>
 #ifdef USE_DISPLAY
@@ -66,7 +66,7 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 #endif
 
 #define CSV_FILENAME                "/log.csv"
-#define SPIFFS_SESSIONLOG_FILENAME  "/session.log"
+#define FFAT_SESSIONLOG_FILENAME    "/session.log"
 
 #define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;"
 
@@ -121,11 +121,10 @@ JsonArray devices;
 uint32_t allCount              = 0;
 unsigned long lastDebugMillis  = 0;
 bool     updating              = false;
-bool     runFormatSPIFFS       = false;
 bool     showInfoDisplayActive = false;
 bool     isOnline              = false;
 bool     timeOK                = false;
-bool     spiffsAvailable       = false;
+bool     ffatAvailable         = false;
 bool     sdAvailable           = false;
 bool     startWifiManager      = false;
 bool     ONLINE_MODE           = false;
@@ -160,9 +159,9 @@ void setup() {
   sdAvailable = SdInit();
   DPRINT(F("- INIT SD CARD DONE. SD CARD IS ")); DPRINTLN(sdAvailable ? "AVAILABLE" : "NOT AVAILABLE");
 
-  spiffsAvailable = initSPIFFS();
-  DPRINT(F("- INIT SPIFFS  DONE. SPIFFS  IS ")); DPRINTLN(spiffsAvailable ? "AVAILABLE" : "NOT AVAILABLE");
-  initSessionLogOnSPIFFS();
+  ffatAvailable = initFFat();
+  DPRINT(F("- INIT FFat  DONE. FFat  IS ")); DPRINTLN(ffatAvailable ? "AVAILABLE" : "NOT AVAILABLE");
+  initSessionLogOnFFat();
 
 #ifdef USE_DISPLAY
   initTFT();
@@ -214,15 +213,6 @@ void loop() {
   }
 
   if (updating == false) {
-
-    if (runFormatSPIFFS) {
-      runFormatSPIFFS = false;
-      WiFi.disconnect(0, 0); //disconnect WiFi due to possible wdt restart
-      DPRINT(F("- Formatting SPIFFS... "));
-      SPIFFS.format();
-      DPRINTLN(F("DONE"));
-      //Wifi will be reconnected by checkWifi(); in loop()
-    }
 
     receiveMessages();
 

@@ -109,7 +109,7 @@ void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
 
   writeLogEntryToSD(LogTable[0]);
   writeLogEntryToWebSocket(LogTable[0]);
-  writeSessionLogToSPIFFS(LogTable[0]);
+  writeSessionLogToFFat(LogTable[0]);
 
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 

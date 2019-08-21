@@ -178,51 +178,51 @@ bool SdInit() {
   return true;
 }
 
-enum SPIFFS_ERRORS {
+enum FFat_ERRORS {
   NO_ERROR = 0,
   DELETE_FAILED = 10,
   RENAME_FAILED = 11,
   FILE_DOES_NOT_EXIST = 2,
   RENAME_SUCCESSFUL = 4,
-  SPIFFS_NOT_AVAILABLE = 99
+  FFat_NOT_AVAILABLE = 99
 };
 
-uint32_t getSPIFFSSizeKB() {
-  return (uint32_t)SPIFFS.totalBytes() / 1024UL;
+uint32_t getFFatSizeKB() {
+  return (uint32_t)FFat.totalBytes() / 1024UL;
 }
 
-uint32_t getSPIFFSUsedKB() {
-  return (uint32_t)SPIFFS.usedBytes() / 1024UL;
+uint32_t getFFatUsedKB() {
+  return ((uint32_t)FFat.totalBytes() / 1024UL) - ((uint32_t)FFat.freeBytes() / 1024UL);
 }
 
-void initSessionLogOnSPIFFS() {
-  if (spiffsAvailable) {
-    if (SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
-      DPRINTLN(F(" - SPIFFS deleting old Session Log file"));
-      deleteFile(SPIFFS, SPIFFS_SESSIONLOG_FILENAME);
+void initSessionLogOnFFat() {
+  if (ffatAvailable) {
+    if (FFat.exists(FFat_SESSIONLOG_FILENAME)) {
+      DPRINTLN(F(" - FFat deleting old Session Log file"));
+      deleteFile(FFat, FFat_SESSIONLOG_FILENAME);
     }
   }
 }
 
-bool initSPIFFS() {
-  DPRINTLN(F("- INIT SPIFFS"));
-  if (!SPIFFS.begin(true)) {
-    DPRINTLN(F(" - SPIFFS: Mount Failed. Trying to format..."));
-    SPIFFS.format();
-    if (SPIFFS.begin(true)) {
-      DPRINTLN(F(" - SPIFFS: Now it is working! "));
+bool initFFat() {
+  DPRINTLN(F("- INIT FFat"));
+  if (!FFat.begin(true)) {
+    DPRINTLN(F(" - FFat: Mount Failed. Trying to format..."));
+    FFat.format();
+    if (FFat.begin(true)) {
+      DPRINTLN(F(" - FFat: Now it is working! "));
     } else {
-      DPRINTLN(F(" - SPIFFS: FATAL: SPIFFS NOT MOUNTABLE!"));
+      DPRINTLN(F(" - FFat: FATAL: FFat NOT MOUNTABLE!"));
       return false;
     }
   }
-  DPRINTLN(" - SPIFFS: Mount OK");
-  DPRINT(F(" - SPIFFS: Total kB: "));
-  DPRINTLN(getSPIFFSSizeKB());
-  DPRINT(F(" - SPIFFS: Used  kB: "));
-  DPRINTLN(getSPIFFSUsedKB());
-  DPRINT(F(" - SPIFFS: Free  kb: "));
-  DPRINTLN(getSPIFFSSizeKB() - getSPIFFSUsedKB());
+  DPRINTLN(" - FFat: Mount OK");
+  DPRINT(F(" - FFat: Total kB: "));
+  DPRINTLN(getFFatSizeKB());
+  DPRINT(F(" - FFat: Used  kB: "));
+  DPRINTLN(getFFatUsedKB());
+  DPRINT(F(" - FFat: Free  kb: "));
+  DPRINTLN(getFFatSizeKB() - getFFatUsedKB());
 
   return true;
 }
@@ -259,38 +259,38 @@ uint8_t deleteCSV(const char * fileName, bool createBackup) {
     }
   }
   else {
-    if (spiffsAvailable) {
-      if (SPIFFS.exists(fileName)) {
+    if (ffatAvailable) {
+      if (FFat.exists(fileName)) {
         if (createBackup) {
-          if (SPIFFS.exists(fileName)) {
+          if (FFat.exists(fileName)) {
             String bakFile = String(fileName) + ".bak";
-            SPIFFS.remove(bakFile);
-            if (SPIFFS.rename(fileName, bakFile)) {
-              DPRINTLN(F(" - SPIFFS created backup of CSV"));
+            FFat.remove(bakFile);
+            if (FFat.rename(fileName, bakFile)) {
+              DPRINTLN(F(" - FFat created backup of CSV"));
               return RENAME_SUCCESSFUL;
             } else {
-              DPRINTLN(F(" - SPIFFS create backup of CSV failed"));
+              DPRINTLN(F(" - FFat create backup of CSV failed"));
               return RENAME_FAILED;
             }
           } else {
-            DPRINTLN(F(" - SPIFFS file does not exist no need to rename"));
+            DPRINTLN(F(" - FFat file does not exist no need to rename"));
             return FILE_DOES_NOT_EXIST;
           }
         }
-        if (SPIFFS.remove(fileName)) {
-          DPRINTLN(F(" - SPIFFS file deleted"));
+        if (FFat.remove(fileName)) {
+          DPRINTLN(F(" - FFat file deleted"));
           return NO_ERROR;
         } else {
-          DPRINTLN(F(" - SPIFFS delete failed"));
+          DPRINTLN(F(" - FFat delete failed"));
           return DELETE_FAILED;
         }
       } else {
-        DPRINTLN(F(" - SPIFFS file does not exist. no need to delete or rename"));
+        DPRINTLN(F(" - FFat file does not exist. no need to delete or rename"));
         return FILE_DOES_NOT_EXIST;
       }
     } else {
-      DPRINTLN(F(" - SPIFFS deleteCSV not done; SPIFFS not available!"));
-      return SPIFFS_NOT_AVAILABLE;
+      DPRINTLN(F(" - FFat deleteCSV not done; FFat not available!"));
+      return FFat_NOT_AVAILABLE;
     }
   }
 }
@@ -326,38 +326,38 @@ void writeCSVtoSD(const char * fileName, String &csvLine) {
   }
 }
 
-void writeSessionLogToSPIFFS(_LogTable &lt) {
-  if (spiffsAvailable) {
-    if (!SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
+void writeSessionLogToFFat(_LogTable &lt) {
+  if (ffatAvailable) {
+    if (!FFat.exists(FFat_SESSIONLOG_FILENAME)) {
       DPRINTLN(F(" - failed to open file - creating new"));
-      File file = SPIFFS.open(SPIFFS_SESSIONLOG_FILENAME, FILE_WRITE);
+      File file = FFat.open(FFat_SESSIONLOG_FILENAME, FILE_WRITE);
       if (!file) {
-        DPRINTLN(F(" - SPIFFS failed to open file for writing"));
+        DPRINTLN(F(" - FFat failed to open file for writing"));
         return;
       }
       file.close();
     }
 
-    File file = SPIFFS.open(SPIFFS_SESSIONLOG_FILENAME, FILE_APPEND);
+    File file = FFat.open(FFat_SESSIONLOG_FILENAME, FILE_APPEND);
     if (!file) {
-      DPRINTLN(F(" - SPIFFS Session Log : failed to open file for appending"));
+      DPRINTLN(F(" - FFat Session Log : failed to open file for appending"));
     }
 
     String logline =  createCSVFromLogTableEntry(lt, false);
-    uint32_t freeBytes = SPIFFS.totalBytes() - SPIFFS.usedBytes();
+    uint32_t freeBytes = FFat.freeBytes();
     if (freeBytes > logline.length()) {
       if (file.println(logline)) {
-        DPRINTLN(F(" - SPIFFS Session Log : message appended"));
+        DPRINTLN(F(" - FFat Session Log : message appended"));
         file.close();
       } else {
-        DPRINTLN(F(" - SPIFFS Session Log : append failed"));
+        DPRINTLN(F(" - FFat Session Log : append failed"));
       }
     } else {
-      DPRINT(F(" - SPIFFS Session Log : no space left. Free Bytes: ")); DDECLN(freeBytes);
+      DPRINT(F(" - FFat Session Log : no space left. Free Bytes: ")); DDECLN(freeBytes);
     }
 
   } else {
-    DPRINTLN(F(" - SPIFFS Session Log not written; SPIFFS not available!"));
+    DPRINTLN(F(" - FFat Session Log not written; FFat not available!"));
   }
 }
 

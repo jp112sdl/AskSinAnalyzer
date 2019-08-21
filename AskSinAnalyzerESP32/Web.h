@@ -163,9 +163,9 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"sdcardusedspacemb\":\"" + String(getSDCardUsedSpaceMB()) + "\"";
   json += ",";
-  json += "\"spiffssizekb\":" + String(getSPIFFSSizeKB());
+  json += "\"spiffssizekb\":" + String(getFFatSizeKB());                                       //spiffssizekb due to webui compatibility, has to be changed in future
   json += ",";
-  json += "\"spiffsusedkb\":" + String(getSPIFFSUsedKB());
+  json += "\"spiffsusedkb\":" + String(getFFatUsedKB());                                       //spiffsusedkb due to webui compatibility, has to be changed in future
   json += ",";
   json += "\"boottime\":" + String(bootTime);
   json += ",";
@@ -205,8 +205,8 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
   if (formatIsCSV) {
     if (lognum == -1) {
       AsyncWebServerResponse *response;
-      if (SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
-        response = request->beginResponse(SPIFFS, SPIFFS_SESSIONLOG_FILENAME, "text/comma-separated-values");
+      if (FFat.exists(FFat_SESSIONLOG_FILENAME)) {
+        response = request->beginResponse(FFat, FFat_SESSIONLOG_FILENAME, "text/comma-separated-values");
         request->send(response);
       } else {
         request->send(200, "text/comma-separated-values", "");
@@ -287,13 +287,13 @@ void checkUpdate(String url) {
   }
 }
 
-void formatSPIFFS(AsyncWebServerRequest * request) {
-  String text = F("Formatting SPIFFS");
+void formatFFat(AsyncWebServerRequest * request) {
+  String text = F("Formatted FFat done.");
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(text.length()));
-  request->send(200, "text/plain", text);
 
-  runFormatSPIFFS = true;
+  FFat.format();
+  request->send(200, "text/plain", text);
 }
 
 void httpUpdate(AsyncWebServerRequest * request) {
@@ -326,8 +326,8 @@ void initWebServer() {
     setConfig(request);
   });
 
-  webServer.on("/formatspiffs", HTTP_POST, [](AsyncWebServerRequest * request) {
-    formatSPIFFS(request);
+  webServer.on("/formatffat", HTTP_POST, [](AsyncWebServerRequest * request) {
+    formatFFat(request);
   });
 
   webServer.on("/rebootInConfigMode", HTTP_POST, [](AsyncWebServerRequest * request) {
