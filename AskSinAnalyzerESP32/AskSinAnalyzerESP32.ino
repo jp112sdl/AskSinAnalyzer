@@ -136,7 +136,6 @@ String   updateUrl             = "https://raw.githubusercontent.com/jp112sdl/Ask
 
 #include "Config.h"
 #include "NTP.h"
-#include "SDFunctions.h"
 #include "Display.h"
 #include "Helper.h"
 #include "File.h"
