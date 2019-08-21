@@ -1,5 +1,9 @@
 # AskSinAnalyzer
 
+❗ **Achtung:** Vor einem Update unbedingt das [CHANGELOG](https://github.com/jp112sdl/AskSinAnalyzer/blob/master/CHANGELOG.md) lesen!
+
+
+
 <img src="Images/sample1.jpg" width=400 /><img src="Images/web_main.png" width=400 /><br/>
 
 ### Der Funktelegramm-Dekodierer für den Einsatz in HomeMatic Umgebungen! 
