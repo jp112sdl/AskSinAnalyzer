@@ -5,6 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "prebuild": "npm run generate-changelog",
+    "preserve": "npm run generate-changelog",
+    "generate-changelog": "node generate-changelog-html.js",
     "dev": "npm run serve",
     "mock": "node backend-mock"
   },
@@ -20,6 +23,8 @@
     "@vue/cli-plugin-babel": "^3.10.0",
     "@vue/cli-service": "^3.10.0",
     "babel-plugin-transform-imports": "^1.5.0",
+    "highlightjs": "^9.12.0",
+    "marked": "^0.7.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
     "vue-cli-plugin-quasar": "^1.0.0",
