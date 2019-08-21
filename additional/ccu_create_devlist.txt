@@ -86,8 +86,8 @@ foreach(sDevId, root.Devices().EnumUsedIDs())
       if (data.Substr(0,10) == "RF_ADDRESS") {
         data = data.Replace("RF_ADDRESS:","");
         if (data != "0") {
-		  string ser = dev.Address();
-		  if ((HmIPCentral > 0) && (data == HmIPCentral)) { ser = "HmIP-RF"; }
+	  string ser = dev.Address();
+	  if ((HmIPCentral > 0) && (data == HmIPCentral)) { ser = "HmIP-RF"; }
           result = result # "{\"address\":" #data#",\"serial\":\""#ser#"\",\"name\":\""#dev.Name()#"\"},";
         }
       }
