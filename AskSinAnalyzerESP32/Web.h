@@ -288,6 +288,11 @@ void checkUpdate(String url) {
 }
 
 void formatSPIFFS(AsyncWebServerRequest * request) {
+  String text = F("Formatting SPIFFS");
+  AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Content-Length", String(text.length()));
+  request->send(200, "text/plain", text);
+
   runFormatSPIFFS = true;
 }
 
