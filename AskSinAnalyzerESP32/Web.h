@@ -205,8 +205,8 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
   if (formatIsCSV) {
     if (lognum == -1) {
       AsyncWebServerResponse *response;
-      if (FFat.exists(FFat_SESSIONLOG_FILENAME)) {
-        response = request->beginResponse(FFat, FFat_SESSIONLOG_FILENAME, "text/comma-separated-values");
+      if (FFat.exists(FFAT_SESSIONLOG_FILENAME)) {
+        response = request->beginResponse(FFat, FFAT_SESSIONLOG_FILENAME, "text/comma-separated-values");
         request->send(response);
       } else {
         request->send(200, "text/comma-separated-values", "");

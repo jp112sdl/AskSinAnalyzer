@@ -197,9 +197,9 @@ uint32_t getFFatUsedKB() {
 
 void initSessionLogOnFFat() {
   if (ffatAvailable) {
-    if (FFat.exists(FFat_SESSIONLOG_FILENAME)) {
+    if (FFat.exists(FFAT_SESSIONLOG_FILENAME)) {
       DPRINTLN(F(" - FFat deleting old Session Log file"));
-      deleteFile(FFat, FFat_SESSIONLOG_FILENAME);
+      deleteFile(FFat, FFAT_SESSIONLOG_FILENAME);
     }
   }
 }
@@ -328,9 +328,9 @@ void writeCSVtoSD(const char * fileName, String &csvLine) {
 
 void writeSessionLogToFFat(_LogTable &lt) {
   if (ffatAvailable) {
-    if (!FFat.exists(FFat_SESSIONLOG_FILENAME)) {
+    if (!FFat.exists(FFAT_SESSIONLOG_FILENAME)) {
       DPRINTLN(F(" - failed to open file - creating new"));
-      File file = FFat.open(FFat_SESSIONLOG_FILENAME, FILE_WRITE);
+      File file = FFat.open(FFAT_SESSIONLOG_FILENAME, FILE_WRITE);
       if (!file) {
         DPRINTLN(F(" - FFat failed to open file for writing"));
         return;
@@ -338,7 +338,7 @@ void writeSessionLogToFFat(_LogTable &lt) {
       file.close();
     }
 
-    File file = FFat.open(FFat_SESSIONLOG_FILENAME, FILE_APPEND);
+    File file = FFat.open(FFAT_SESSIONLOG_FILENAME, FILE_APPEND);
     if (!file) {
       DPRINTLN(F(" - FFat Session Log : failed to open file for appending"));
     }
