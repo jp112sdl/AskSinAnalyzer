@@ -67,8 +67,6 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 #endif
 
 #define CSV_FILENAME                "/log.csv"
-#define FFAT_SESSIONLOG_FILENAME    "/session.log"
-
 #define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;"
 
 #define IPSIZE                16

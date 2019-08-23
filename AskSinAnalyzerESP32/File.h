@@ -7,6 +7,12 @@
 #ifndef __FILE__H_
 #define __FILE__H_
 
+//Session Log
+const uint8_t  maxSessionFiles           = 11;
+const uint32_t maxLinesPerSessionFile    = 100;
+uint8_t  currentSessionFileNum     = 0;
+uint32_t currentLinesInSessionFile = 0;
+//
 
 String readFile(fs::FS &fs, const char * path) {
   DPRINT(F("Reading file: ")); DPRINTLN(path);
@@ -131,11 +137,20 @@ uint32_t getFFatUsedKB() {
   return ((uint32_t)FFat.totalBytes() / 1024UL) - ((uint32_t)FFat.freeBytes() / 1024UL);
 }
 
+String getSessionFileName(uint8_t fileNum) {
+  String _t = "/" + String(fileNum) + ".log";
+  return _t;
+}
+
 void initSessionLogOnFFat() {
   if (ffatAvailable) {
-    if (FFat.exists(FFAT_SESSIONLOG_FILENAME)) {
-      DPRINTLN(F(" - FFat deleting old Session Log file"));
-      deleteFile(FFat, FFAT_SESSIONLOG_FILENAME);
+    DPRINTLN(F(" - FFat deleting old Session Log files"));
+    for (uint8_t i = 0; i < maxSessionFiles; i++) {
+      //deleteFile(FFat, getSessionFileName(i).c_str());
+      File file = FFat.open(getSessionFileName(i).c_str(), FILE_WRITE);
+      file.close();
+      currentSessionFileNum     = 0;
+      currentLinesInSessionFile = 0;
     }
   }
 }
@@ -268,24 +283,14 @@ void writeCSVtoSD(const char * fileName, String &csvLine) {
 
 void writeSessionLogToFFat(_LogTable &lt) {
   if (ffatAvailable) {
-    if (!FFat.exists(FFAT_SESSIONLOG_FILENAME)) {
-      DPRINTLN(F(" - failed to open file - creating new"));
-      File file = FFat.open(FFAT_SESSIONLOG_FILENAME, FILE_WRITE);
-      if (!file) {
-        DPRINTLN(F(" - FFat failed to open file for writing"));
-        return;
-      }
-      file.close();
-    }
-
-    File file = FFat.open(FFAT_SESSIONLOG_FILENAME, FILE_APPEND);
-    if (!file) {
-      DPRINTLN(F(" - FFat Session Log : failed to open file for appending"));
-    }
-
-    String logline =  createCSVFromLogTableEntry(lt, false);
     uint32_t freeBytes = FFat.freeBytes();
+    String logline =  createCSVFromLogTableEntry(lt, false);
     if (freeBytes > logline.length()) {
+      File file = FFat.open(getSessionFileName(currentSessionFileNum).c_str(), FILE_APPEND);
+      if (!file) {
+        DPRINTLN(F(" - FFat Session Log : failed to open file for appending"));
+      }
+
       if (file.println(logline)) {
 #ifdef VDEBUG
         DPRINT(F(" - FFat Session Log : message appended, F: ")); DDEC(currentSessionFileNum); DPRINT(F(" L: ")); DDECLN(currentLinesInSessionFile);
@@ -294,10 +299,23 @@ void writeSessionLogToFFat(_LogTable &lt) {
       } else {
         DPRINTLN(F(" - FFat Session Log : append failed"));
       }
+    }
+
+    currentLinesInSessionFile++;
+    if (currentLinesInSessionFile >= maxLinesPerSessionFile) {
+      currentLinesInSessionFile = 0;
+      currentSessionFileNum++;
+      if (currentSessionFileNum >= maxSessionFiles) {
+        currentSessionFileNum = 0;
+      }
+      if (FFat.exists(getSessionFileName(currentSessionFileNum).c_str())) {
+        //deleteFile(FFat, getSessionFileName(currentSessionFileNum).c_str());
+        File file = FFat.open(getSessionFileName(currentSessionFileNum).c_str(), FILE_WRITE);
+        file.close();
+      }
     } else {
       DPRINT(F(" - FFat Session Log : no space left. Free Bytes: ")); DDECLN(freeBytes);
     }
-
   } else {
     DPRINTLN(F(" - FFat Session Log not written; FFat not available!"));
   }
