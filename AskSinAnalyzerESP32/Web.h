@@ -293,6 +293,7 @@ void formatFFat(AsyncWebServerRequest * request) {
   response->addHeader("Content-Length", String(text.length()));
 
   FFat.format();
+  initSessionLogOnFFat();
   request->send(200, "text/plain", text);
 }
 
