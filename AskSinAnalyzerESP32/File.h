@@ -7,54 +7,6 @@
 #ifndef __FILE__H_
 #define __FILE__H_
 
-void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
-  DPRINT(F("Listing directory: ")); DPRINTLN(dirname);
-
-  File root = fs.open(dirname);
-  if (!root) {
-    DPRINTLN("Failed to open directory");
-    return;
-  }
-  if (!root.isDirectory()) {
-    DPRINTLN("Not a directory");
-    return;
-  }
-
-  File file = root.openNextFile();
-  while (file) {
-    if (file.isDirectory()) {
-      DPRINT("  DIR : ");
-      DPRINTLN(file.name());
-      if (levels) {
-        listDir(fs, file.name(), levels - 1);
-      }
-    } else {
-      DPRINT("  FILE: ");
-      DPRINT(file.name());
-      DPRINT("  SIZE: ");
-      DPRINTLN(file.size());
-    }
-    file = root.openNextFile();
-  }
-}
-
-void createDir(fs::FS &fs, const char * path) {
-  DPRINT(F("Creating Dir: ")); DPRINTLN(path);
-  if (fs.mkdir(path)) {
-    DPRINTLN("Dir created");
-  } else {
-    DPRINTLN("mkdir failed");
-  }
-}
-
-void removeDir(fs::FS &fs, const char * path) {
-  DPRINT(F("Removing Dir: ")); DPRINTLN(path);
-  if (fs.rmdir(path)) {
-    DPRINTLN("Dir removed");
-  } else {
-    DPRINTLN("rmdir failed");
-  }
-}
 
 String readFile(fs::FS &fs, const char * path) {
   DPRINT(F("Reading file: ")); DPRINTLN(path);
@@ -87,22 +39,6 @@ void writeFile(fs::FS &fs, const char * path, const char * message) {
     DPRINTLN("File written");
   } else {
     DPRINTLN("Write failed");
-  }
-  file.close();
-}
-
-void appendFile(fs::FS &fs, const char * path, const char * message) {
-  DPRINT(F("Appending to file: ")); DPRINTLN(path);
-
-  File file = fs.open(path, FILE_APPEND);
-  if (!file) {
-    DPRINTLN("Failed to open file for appending");
-    return;
-  }
-  if (file.print(message)) {
-    DPRINTLN("Message appended");
-  } else {
-    DPRINTLN("Append failed");
   }
   file.close();
 }
