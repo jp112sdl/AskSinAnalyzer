@@ -205,12 +205,32 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
   if (formatIsCSV) {
     if (lognum == -1) {
       AsyncWebServerResponse *response;
-      if (FFat.exists(FFAT_SESSIONLOG_FILENAME)) {
-        response = request->beginResponse(FFat, FFAT_SESSIONLOG_FILENAME, "text/comma-separated-values");
-        request->send(response);
+      if (maxSessionFiles > 1) {
+        DPRINT("Merging all logfiles to tempfile ");
+        unsigned long startMillis = millis();
+        File temp = FFat.open("/temp.log", FILE_WRITE);
+        const uint8_t len = 255;
+        uint8_t buf[256] = {0};
+        for (uint8_t i = 0; i < maxSessionFiles; i++) {
+          DPRINT(".");
+          if (FFat.exists(getSessionFileName(i))) {
+            File file = FFat.open(getSessionFileName(i).c_str(), FILE_READ);
+            while (file.available()) {
+              size_t available = file.available();
+              file.read(buf, (available > len) ? len : available);
+              temp.write(buf, (available > len) ? len : available);
+            }
+            file.close();
+          }
+        }
+        temp.close();
+        DPRINT(" done. duration (ms): ");DDECLN(millis() - startMillis);
+        response = request->beginResponse(FFat, "/temp.log", "text/comma-separated-values");
       } else {
-        request->send(200, "text/comma-separated-values", "");
+        response = request->beginResponse(FFat, "/0.log", "text/comma-separated-values");
       }
+      request->send(response);
+
     } else {
       AsyncResponseStream *response = request->beginResponseStream("text/comma-separated-values");
       for (uint16_t l = 0; l < logLength; l++) {
