@@ -232,7 +232,9 @@ uint8_t deleteCSV(const char * fileName, bool createBackup) {
 }
 
 void writeCSVtoSD(const char * fileName, String &csvLine) {
+#ifdef VDEBUG
   DPRINTLN(F("- writing CSV file"));
+#endif
   if (sdAvailable) {
     if (!SD.exists(fileName)) {
       DPRINTLN(F(" - SD failed to open file - creating new"));
@@ -254,7 +256,9 @@ void writeCSVtoSD(const char * fileName, String &csvLine) {
       DPRINTLN(F(" - SD csv : failed to open file for appending"));
     }
     if (file.println(csvLine)) {
+#ifdef VDEBUG
       DPRINTLN(F(" - SD csv : message appended"));
+#endif
       file.close();
     } else {
       DPRINTLN(F(" - SD csv : append failed"));
@@ -283,7 +287,9 @@ void writeSessionLogToFFat(_LogTable &lt) {
     uint32_t freeBytes = FFat.freeBytes();
     if (freeBytes > logline.length()) {
       if (file.println(logline)) {
-        DPRINTLN(F(" - FFat Session Log : message appended"));
+#ifdef VDEBUG
+        DPRINT(F(" - FFat Session Log : message appended, F: ")); DDEC(currentSessionFileNum); DPRINT(F(" L: ")); DDECLN(currentLinesInSessionFile);
+#endif
         file.close();
       } else {
         DPRINTLN(F(" - FFat Session Log : append failed"));

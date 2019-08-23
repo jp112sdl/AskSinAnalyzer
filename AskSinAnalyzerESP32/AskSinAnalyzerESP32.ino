@@ -9,7 +9,8 @@
 #define USE_DISPLAY
 #define WEB_BRANCH            "master"                  //only changed for development
 const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used system variable on the CCU containing the device list
-// #define NDEBUG
+// #define NDEBUG //No DEBUG -> no output
+#define VDEBUG //Verbose DEBUG -> more output
 
 #include "Debug.h"
 #include <Preferences.h>
