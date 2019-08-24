@@ -67,7 +67,7 @@ const vm = new Vue({
   },
   created() {
     Loading.show({
-      message: '<b>AskSinAnalyzer lädt</b>',
+      message: '<b>AskSinAnalyzer lädt Daten vom ESP32</b>',
       customClass: 'main-loading'
     });
   },
