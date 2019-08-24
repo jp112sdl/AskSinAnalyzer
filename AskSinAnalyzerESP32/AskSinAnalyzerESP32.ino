@@ -23,7 +23,7 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #include <ArduinoJson.h>
 #include <WiFiUdp.h>
 #include <FS.h>
-#include <FFat.h>
+#include <SPIFFS.h>
 #include <SD.h>
 #include <Wire.h>
 #ifdef USE_DISPLAY
@@ -120,10 +120,11 @@ JsonArray devices;
 uint32_t allCount              = 0;
 unsigned long lastDebugMillis  = 0;
 bool     updating              = false;
+bool     formatfs              = false;
 bool     showInfoDisplayActive = false;
 bool     isOnline              = false;
 bool     timeOK                = false;
-bool     ffatAvailable         = false;
+bool     SPIFFSAvailable       = false;
 bool     sdAvailable           = false;
 bool     startWifiManager      = false;
 bool     ONLINE_MODE           = false;
@@ -158,9 +159,9 @@ void setup() {
   sdAvailable = SdInit();
   DPRINT(F("- INIT SD CARD DONE. SD CARD IS ")); DPRINTLN(sdAvailable ? "AVAILABLE" : "NOT AVAILABLE");
 
-  ffatAvailable = initFFat();
-  DPRINT(F("- INIT FFat  DONE. FFat  IS ")); DPRINTLN(ffatAvailable ? "AVAILABLE" : "NOT AVAILABLE");
-  initSessionLogOnFFat();
+  SPIFFSAvailable = initSPIFFS();
+  DPRINT(F("- INIT SPIFFS  DONE. SPIFFS  IS ")); DPRINTLN(SPIFFSAvailable ? "AVAILABLE" : "NOT AVAILABLE");
+  initSessionLogOnSPIFFS();
 
 #ifdef USE_DISPLAY
   initTFT();
@@ -212,6 +213,17 @@ void loop() {
   }
 
   if (updating == false) {
+
+    if (formatfs) {
+      DPRINT(F("Formatting SPIFFS... "));
+      formatfs = false;
+      disableLoopWDT();
+      WiFi.disconnect();
+      SPIFFS.format();
+      initSessionLogOnSPIFFS();
+      enableLoopWDT();
+      DPRINTLN(F("DONE"));
+    }
 
     receiveMessages();
 

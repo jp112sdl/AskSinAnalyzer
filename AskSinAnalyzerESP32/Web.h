@@ -163,9 +163,9 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"sdcardusedspacemb\":\"" + String(getSDCardUsedSpaceMB()) + "\"";
   json += ",";
-  json += "\"spiffssizekb\":" + String(getFFatSizeKB());                                       //spiffssizekb due to webui compatibility, has to be changed in future
+  json += "\"spiffssizekb\":" + String(getSPIFFSSizeKB());                                      
   json += ",";
-  json += "\"spiffsusedkb\":" + String(getFFatUsedKB());                                       //spiffsusedkb due to webui compatibility, has to be changed in future
+  json += "\"spiffsusedkb\":" + String(getSPIFFSUsedKB());                                       
   json += ",";
   json += "\"boottime\":" + String(bootTime);
   json += ",";
@@ -208,13 +208,13 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
       if (maxSessionFiles > 1) {
         DPRINT("Merging all logfiles to tempfile ");
         unsigned long startMillis = millis();
-        File temp = FFat.open("/temp.log", FILE_WRITE);
+        File temp = SPIFFS.open("/temp.log", FILE_WRITE);
         const uint8_t len = 255;
         uint8_t buf[256] = {0};
         for (uint8_t i = 0; i < maxSessionFiles; i++) {
           DPRINT(".");
-          if (FFat.exists(getSessionFileName(i))) {
-            File file = FFat.open(getSessionFileName(i).c_str(), FILE_READ);
+          if (SPIFFS.exists(getSessionFileName(i))) {
+            File file = SPIFFS.open(getSessionFileName(i).c_str(), FILE_READ);
             while (file.available()) {
               size_t available = file.available();
               file.read(buf, (available > len) ? len : available);
@@ -224,10 +224,10 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
           }
         }
         temp.close();
-        DPRINT(" done. duration (ms): ");DDECLN(millis() - startMillis);
-        response = request->beginResponse(FFat, "/temp.log", "text/comma-separated-values");
+        DPRINT(" done. duration (ms): "); DDECLN(millis() - startMillis);
+        response = request->beginResponse(SPIFFS, "/temp.log", "text/comma-separated-values");
       } else {
-        response = request->beginResponse(FFat, "/0.log", "text/comma-separated-values");
+        response = request->beginResponse(SPIFFS, "/0.log", "text/comma-separated-values");
       }
       request->send(response);
 
@@ -280,9 +280,9 @@ void checkUpdate(String url) {
   if (updating == true) {
     updating = false;
     DPRINTLN(F("Check for Updates..."));
-
+   
     digitalWrite(AP_MODE_LED_PIN, HIGH);
-    ESPhttpUpdate.rebootOnUpdate(false);
+    ESPhttpUpdate.rebootOnUpdate(true);
     t_httpUpdate_return ret = ESPhttpUpdate.update(url);
 
     switch (ret) {
@@ -298,22 +298,18 @@ void checkUpdate(String url) {
       case HTTP_UPDATE_OK:
         DPRINTLN(F("HTTP_UPDATE_OK. Rebooting..."));
         delay(200);
-        ESP.restart();
         break;
     }
-
     digitalWrite(AP_MODE_LED_PIN, LOW);
 
   }
 }
 
-void formatFFat(AsyncWebServerRequest * request) {
-  String text = F("Formatted FFat done.");
+void formatSPIFFS(AsyncWebServerRequest * request) {
+  String text = F("Formatting SPIFFS. WiFi will be disconnected!\n");
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(text.length()));
-
-  FFat.format();
-  initSessionLogOnFFat();
+  formatfs = true;
   request->send(200, "text/plain", text);
 }
 
@@ -347,8 +343,8 @@ void initWebServer() {
     setConfig(request);
   });
 
-  webServer.on("/formatffat", HTTP_POST, [](AsyncWebServerRequest * request) {
-    formatFFat(request);
+  webServer.on("/formatspiffs", HTTP_POST, [](AsyncWebServerRequest * request) {
+    formatSPIFFS(request);
   });
 
   webServer.on("/rebootInConfigMode", HTTP_POST, [](AsyncWebServerRequest * request) {
