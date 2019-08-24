@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { Quasar, Ripple, ClosePopup } from 'quasar';
+import { Quasar, Ripple, ClosePopup, Loading } from 'quasar';
 import lang from 'quasar/lang/de.js'
 import './styles/quasar.styl'
 import '@quasar/extras/material-icons/material-icons.css'
@@ -63,7 +63,13 @@ const vm = new Vue({
         start: null,
         stop: null
       }
-    }
+    };
+  },
+  created() {
+    Loading.show({
+      message: '<b>AskSinAnalyzer lädt</b>',
+      customClass: 'main-loading'
+    });
   },
   render: h => h(App)
 }).$mount('#app');
@@ -74,12 +80,14 @@ const vm = new Vue({
     vm.espConfig = await espService.fetchConfig();
     await espService.fetchDevList();
     // Periodically fetch new telegrams
-    espService.autorefresh();
+    await espService.autorefresh();
 
     await espService.fetchVersion();
     if(vm.espConfig.updateAvailable) {
       vm.errors.common.push('ESP Update verfügbar.');
     }
+
+    Loading.hide();
 
     try {
       const res = await fetch((vm.CDN || 'https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/gh-pages/master') + '/commit-hash.txt', { cache: "no-store" });
@@ -98,6 +106,7 @@ const vm = new Vue({
     }
 
   } catch (e) {
+    Loading.hide();
     console.error(e);
   }
 })();
