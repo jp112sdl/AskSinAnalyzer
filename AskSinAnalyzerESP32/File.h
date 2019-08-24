@@ -7,54 +7,12 @@
 #ifndef __FILE__H_
 #define __FILE__H_
 
-void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
-  DPRINT(F("Listing directory: ")); DPRINTLN(dirname);
-
-  File root = fs.open(dirname);
-  if (!root) {
-    DPRINTLN("Failed to open directory");
-    return;
-  }
-  if (!root.isDirectory()) {
-    DPRINTLN("Not a directory");
-    return;
-  }
-
-  File file = root.openNextFile();
-  while (file) {
-    if (file.isDirectory()) {
-      DPRINT("  DIR : ");
-      DPRINTLN(file.name());
-      if (levels) {
-        listDir(fs, file.name(), levels - 1);
-      }
-    } else {
-      DPRINT("  FILE: ");
-      DPRINT(file.name());
-      DPRINT("  SIZE: ");
-      DPRINTLN(file.size());
-    }
-    file = root.openNextFile();
-  }
-}
-
-void createDir(fs::FS &fs, const char * path) {
-  DPRINT(F("Creating Dir: ")); DPRINTLN(path);
-  if (fs.mkdir(path)) {
-    DPRINTLN("Dir created");
-  } else {
-    DPRINTLN("mkdir failed");
-  }
-}
-
-void removeDir(fs::FS &fs, const char * path) {
-  DPRINT(F("Removing Dir: ")); DPRINTLN(path);
-  if (fs.rmdir(path)) {
-    DPRINTLN("Dir removed");
-  } else {
-    DPRINTLN("rmdir failed");
-  }
-}
+//Session Log
+const uint8_t  maxSessionFiles           = 11;
+const uint32_t maxLinesPerSessionFile    = 100;
+uint8_t        currentSessionFileNum     = 0;
+uint32_t       currentLinesInSessionFile = 0;
+//
 
 String readFile(fs::FS &fs, const char * path) {
   DPRINT(F("Reading file: ")); DPRINTLN(path);
@@ -87,22 +45,6 @@ void writeFile(fs::FS &fs, const char * path, const char * message) {
     DPRINTLN("File written");
   } else {
     DPRINTLN("Write failed");
-  }
-  file.close();
-}
-
-void appendFile(fs::FS &fs, const char * path, const char * message) {
-  DPRINT(F("Appending to file: ")); DPRINTLN(path);
-
-  File file = fs.open(path, FILE_APPEND);
-  if (!file) {
-    DPRINTLN("Failed to open file for appending");
-    return;
-  }
-  if (file.print(message)) {
-    DPRINTLN("Message appended");
-  } else {
-    DPRINTLN("Append failed");
   }
   file.close();
 }
@@ -178,51 +120,59 @@ bool SdInit() {
   return true;
 }
 
-enum SPIFFS_ERRORS {
+enum FFat_ERRORS {
   NO_ERROR = 0,
   DELETE_FAILED = 10,
   RENAME_FAILED = 11,
   FILE_DOES_NOT_EXIST = 2,
   RENAME_SUCCESSFUL = 4,
-  SPIFFS_NOT_AVAILABLE = 99
+  FFat_NOT_AVAILABLE = 99
 };
 
-uint32_t getSPIFFSSizeKB() {
-  return (uint32_t)SPIFFS.totalBytes() / 1024UL;
+uint32_t getFFatSizeKB() {
+  return (uint32_t)FFat.totalBytes() / 1024UL;
 }
 
-uint32_t getSPIFFSUsedKB() {
-  return (uint32_t)SPIFFS.usedBytes() / 1024UL;
+uint32_t getFFatUsedKB() {
+  return ((uint32_t)FFat.totalBytes() / 1024UL) - ((uint32_t)FFat.freeBytes() / 1024UL);
 }
 
-void initSessionLogOnSPIFFS() {
-  if (spiffsAvailable) {
-    if (SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
-      DPRINTLN(F(" - SPIFFS deleting old Session Log file"));
-      deleteFile(SPIFFS, SPIFFS_SESSIONLOG_FILENAME);
+String getSessionFileName(uint8_t fileNum) {
+  return "/" + String(fileNum) + ".log";
+}
+
+void initSessionLogOnFFat() {
+  if (ffatAvailable) {
+    DPRINTLN(F(" - FFat deleting old Session Log files"));
+    for (uint8_t i = 0; i < maxSessionFiles; i++) {
+      //deleteFile(FFat, getSessionFileName(i).c_str());
+      File file = FFat.open(getSessionFileName(i).c_str(), FILE_WRITE);
+      file.close();
+      currentSessionFileNum     = 0;
+      currentLinesInSessionFile = 0;
     }
   }
 }
 
-bool initSPIFFS() {
-  DPRINTLN(F("- INIT SPIFFS"));
-  if (!SPIFFS.begin(true)) {
-    DPRINTLN(F(" - SPIFFS: Mount Failed. Trying to format..."));
-    SPIFFS.format();
-    if (SPIFFS.begin(true)) {
-      DPRINTLN(F(" - SPIFFS: Now it is working! "));
+bool initFFat() {
+  DPRINTLN(F("- INIT FFat"));
+  if (!FFat.begin(true)) {
+    DPRINTLN(F(" - FFat: Mount Failed. Trying to format..."));
+    FFat.format();
+    if (FFat.begin(true)) {
+      DPRINTLN(F(" - FFat: Now it is working! "));
     } else {
-      DPRINTLN(F(" - SPIFFS: FATAL: SPIFFS NOT MOUNTABLE!"));
+      DPRINTLN(F(" - FFat: FATAL: FFat NOT MOUNTABLE!"));
       return false;
     }
   }
-  DPRINTLN(" - SPIFFS: Mount OK");
-  DPRINT(F(" - SPIFFS: Total kB: "));
-  DPRINTLN(getSPIFFSSizeKB());
-  DPRINT(F(" - SPIFFS: Used  kB: "));
-  DPRINTLN(getSPIFFSUsedKB());
-  DPRINT(F(" - SPIFFS: Free  kb: "));
-  DPRINTLN(getSPIFFSSizeKB() - getSPIFFSUsedKB());
+  DPRINTLN(" - FFat: Mount OK");
+  DPRINT(F(" - FFat: Total kB: "));
+  DPRINTLN(getFFatSizeKB());
+  DPRINT(F(" - FFat: Used  kB: "));
+  DPRINTLN(getFFatUsedKB());
+  DPRINT(F(" - FFat: Free  kb: "));
+  DPRINTLN(getFFatSizeKB() - getFFatUsedKB());
 
   return true;
 }
@@ -259,44 +209,46 @@ uint8_t deleteCSV(const char * fileName, bool createBackup) {
     }
   }
   else {
-    if (spiffsAvailable) {
-      if (SPIFFS.exists(fileName)) {
+    if (ffatAvailable) {
+      if (FFat.exists(fileName)) {
         if (createBackup) {
-          if (SPIFFS.exists(fileName)) {
+          if (FFat.exists(fileName)) {
             String bakFile = String(fileName) + ".bak";
-            SPIFFS.remove(bakFile);
-            if (SPIFFS.rename(fileName, bakFile)) {
-              DPRINTLN(F(" - SPIFFS created backup of CSV"));
+            FFat.remove(bakFile);
+            if (FFat.rename(fileName, bakFile)) {
+              DPRINTLN(F(" - FFat created backup of CSV"));
               return RENAME_SUCCESSFUL;
             } else {
-              DPRINTLN(F(" - SPIFFS create backup of CSV failed"));
+              DPRINTLN(F(" - FFat create backup of CSV failed"));
               return RENAME_FAILED;
             }
           } else {
-            DPRINTLN(F(" - SPIFFS file does not exist no need to rename"));
+            DPRINTLN(F(" - FFat file does not exist no need to rename"));
             return FILE_DOES_NOT_EXIST;
           }
         }
-        if (SPIFFS.remove(fileName)) {
-          DPRINTLN(F(" - SPIFFS file deleted"));
+        if (FFat.remove(fileName)) {
+          DPRINTLN(F(" - FFat file deleted"));
           return NO_ERROR;
         } else {
-          DPRINTLN(F(" - SPIFFS delete failed"));
+          DPRINTLN(F(" - FFat delete failed"));
           return DELETE_FAILED;
         }
       } else {
-        DPRINTLN(F(" - SPIFFS file does not exist. no need to delete or rename"));
+        DPRINTLN(F(" - FFat file does not exist. no need to delete or rename"));
         return FILE_DOES_NOT_EXIST;
       }
     } else {
-      DPRINTLN(F(" - SPIFFS deleteCSV not done; SPIFFS not available!"));
-      return SPIFFS_NOT_AVAILABLE;
+      DPRINTLN(F(" - FFat deleteCSV not done; FFat not available!"));
+      return FFat_NOT_AVAILABLE;
     }
   }
 }
 
 void writeCSVtoSD(const char * fileName, String &csvLine) {
+#ifdef VDEBUG
   DPRINTLN(F("- writing CSV file"));
+#endif
   if (sdAvailable) {
     if (!SD.exists(fileName)) {
       DPRINTLN(F(" - SD failed to open file - creating new"));
@@ -318,7 +270,9 @@ void writeCSVtoSD(const char * fileName, String &csvLine) {
       DPRINTLN(F(" - SD csv : failed to open file for appending"));
     }
     if (file.println(csvLine)) {
+#ifdef VDEBUG
       DPRINTLN(F(" - SD csv : message appended"));
+#endif
       file.close();
     } else {
       DPRINTLN(F(" - SD csv : append failed"));
@@ -326,38 +280,43 @@ void writeCSVtoSD(const char * fileName, String &csvLine) {
   }
 }
 
-void writeSessionLogToSPIFFS(_LogTable &lt) {
-  if (spiffsAvailable) {
-    if (!SPIFFS.exists(SPIFFS_SESSIONLOG_FILENAME)) {
-      DPRINTLN(F(" - failed to open file - creating new"));
-      File file = SPIFFS.open(SPIFFS_SESSIONLOG_FILENAME, FILE_WRITE);
-      if (!file) {
-        DPRINTLN(F(" - SPIFFS failed to open file for writing"));
-        return;
-      }
-      file.close();
-    }
-
-    File file = SPIFFS.open(SPIFFS_SESSIONLOG_FILENAME, FILE_APPEND);
-    if (!file) {
-      DPRINTLN(F(" - SPIFFS Session Log : failed to open file for appending"));
-    }
-
+void writeSessionLogToFFat(_LogTable &lt) {
+  if (ffatAvailable) {
+    uint32_t freeBytes = FFat.freeBytes();
     String logline =  createCSVFromLogTableEntry(lt, false);
-    uint32_t freeBytes = SPIFFS.totalBytes() - SPIFFS.usedBytes();
     if (freeBytes > logline.length()) {
+      File file = FFat.open(getSessionFileName(currentSessionFileNum).c_str(), FILE_APPEND);
+      if (!file) {
+        DPRINTLN(F(" - FFat Session Log : failed to open file for appending"));
+      }
+
       if (file.println(logline)) {
-        DPRINTLN(F(" - SPIFFS Session Log : message appended"));
+#ifdef VDEBUG
+        DPRINT(F(" - FFat Session Log : message appended, F: ")); DDEC(currentSessionFileNum); DPRINT(F(" L: ")); DDECLN(currentLinesInSessionFile);
+#endif
         file.close();
       } else {
-        DPRINTLN(F(" - SPIFFS Session Log : append failed"));
+        DPRINTLN(F(" - FFat Session Log : append failed"));
+      }
+
+      currentLinesInSessionFile++;
+      if (currentLinesInSessionFile >= maxLinesPerSessionFile) {
+        currentLinesInSessionFile = 0;
+        currentSessionFileNum++;
+        if (currentSessionFileNum >= maxSessionFiles) {
+          currentSessionFileNum = 0;
+        }
+        if (FFat.exists(getSessionFileName(currentSessionFileNum).c_str())) {
+          //deleteFile(FFat, getSessionFileName(currentSessionFileNum).c_str());
+          File file = FFat.open(getSessionFileName(currentSessionFileNum).c_str(), FILE_WRITE);
+          file.close();
+        }
       }
     } else {
-      DPRINT(F(" - SPIFFS Session Log : no space left. Free Bytes: ")); DDECLN(freeBytes);
+      DPRINT(F(" - FFat Session Log : no space left. Free Bytes: ")); DDECLN(freeBytes);
     }
-
   } else {
-    DPRINTLN(F(" - SPIFFS Session Log not written; SPIFFS not available!"));
+    DPRINTLN(F(" - FFat Session Log not written; FFat not available!"));
   }
 }
 

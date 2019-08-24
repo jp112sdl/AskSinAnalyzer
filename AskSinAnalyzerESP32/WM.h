@@ -13,7 +13,7 @@
 #ifndef WiFiManager_h
 #define WiFiManager_h
 
-#include <SPIFFS.h>
+#include <FFat.h>
 
 #if defined(ESP8266)
 #include <ESP8266WiFi.h>
@@ -41,7 +41,7 @@ extern "C" {
 const char HTTP_HEADWM[] PROGMEM          = "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\"/><title>{v}</title>";
 const char HTTP_SCRIPT[] PROGMEM          = "<script>function c(l){document.getElementById('s').value=l.innerText||l.textContent;document.getElementById('p').focus();}</script>";
 const char HTTP_HEAD_END[] PROGMEM        = "</head><body><div style='text-align:left;display:inline-block;min-width:260px;'>";
-const char HTTP_PORTAL_OPTIONS[] PROGMEM  = "<form action=\"/wifi\" method=\"post\"><button>AskSinAnalyzer konfigurieren</button></form><br/><br/><form action=\"/i\" method=\"get\"><button>ESP32 Info</button></form><br/><form action=\"/sformat\" method=\"get\"><button>SPIFFS formatieren</button></form><br/><form action=\"/r\" method=\"post\"><button>Restart</button></form>";
+const char HTTP_PORTAL_OPTIONS[] PROGMEM  = "<form action=\"/wifi\" method=\"post\"><button>AskSinAnalyzer konfigurieren</button></form><br/><br/><form action=\"/i\" method=\"get\"><button>ESP32 Info</button></form><br/><form action=\"/sformat\" method=\"get\"><button>FFat formatieren</button></form><br/><form action=\"/r\" method=\"post\"><button>Restart</button></form>";
 const char HTTP_ITEM[] PROGMEM            = "<div><a href='#p' onclick='c(this)'>{v}</a>&nbsp;<span class='q {i}'>{r}%</span></div>";
 const char HTTP_FORM_START[] PROGMEM      = "<form method='get' action='wifisave'><input type='text' id='s' name='s' length=32 placeholder='SSID'><br/><input id='p' name='p' length=64 type='password' placeholder='Passwort'><br/>";
 const char HTTP_FORM_PARAM[] PROGMEM      = "<br/><input type='text' id='{i}' name='{n}' length={l} placeholder='{p}' value='{v}' {c}>";
@@ -177,7 +177,7 @@ class WiFiManager
     void          handleWifiSave();
     void          handleInfo();
     void          handleReset();
-    void          formatSPIFFS();
+    void          formatFFat();
     void          handleNotFound();
     void          handle204();
     boolean       captivePortal();

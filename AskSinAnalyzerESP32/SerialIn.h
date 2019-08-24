@@ -62,7 +62,9 @@ void receiveMessages() {
 #define STRPOS_TO_END         23
 
 void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
+#ifdef VDEBUG
   DPRINTLN(F("######## PROCESSING NEW MESSAGE ########"));
+#endif
   DPRINTLN("I #" + String(b) + ": " + sb.Msg);
 
   String rssiIn = (sb.Msg).substring(STRPOS_RSSI_BEGIN, STRPOS_LENGTH_BEGIN);
@@ -109,19 +111,18 @@ void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
 
   writeLogEntryToSD(LogTable[0]);
   writeLogEntryToWebSocket(LogTable[0]);
-  writeSessionLogToSPIFFS(LogTable[0]);
+  writeSessionLogToFFat(LogTable[0]);
 
   if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
-  DPRINTLN(F("\nAdded to LogTable: "));
-  dumpLogTableEntry(LogTable[0]);
-  //DPRINTLN(" => messages received: " + String(allCount));
-  //DPRINTLN("logLength        = " + String(logLength));
-  //DPRINTLN("logLengthDisplay = " + String(logLengthDisplay));
-
   allCount++;
 
+#ifdef VDEBUG
+  DPRINTLN(F("\nAdded to LogTable: "));
+  dumpLogTableEntry(LogTable[0]);
   DPRINT(F("######## PROCESSING ")); DDEC(allCount); DPRINTLN(F(" END ########\n"));
+#endif
+
 }
 
 #endif

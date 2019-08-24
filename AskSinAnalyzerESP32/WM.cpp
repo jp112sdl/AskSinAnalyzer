@@ -127,7 +127,7 @@ void WiFiManager::setupConfigPortal() {
   server->on("/wifisave", std::bind(&WiFiManager::handleWifiSave, this));
   server->on("/i", std::bind(&WiFiManager::handleInfo, this));
   server->on("/r", std::bind(&WiFiManager::handleReset, this));
-  server->on("/sformat", std::bind(&WiFiManager::formatSPIFFS, this));
+  server->on("/sformat", std::bind(&WiFiManager::formatFFat, this));
   //server->on("/generate_204", std::bind(&WiFiManager::handle204, this));  //Android/Chrome OS captive portal check.
   server->on("/fwlink", std::bind(&WiFiManager::handleRoot, this));  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
   server->onNotFound (std::bind(&WiFiManager::handleNotFound, this));
@@ -717,8 +717,8 @@ void WiFiManager::handleReset() {
 }
 
 /** Handle the reset page */
-void WiFiManager::formatSPIFFS() {
-  DEBUG_WM(F("format SPIFFS"));
+void WiFiManager::formatFFat() {
+  DEBUG_WM(F("format FFat"));
 
   String page = FPSTR(HTTP_HEADWM);
   page.replace("{v}", "Info");
@@ -733,7 +733,7 @@ void WiFiManager::formatSPIFFS() {
   server->send(200, "text/html", page);
 
   DEBUG_WM(F("Sent reset page"));
-  SPIFFS.format();
+  FFat.format();
 #if defined(ESP8266)
   ESP.reset();
 #else
