@@ -1,9 +1,10 @@
-🚧 **_nächste Version (aktueller master-Stand für Selbstkompilierer)_**
+## Version 2.3
 - **ESP32:**
-  - das Speichern der Systemkonfiguration (CCU IP, Hostname, NTP etc) erfolgt ab sofort im NVS *und nicht mehr mithilfe einer Datei im SPIFFS*
+  - das Speichern der Systemkonfigurationsdaten (CCU IP, Hostname, NTP etc) erfolgt ab sofort im NVS *und nicht mehr mithilfe einer Datei im SPIFFS*
     - ❗ **nach dem Einspielen dieser Version müssen die Konfigurationsdaten einmalig erneut eingegeben werden**
   - Umstellung des Dateisystems von SPIFFS auf FATFS
-     - ❗Compiler-Einstellung beachten! ![compiler](Images/compiler_opt.png)
+     - ❗wer den Quellcode selbst kompiliert: Compiler-Einstellung beachten! ![compiler](Images/compiler_opt.png)
+  - Begrenzung der lokalen Logdatei auf die letzten 1000 Einträge aufgrund von Stabilitätsproblemen   
 
 ## Version 2.2
 - **ESP32:** 
