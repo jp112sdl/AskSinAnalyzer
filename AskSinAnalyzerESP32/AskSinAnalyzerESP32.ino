@@ -212,8 +212,12 @@ void loop() {
     //DPRINT(F("Free Heap Size: ")); DDECLN(ESP.getFreeHeap());
   }
 
-  if (updating == false) {
+  if (ONLINE_MODE) {
+    checkWifi();
+    checkUpdate(updateUrl);
+  }
 
+  if (updating == false) {
     if (formatfs) {
       DPRINT(F("Formatting SPIFFS... "));
       formatfs = false;
@@ -226,11 +230,6 @@ void loop() {
     }
 
     receiveMessages();
-
-    if (ONLINE_MODE) {
-      checkWifi();
-      checkUpdate(updateUrl);
-    }
 
 #ifdef USE_DISPLAY
     if (ONLINE_MODE && (digitalRead(START_WIFIMANAGER_PIN) == LOW)) {
