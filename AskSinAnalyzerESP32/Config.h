@@ -5,12 +5,14 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#define JSONCONFIG_IP                     "ip"
-#define JSONCONFIG_NETMASK                "netmask"
-#define JSONCONFIG_GW                     "gw"
-#define JSONCONFIG_HOSTNAME               "hostname"
-#define JSONCONFIG_NTP                    "ntp"
-#define JSONCONFIG_CCUIP                  "ccuip"
+#define CONFIG                        "config"
+#define CONFIG_IP                     "ip"
+#define CONFIG_NETMASK                "netmask"
+#define CONFIG_GW                     "gw"
+#define CONFIG_HOSTNAME               "hostname"
+#define CONFIG_NTP                    "ntp"
+#define CONFIG_CCUIP                  "ccuip"
+#define CONFIG_BOOTCONFIGMODE         "bootConfigMode"
 
 void dumpSystemConfig() {
   DPRINTLN(F("- dump config:"));
@@ -25,8 +27,8 @@ void dumpSystemConfig() {
 bool loadSystemConfig() {
   DPRINTLN(F("- LOADING CONFIG"));
   Preferences configPreferences;
-  configPreferences.begin("config", false);
-  String hostname = configPreferences.getString("hostname", "");
+  configPreferences.begin(CONFIG, false);
+  String hostname = configPreferences.getString(CONFIG_HOSTNAME, "");
   if (hostname == "") {
     DPRINTLN(F("Hostname is empty. Maybe a fresh ESP32 installation? Start config mode..."));
     configPreferences.end();
@@ -34,12 +36,12 @@ bool loadSystemConfig() {
   }
 
   hostname.toCharArray(NetConfig.hostname, VARIABLESIZE, 0);
-  configPreferences.getString("ntp", DEFAULT_NTP_SERVER).toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
-  configPreferences.getString("ccuip", "").toCharArray(HomeMaticConfig.ccuIP, IPSIZE, 0);
+  configPreferences.getString(CONFIG_NTP, DEFAULT_NTP_SERVER).toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
+  configPreferences.getString(CONFIG_CCUIP, "").toCharArray(HomeMaticConfig.ccuIP, IPSIZE, 0);
 
-  configPreferences.getString("ip", "0.0.0.0").toCharArray(NetConfig.ip, IPSIZE, 0);
-  configPreferences.getString("netmask", "0.0.0.0").toCharArray(NetConfig.netmask, IPSIZE, 0);
-  configPreferences.getString("gw", "0.0.0.0").toCharArray(NetConfig.gw, IPSIZE, 0);
+  configPreferences.getString(CONFIG_IP, "0.0.0.0").toCharArray(NetConfig.ip, IPSIZE, 0);
+  configPreferences.getString(CONFIG_NETMASK, "0.0.0.0").toCharArray(NetConfig.netmask, IPSIZE, 0);
+  configPreferences.getString(CONFIG_GW, "0.0.0.0").toCharArray(NetConfig.gw, IPSIZE, 0);
 
   configPreferences.end();
   dumpSystemConfig();
@@ -49,13 +51,13 @@ bool loadSystemConfig() {
 bool saveSystemConfig() {
   DPRINTLN(F(" - saveSystemConfig(): saving config"));
   Preferences configPreferences;
-  configPreferences.begin("config", false);
-  configPreferences.putString("ip", NetConfig.ip);
-  configPreferences.putString("netmask", NetConfig.netmask);
-  configPreferences.putString("gw", NetConfig.gw);
-  configPreferences.putString("ntp", NetConfig.ntp);
-  configPreferences.putString("hostname", NetConfig.hostname);
-  configPreferences.putString("ccuip", HomeMaticConfig.ccuIP);
+  configPreferences.begin(CONFIG, false);
+  configPreferences.putString(CONFIG_IP, NetConfig.ip);
+  configPreferences.putString(CONFIG_NETMASK, NetConfig.netmask);
+  configPreferences.putString(CONFIG_GW, NetConfig.gw);
+  configPreferences.putString(CONFIG_NTP, NetConfig.ntp);
+  configPreferences.putString(CONFIG_HOSTNAME, NetConfig.hostname);
+  configPreferences.putString(CONFIG_CCUIP, HomeMaticConfig.ccuIP);
   delay(300);
   configPreferences.end();
   return true;
@@ -63,16 +65,16 @@ bool saveSystemConfig() {
 
 bool bootConfigMode() {
   Preferences configPreferences;
-  configPreferences.begin("config", false);
-  bool b = configPreferences.getBool("bootConfigMode", false);
+  configPreferences.begin(CONFIG, false);
+  bool b = configPreferences.getBool(CONFIG_BOOTCONFIGMODE, false);
   configPreferences.end();
   return b;
 }
 
 void bootConfigMode(bool b) {
   Preferences configPreferences;
-  configPreferences.begin("config", false);
-  configPreferences.putBool("bootConfigMode", b);
+  configPreferences.begin(CONFIG, false);
+  configPreferences.putBool(CONFIG_BOOTCONFIGMODE, b);
   delay(300);
   configPreferences.end();
 }
