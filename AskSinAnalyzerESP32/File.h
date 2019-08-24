@@ -10,8 +10,8 @@
 //Session Log
 const uint8_t  maxSessionFiles           = 11;
 const uint32_t maxLinesPerSessionFile    = 100;
-uint8_t  currentSessionFileNum     = 0;
-uint32_t currentLinesInSessionFile = 0;
+uint8_t        currentSessionFileNum     = 0;
+uint32_t       currentLinesInSessionFile = 0;
 //
 
 String readFile(fs::FS &fs, const char * path) {
@@ -138,8 +138,7 @@ uint32_t getFFatUsedKB() {
 }
 
 String getSessionFileName(uint8_t fileNum) {
-  String _t = "/" + String(fileNum) + ".log";
-  return _t;
+  return "/" + String(fileNum) + ".log";
 }
 
 void initSessionLogOnFFat() {
@@ -299,19 +298,19 @@ void writeSessionLogToFFat(_LogTable &lt) {
       } else {
         DPRINTLN(F(" - FFat Session Log : append failed"));
       }
-    }
 
-    currentLinesInSessionFile++;
-    if (currentLinesInSessionFile >= maxLinesPerSessionFile) {
-      currentLinesInSessionFile = 0;
-      currentSessionFileNum++;
-      if (currentSessionFileNum >= maxSessionFiles) {
-        currentSessionFileNum = 0;
-      }
-      if (FFat.exists(getSessionFileName(currentSessionFileNum).c_str())) {
-        //deleteFile(FFat, getSessionFileName(currentSessionFileNum).c_str());
-        File file = FFat.open(getSessionFileName(currentSessionFileNum).c_str(), FILE_WRITE);
-        file.close();
+      currentLinesInSessionFile++;
+      if (currentLinesInSessionFile >= maxLinesPerSessionFile) {
+        currentLinesInSessionFile = 0;
+        currentSessionFileNum++;
+        if (currentSessionFileNum >= maxSessionFiles) {
+          currentSessionFileNum = 0;
+        }
+        if (FFat.exists(getSessionFileName(currentSessionFileNum).c_str())) {
+          //deleteFile(FFat, getSessionFileName(currentSessionFileNum).c_str());
+          File file = FFat.open(getSessionFileName(currentSessionFileNum).c_str(), FILE_WRITE);
+          file.close();
+        }
       }
     } else {
       DPRINT(F(" - FFat Session Log : no space left. Free Bytes: ")); DDECLN(freeBytes);
