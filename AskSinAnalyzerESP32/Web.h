@@ -206,13 +206,14 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
     if (lognum == -1) {
       AsyncWebServerResponse *response;
       if (maxSessionFiles > 1) {
-        DPRINT("Merging all logfiles to tempfile ");
+        DPRINT("Merging all logfiles to tempfile [");
         unsigned long startMillis = millis();
         File temp = SPIFFS.open("/temp.log", FILE_WRITE);
         const uint8_t len = 255;
         uint8_t buf[256] = {0};
+        msgBufferProcessing = false;
         for (uint8_t i = 0; i < maxSessionFiles; i++) {
-          DPRINT(".");
+          DPRINT("+");
           if (SPIFFS.exists(getSessionFileName(i))) {
             File file = SPIFFS.open(getSessionFileName(i).c_str(), FILE_READ);
             while (file.available()) {
@@ -222,9 +223,12 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
             }
             file.close();
           }
+          DPRINT("-");
         }
+        msgBufferProcessing = true;
         temp.close();
-        DPRINT(" done. duration (ms): "); DDECLN(millis() - startMillis);
+
+        DPRINT("] done. duration (ms): "); DDECLN(millis() - startMillis);
         response = request->beginResponse(SPIFFS, "/temp.log", "text/comma-separated-values");
       } else {
         response = request->beginResponse(SPIFFS, "/0.log", "text/comma-separated-values");

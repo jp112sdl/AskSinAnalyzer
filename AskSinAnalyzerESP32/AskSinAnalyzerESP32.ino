@@ -129,6 +129,7 @@ bool     sdAvailable           = false;
 bool     startWifiManager      = false;
 bool     ONLINE_MODE           = false;
 bool     RESOLVE_ADDRESS       = true;
+bool     msgBufferProcessing    = true;
 uint8_t  DISPLAY_LOG_LINES     = 15;
 time_t   bootTime              = 0;
 String   updateUrl             = "https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/AskSinAnalyzerESP32.bin";
@@ -217,7 +218,7 @@ void loop() {
     checkUpdate(updateUrl);
   }
 
-  if (updating == false) {
+  if (msgBufferProcessing == true && updating == false) {
     if (formatfs) {
       DPRINT(F("Formatting SPIFFS... "));
       formatfs = false;
@@ -257,6 +258,7 @@ void loop() {
       }
       msgBufferCount = 0;
     }
+
   }
 }
 
