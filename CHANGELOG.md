@@ -1,5 +1,9 @@
 ## Version 2.4
 - **ESP32:**
+  - Uhrzeit korrigiert (UTC für WebUI)
+  
+## Version 2.4
+- **ESP32:**
   - Berechnung der Sommerzeit korrigiert
   - serieller Eingangspuffer auf 2k erhöht
   - bei Verwendung einer statischen IP wird das Gateway auch als DNS Serveradresse genutzt
