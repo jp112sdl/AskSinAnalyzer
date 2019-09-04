@@ -26,6 +26,32 @@ void sendNTPpacket(IPAddress& address) {
   udp.endPacket();
 }
 
+boolean summertime(time_t t) {
+  if (month(t) < 3 || month(t) > 10) return false; // keine Sommerzeit in Jan, Feb, Nov, Dez
+  if (month(t) > 3 && month(t) < 10) return true; // Sommerzeit in Apr, Mai, Jun, Jul, Aug, Sep
+  if ((month(t) == 3
+       && (hour(t) + 24 * day(t)) >= (1 + 24 * (31 - (5 * year(t) / 4 + 4) % 7)))
+      || (month(t) == 10
+          && (hour(t) + 24 * day(t)) < (1 + 24 * (31 - (5 * year(t) / 4 + 1) % 7))))
+    return true;
+  else
+    return false;
+}
+
+String getUhrzeit(time_t t) {
+  String Stunde = (hour(t) < 10) ? "0" + String(hour(t)) : String(hour(t));
+  String Minute = (minute(t) < 10) ? "0" + String(minute(t)) : String(minute(t));
+  String Sekunde = (second(t) < 10) ? "0" + String(second(t)) : String(second(t));
+  return Stunde + ":" + Minute + ":" + Sekunde;
+}
+
+String getDatum(time_t t) {
+  String Tag = (day(t) < 10) ? "0" + String(day(t)) : String(day(t));
+  String Monat = (month(t) < 10) ? "0" + String(month(t)) : String(month(t));
+  String Jahr = String(year(t));
+  return Tag + "." + Monat + "." + Jahr;
+}
+
 time_t getNtpTime() {
   IPAddress ntpServerIP;
   while (udp.parsePacket() > 0) ;
@@ -42,7 +68,9 @@ time_t getNtpTime() {
       secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
       secsSince1900 |= (unsigned long)packetBuffer[43];
       DPRINTLN(" - NTP time was set from " + String(NetConfig.ntp));
-      return secsSince1900 - 2208988800UL;
+      time_t _now = secsSince1900 - 2208988800UL;
+      _now += summertime(_now) ? 7200 : 3600;
+      return _now;
     }
   }
   return 0;
@@ -68,34 +96,6 @@ bool doNTPinit() {
     }
     return true;
   } else return false;
-}
-
-boolean summertime(time_t t, byte tzHours) {
-  if (month(t) < 3 || month(t) > 10) return false; // keine Sommerzeit in Jan, Feb, Nov, Dez
-  if (month(t) > 3 && month(t) < 10) return true; // Sommerzeit in Apr, Mai, Jun, Jul, Aug, Sep
-  if ((month(t) == 3
-       && (hour(t) + 24 * day(t)) >= (1 + tzHours + 24 * (31 - (5 * year(t) / 4 + 4) % 7)))
-      || (month(t) == 10
-          && (hour(t) + 24 * day(t)) < (1 + tzHours + 24 * (31 - (5 * year(t) / 4 + 1) % 7))))
-    return true;
-  else
-    return false;
-}
-
-String getUhrzeit(time_t t) {
-  byte stunde = hour(t) + 1;
-  stunde = (summertime(t, 0)) ? stunde + 1 : stunde;
-  String Stunde = (stunde < 10) ? "0" + String(stunde) : String(stunde);
-  String Minute = (minute(t) < 10) ? "0" + String(minute(t)) : String(minute(t));
-  String Sekunde = (second(t) < 10) ? "0" + String(second(t)) : String(second(t));
-  return Stunde + ":" + Minute + ":" + Sekunde;
-}
-
-String getDatum(time_t t) {
-  String Tag = (day(t) < 10) ? "0" + String(day(t)) : String(day(t));
-  String Monat = (month(t) < 10) ? "0" + String(month(t)) : String(month(t));
-  String Jahr = String(year(t));
-  return Tag + "." + Monat + "." + Jahr;
 }
 
 #endif
