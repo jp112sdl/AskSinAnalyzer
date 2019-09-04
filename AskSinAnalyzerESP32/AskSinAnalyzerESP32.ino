@@ -36,7 +36,7 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #endif
 
 #define VERSION_UPPER "2"
-#define VERSION_LOWER "4"
+#define VERSION_LOWER "5"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15
