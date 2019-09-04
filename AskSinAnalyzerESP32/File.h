@@ -285,7 +285,7 @@ void writeSessionLogToSPIFFS(_LogTable &lt) {
   if (SPIFFSAvailable) {
     //uint32_t freeBytes = SPIFFS.freeBytes();
     uint32_t freeBytes = SPIFFS.totalBytes() - SPIFFS.usedBytes();
-    String logline =  createCSVFromLogTableEntry(lt, false);
+    String logline =  createCSVFromLogTableEntry(lt, false, true);
     if (freeBytes > logline.length()) {
       File file = SPIFFS.open(getSessionFileName(currentSessionFileNum).c_str(), FILE_APPEND);
       if (!file) {
@@ -324,7 +324,7 @@ void writeSessionLogToSPIFFS(_LogTable &lt) {
 
 void writeLogEntryToSD(const _LogTable &lt) {
   if (sdAvailable) {
-    String csvLine = createCSVFromLogTableEntry(lt, true);
+    String csvLine = createCSVFromLogTableEntry(lt, true, false);
 
     if (getSDCardTotalSpaceMB() - getSDCardUsedSpaceMB() > csvLine.length())
       writeCSVtoSD(CSV_FILENAME, csvLine);

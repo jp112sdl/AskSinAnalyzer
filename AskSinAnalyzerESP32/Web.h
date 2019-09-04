@@ -20,7 +20,7 @@ void writeLogEntryToWebSocket(const _LogTable &lt) {
     if (wsClient != NULL) {
       String json = "{";
       json += "\"lognumber\": " + String(lt.lognumber) + ", ";
-      json += "\"tstamp\": " + String(lt.time) + ", ";
+      json += "\"tstamp\": " + String(lt.time - (summertime(now()) ? 7200 : 3600)) + ", "; // time must be UTC
       json += "\"rssi\": " + String(lt.rssi) + ", ";
       String from = String(lt.fromAddress);
       from.trim();
@@ -167,7 +167,7 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"spiffsusedkb\":" + String(getSPIFFSUsedKB());                                       
   json += ",";
-  json += "\"boottime\":" + String(bootTime);
+  json += "\"boottime\":" + String(bootTime - (summertime(now()) ? 7200 : 3600)); // time must be UTC
   json += ",";
   json += "\"display\":" + String(HAS_DISPLAY);
   json += ",";
@@ -239,7 +239,7 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
       AsyncResponseStream *response = request->beginResponseStream("text/comma-separated-values");
       for (uint16_t l = 0; l < logLength; l++) {
         if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
-          response->println(createCSVFromLogTableEntry(LogTable[l], false));
+          response->println(createCSVFromLogTableEntry(LogTable[l], false, true));
         }
         if (l == MAX_LOG_ENTRIES) break;
       }
