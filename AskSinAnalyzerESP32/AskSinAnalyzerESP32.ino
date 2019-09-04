@@ -194,7 +194,7 @@ void setup() {
     DPRINT(F("- INIT MDNS DONE. STATUS: ")); DPRINTLN(mdns_ok == true ? "OK" : "FAIL");
     timeOK = doNTPinit();
     bootTime = timeOK ? now() : 0;
-    DPRINT(F("- INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE" : "NOT AVAILABLE");
+    DPRINT(F("- INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE (" + getDatum(now()) + " " + getUhrzeit(now()) + ")" : "NOT AVAILABLE");
     initWebServer();
     DPRINTLN(F("- INIT WEBSERVER DONE."));
     createJSONDevList(loadAskSinAnalyzerDevListFromCCU());
