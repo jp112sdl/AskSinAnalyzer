@@ -147,6 +147,7 @@ void setup() {
   DINIT(57600, F("\nASKSINANALYZER ESP32 " VERSION_UPPER "." VERSION_LOWER " (" __DATE__ " " __TIME__ ")\n--------------------------------"));
   pinMode(SD_CS, OUTPUT);
   Serial1.begin(EXTSERIALBAUDRATE, SERIAL_8N1, EXTSERIALRX_PIN, EXTSERIALTX_PIN);
+  Serial1.setRxBufferSize(2048);
 
   pinMode(START_WIFIMANAGER_PIN, INPUT_PULLUP);
   pinMode(SHOW_DISPLAY_LINES_PIN, INPUT_PULLUP);
