@@ -1,4 +1,4 @@
-## Version 2.4
+## Version 2.5
 - **ESP32:**
   - Uhrzeit korrigiert (UTC für WebUI)
   
