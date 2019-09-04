@@ -1,3 +1,8 @@
+## Version 2.4
+- **ESP32:**
+  - Berechnung der Sommerzeit korrigiert
+  - serieller Eingangspuffer auf 2k erhöht
+  - bei Verwendung einer statischen IP wird das Gateway auch als DNS Serveradresse genutzt
 ## Version 2.3
 - **ESP32:**
   - das Speichern der Systemkonfigurationsdaten (CCU IP, Hostname, NTP etc) erfolgt ab sofort im NVS *und nicht mehr mithilfe einer Datei im SPIFFS*
