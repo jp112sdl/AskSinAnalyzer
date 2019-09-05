@@ -180,13 +180,13 @@ void shiftLogArray() {
   }
 }
 
-String createCSVFromLogTableEntry(_LogTable lt, bool lng, bool utc) {
+String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
   String csvLine = "";
   String temp = "";
   csvLine += String(lt.lognumber);
   csvLine += ";";
-  uint16_t toffset = utc ? (summertime(now()) ? 7200 : 3600) : 0;
-  csvLine += lng ? getDatum(lt.time - toffset) + " " + getUhrzeit(lt.time - toffset) : (now() - toffset);
+  uint16_t toffset = summertime(now()) ? 7200 : 3600;
+  csvLine += lng ? getDatum(lt.time + toffset) + " " + getUhrzeit(lt.time + toffset) : now() - toffset;
   csvLine += ";";
   csvLine += String(lt.rssi);
   csvLine += ";";
