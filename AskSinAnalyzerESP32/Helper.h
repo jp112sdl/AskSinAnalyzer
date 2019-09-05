@@ -186,7 +186,7 @@ String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
   csvLine += String(lt.lognumber);
   csvLine += ";";
   uint16_t toffset = summertime(now()) ? 7200 : 3600;
-  csvLine += lng ? getDatum(lt.time + toffset) + " " + getUhrzeit(lt.time + toffset) : now() - toffset;
+  csvLine += lng ? getDatum(lt.time + toffset) + " " + getUhrzeit(lt.time + toffset) : now();
   csvLine += ";";
   csvLine += String(lt.rssi);
   csvLine += ";";
