@@ -73,7 +73,7 @@
         exporting: { enabled: false },
         // yAxis: { max: 12, tickAmount: 4 },
         series: [{
-          name: 'Telegramme pro Sekunde',
+          name: 'Telegrammdichte',
           type: 'column',
           fillColor: {
             linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
