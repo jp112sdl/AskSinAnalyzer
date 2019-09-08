@@ -69,7 +69,7 @@
             text: 'All'
           }]
         },
-        title: { text: 'Telegramme' },
+        title: { text: 'Telegramme pro Zeiteinehit' },
         exporting: { enabled: false },
         // yAxis: { max: 12, tickAmount: 4 },
         series: [{
