@@ -41,7 +41,9 @@
             afterSetExtremes(ev) {
               setTimeFilterDebounced(ev.min, ev.max);
             }
-          }
+          },
+          type: 'datetime',
+          ordinal: false,
         },
         time: { useUTC: false },
         rangeSelector: {
@@ -50,6 +52,10 @@
             type: 'minute',
             count: 1,
             text: '1m'
+          }, {
+            type: 'minute',
+            count:5,
+            text: '5m'
           }, {
             type: 'minute',
             count: 10,
@@ -69,10 +75,10 @@
         },
         title: { text: 'Telegramme' },
         exporting: { enabled: false },
-        // yAxis: { max: 12, tickAmount: 4 },
         series: [{
-          name: 'Telegramme pro Sekunde',
-          type: 'area',
+          name: 'Telegramme pro Zeiteinheit',
+          type: 'column',
+          maxPointWidth: 15,
           fillColor: {
             linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
             stops: [
