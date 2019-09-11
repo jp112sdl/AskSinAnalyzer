@@ -35,6 +35,7 @@
       this.hightchart = Highcharts.stockChart(this.$refs.chart, {
         chart: {
           zoomType: 'x',
+          animation: false
         },
         xAxis: {
           events: {
@@ -72,6 +73,15 @@
             type: 'all',
             text: 'All'
           }]
+        },
+        plotOptions: {
+          column: {
+            pointPlacement : 'on',
+            groupPadding: 0.1,
+            dataGrouping: {
+              groupPixelWidth: 30
+            }
+          }
         },
         title: { text: 'Telegramme' },
         exporting: { enabled: false },
