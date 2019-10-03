@@ -68,9 +68,7 @@ time_t getNtpTime() {
       secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
       secsSince1900 |= (unsigned long)packetBuffer[43];
       DPRINTLN(" - NTP time was set from " + String(NetConfig.ntp));
-      time_t _now = secsSince1900 - 2208988800UL;
-      _now += summertime(_now) ? 7200 : 3600;
-      return _now;
+      return secsSince1900 - 2208988800UL;
     }
   }
   return 0;
