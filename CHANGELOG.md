@@ -1,3 +1,9 @@
+## Version 2.6
+- **ESP32:**
+  - Behebung von Stabilitätsproblemen
+  - kompiliert mit neuester ESP32 Board-Unterstützung 1.0.4
+  - ESPAsyncWebServer und AsyncTCP aktualisiert
+
 ## Version 2.5
 - **ESP32:**
   - Uhrzeit korrigiert (UTC für WebUI)
