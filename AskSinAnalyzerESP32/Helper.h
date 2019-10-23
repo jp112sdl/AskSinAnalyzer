@@ -76,6 +76,7 @@ void initLogTable() {
 }
 
 String loadAskSinAnalyzerDevListFromCCU() {
+  if (!RESOLVE_ADDRESS) return "NO_RESOLVE";
   if (isOnline && WiFi.status() == WL_CONNECTED) {
     DPRINTLN(F("- Loading DevList from CCU... "));
 #ifdef USE_DISPLAY
