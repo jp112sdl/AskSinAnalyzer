@@ -28,8 +28,8 @@
     mounted() {
       const $vm = this;
       const setTimeFilterDebounced = $vm.$debounce((min, max) => {
-        $vm.$root.timefilter.start = Math.floor(min/1000);
-        $vm.$root.timefilter.stop = Math.ceil(max/1000);
+        $vm.$root.timefilter.start = Math.floor(min / 1000);
+        $vm.$root.timefilter.stop = Math.ceil(max / 1000);
       }, 500);
 
       this.hightchart = Highcharts.stockChart(this.$refs.chart, {
@@ -69,18 +69,33 @@
         },
         title: { text: 'Telegramme' },
         exporting: { enabled: false },
-        // yAxis: { max: 12, tickAmount: 4 },
-        series: [{
-          name: 'Telegramme pro Sekunde',
-          type: 'area',
-          fillColor: {
-            linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-            stops: [
-              [0, Highcharts.getOptions().colors[0]],
-              [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0.2).get('rgba')]
-            ]
+        yAxis: [
+          {},
+          {}
+        ],
+        series: [
+          {
+            name: 'Telegramme pro Sekunde',
+            type: 'area',
+            fillColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+                [0, Highcharts.getOptions().colors[0]],
+                [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0.2).get('rgba')]
+              ]
+            },
           },
-        }]
+          {
+            name: 'DutyCycle',
+            type: 'line',
+            color: '#FF0000',
+            tooltip: {
+              valueDecimals: 2,
+              valueSuffix: ' %'
+            },
+            yAxis: 1,
+          },
+        ]
       });
       this.updateData();
     },
@@ -91,7 +106,7 @@
 
     methods: {
       updateData() {
-        if(!this.data.length) return;
+        if (!this.data.length) return;
 
         let m = new Map();
         this.data.forEach(t => {
@@ -103,6 +118,8 @@
         m.forEach((v, k) => data.push([k * 1000, v]));
         data = data.sort((a, b) => a[0] - b[0]);
         this.hightchart.series[0].setData(data, false);
+        const dcs = this.$root.data.dutycycles.map(dc => ([dc.tstamp * 1000, dc.bidcos]));
+        this.hightchart.series[1].setData(dcs, false);
         this.hightchart.redraw();
       }
     }

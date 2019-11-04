@@ -9,6 +9,7 @@ export default class EspService {
     currentVersion: null,
     latestVersion: null,
     devlistCreated: null,
+    dutycycles: [],
   };
   devlist = [];
   maxTelegrams = 100;
@@ -21,6 +22,7 @@ export default class EspService {
     this.maxTelegrams = maxTelegrams;
     this.refreshInterval = refreshInterval;
     this.resolveNames = resolveNames;
+    setInterval(() => this.genDutycycle(), 2*1000);
   }
 
   addTelegrams(telegrams) {
@@ -42,6 +44,31 @@ export default class EspService {
     });
     devices = [...devices].sort();
     this.data.devices.splice(0, this.data.devices.length, ...devices);
+  }
+
+  genDutycycle() {
+    // TODO: Rewrite to react to addTelegrams()
+    let dcBidcos = 0;
+    let dcHmip = 0;
+    const stopTstamp = Math.round((Date.now() - 60 * 60 * 1000) / 1000);
+    for (let i = this.data.telegrams.length - 1; i > 0; i--) {
+      const t = this.data.telegrams[i];
+      if (t.tstamp < stopTstamp) break;
+      // TODO: include broadcasts
+      // TODO: Fix HmIP-RF
+      if (t.fromSn === "00000000000000" || t.fromSn === "HmIP-RF") {
+        // HM-IP
+        dcHmip += (t.len + 1) * 0.81;
+      } else if (t.fromSn === "0000000000" || t.fromSn === "BidCoS-RF") {
+        // HM-RF
+        dcBidcos += (t.len + 1) * 0.81;
+      }
+    }
+    this.data.dutycycles.push({
+      tstamp: Math.round(Date.now() /1000),
+      hmip: dcHmip / 36, // (3600 / 100) to get %
+      bidcos: dcBidcos / 36,
+    });
   }
 
   async autorefresh() {
@@ -164,12 +191,14 @@ export default class EspService {
     if (fromResolved) {
       telegram.fromName = fromResolved.name;
       telegram.fromIsIp = fromResolved.isIp;
+      telegram.fromSn = fromResolved.serial;
     }
     const toResolved = this.resolveNameFromDevList(telegram.to);
     telegram.toNameResolved = toResolved !== null;
     if (toResolved) {
       telegram.toName = toResolved.name;
       telegram.toIsIp = toResolved.isIp;
+      telegram.toSn = toResolved.serial;
     }
   }
 
