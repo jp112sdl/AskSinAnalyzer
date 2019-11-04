@@ -25,6 +25,7 @@ before_deploy:
   - git clone --branch=gh-pages https://$GITHUB_TOKEN@github.com/$TRAVIS_REPO_SLUG.git gh-pages
   - cd gh-pages
   - rm -rf $TRAVIS_BRANCH
+  - mkdir -p $TRAVIS_BRANCH
   - mv ../ui/dist $TRAVIS_BRANCH
   - if [ -z "$(git status --porcelain)" ]; then travis_terminate 0 ; fi
   - git add $TRAVIS_BRANCH
