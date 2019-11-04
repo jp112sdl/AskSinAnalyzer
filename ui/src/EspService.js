@@ -58,16 +58,16 @@ export default class EspService {
       // TODO: Fix HmIP-RF
       if (t.fromSn === "00000000000000" || t.fromSn === "HmIP-RF") {
         // HM-IP
-        dcHmip += (t.len + 1) * 0.81;
+        dcHmip += (t.len + 1) * 0.81; // Transmission time in ms
       } else if (t.fromSn === "0000000000" || t.fromSn === "BidCoS-RF") {
         // HM-RF
-        dcBidcos += (t.len + 1) * 0.81;
+        dcBidcos += (t.len + 1) * 0.81; // Transmission time in ms
       }
     }
     this.data.dutycycles.push({
       tstamp: Math.round(Date.now() /1000),
-      hmip: dcHmip / 36, // (3600 / 100) to get %
-      bidcos: dcBidcos / 36,
+      hmip: dcHmip / 1000 / 3600 * 100,
+      bidcos: dcBidcos / 1000 / 3600 * 100,
     });
   }
 
