@@ -101,4 +101,4 @@ result = result.Replace("},]","}]");
 dom.GetObject(ID_SYSTEM_VARIABLES).Get(svDevList).State(result);
 Write(result);
 
-!Abfrage im Browser mit http://ccu2:8181/ret.exe?ret=dom.GetObject("AskSinAnalyzerDevList").Value()
+!Abfrage im Browser mit http://ccu2:8181/ret.exe?ret=dom.GetObject(ID_SYSTEM_VARIABLES).Get("AskSinAnalyzerDevList").Value()
