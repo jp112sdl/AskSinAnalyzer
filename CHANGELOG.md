@@ -1,3 +1,9 @@
+## Version 2.7
+- **ESP32:**
+  - Behebung von Stabilitätsproblemen
+    - Fix: es wird nicht mehr versucht, die CCU zu erreichen, wenn die Adressauflösung deaktiviert ist
+    - Fix: die Systemvariable "AskSinAnalyzerDevList" wird explizit als ID_SYSTEM_VARIABLES abgerufen
+
 ## Version 2.6
 - **ESP32:**
   - Behebung von Stabilitätsproblemen
