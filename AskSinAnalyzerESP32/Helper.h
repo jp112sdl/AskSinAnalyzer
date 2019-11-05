@@ -84,7 +84,8 @@ String loadAskSinAnalyzerDevListFromCCU() {
 #endif
     HTTPClient http;
     //http.setTimeout(HTTPTimeOut);
-    String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + CCU_SV + "%22).Value()";
+    //String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + CCU_SV + "%22).Value()";
+    String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(ID_SYSTEM_VARIABLES).Get(%22" + CCU_SV + "%22).Value()";
     //DPRINTLN("loadAskSinAnalyzerDevListFromCCU url: " + url);
     http.begin(url);
     int httpCode = http.GET();
