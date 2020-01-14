@@ -61,14 +61,30 @@ void receiveMessages() {
 #define STRPOS_TO_BEGIN       17
 #define STRPOS_TO_END         23
 
-void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
+bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
 #ifdef VDEBUG
-  DPRINTLN(F("######## PROCESSING NEW MESSAGE ########"));
+  DPRINTLN(F("# PROCESSING SERIAL DATA #"));
 #endif
-  DPRINTLN("I #" + String(b) + ": " + sb.Msg);
+
+  bool dataIsRSSIOnly = ((sb.Msg).length() == 3);
+
+  DPRINT("I ");
+  DPRINT(dataIsRSSIOnly ? "R" : "P");
+  DPRINT(" #");
+  DPRINT(String(b));
+  DPRINT(": ");
+  DPRINTLN(sb.Msg);
 
   String rssiIn = (sb.Msg).substring(STRPOS_RSSI_BEGIN, STRPOS_LENGTH_BEGIN);
   int rssi = -1 * (strtol(&rssiIn[0], NULL, 16) & 0xFF);
+
+  if (dataIsRSSIOnly) {
+    shiftRSSILogArray();
+    RSSILogTable[0].time = sb.t;
+    RSSILogTable[0].rssi = rssi;
+    if (rssiLogLength < MAX_RSSILOG_ENTRIES - 1) rssiLogLength++;
+    return false;
+  }
 
   String lengthIn = (sb.Msg).substring(STRPOS_LENGTH_BEGIN, STRPOS_COUNT_BEGIN);
   uint8_t len = (strtol(&lengthIn[0], NULL, 16) & 0xFF);
@@ -122,7 +138,7 @@ void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   dumpLogTableEntry(LogTable[0]);
   DPRINT(F("######## PROCESSING ")); DDEC(allCount); DPRINTLN(F(" END ########\n"));
 #endif
-
+  return true;
 }
 
 #endif

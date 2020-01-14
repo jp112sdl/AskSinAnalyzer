@@ -5,7 +5,6 @@
 // 2019-06-01 psi-4ward Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 //- -----------------------------------------------------------------------------------------------------------------------
 
-
 #define USE_DISPLAY
 #define WEB_BRANCH            "master"                  //only changed for development
 const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used system variable on the CCU containing the device list
@@ -64,6 +63,9 @@ U8G2_FOR_ADAFRUIT_GFX u8g;
 
 #define DISPLAY_LOG_LINE_HEIGHT  15
 #define DISPLAY_LOG_OFFSET_TOP   27
+enum Screens { TELEGRAM_LIST, RSSI_TEXT, RSSI_GRAPHIC, INFO };
+uint8_t currentScreen = TELEGRAM_LIST;
+uint16_t currentCircleColor = ILI9341_RED;
 #endif
 
 #define CSV_FILENAME                "/log.csv"
@@ -87,6 +89,7 @@ struct _HomeMaticConfig {
 } HomeMaticConfig;
 
 #define MAX_LOG_ENTRIES 51
+#define MAX_RSSILOG_ENTRIES 255
 #define SIZE_ADDRESS   (6+1)    // address has 6 chars
 #define SIZE_SERIAL    (10+1)   // serial has 10 chars
 #define SIZE_TYPE       32
@@ -109,6 +112,13 @@ struct _LogTable {
 uint16_t   logLength                  = 0;
 uint16_t   logLengthDisplay           = 0;
 
+struct _RSSILogTable {
+  time_t   time                       = 0;
+  int      rssi                       = -255;
+} RSSILogTable[MAX_RSSILOG_ENTRIES + 1];
+
+uint16_t   rssiLogLength                  = 0;
+
 struct _SerialBuffer {
   String   Msg            = "";
   time_t   t              = 0;
@@ -121,7 +131,6 @@ uint32_t allCount              = 0;
 unsigned long lastDebugMillis  = 0;
 bool     updating              = false;
 bool     formatfs              = false;
-bool     showInfoDisplayActive = false;
 bool     isOnline              = false;
 bool     timeOK                = false;
 bool     SPIFFSAvailable       = false;
@@ -169,7 +178,7 @@ void setup() {
   initTFT();
 #endif
 
-  initLogTable();
+  initLogTables();
 
   if (ONLINE_MODE) {
     if (!loadSystemConfig()) startWifiManager = true;
@@ -233,33 +242,70 @@ void loop() {
 
     receiveMessages();
 
-#ifdef USE_DISPLAY
-    if (ONLINE_MODE && (digitalRead(START_WIFIMANAGER_PIN) == LOW)) {
-      if (showInfoDisplayActive == false) {
-        showInfoDisplayActive = true;
-        showInfoDisplay();
-      }
-    } else if (showInfoDisplayActive == true && digitalRead(START_WIFIMANAGER_PIN) == HIGH) {
-      showInfoDisplayActive = false;
-      tft.fillRect(0, 15, tft.width(), tft.height(), ILI9341_BLACK);
-      drawRowLines();
-      refreshDisplayLog();
-    }
-#endif
-
     if (msgBufferCount > 0) {
       for (uint8_t b = 0; b < msgBufferCount; b++) {
-        fillLogTable(SerialBuffer[b], b);
-#ifdef USE_DISPLAY
-        if (logLengthDisplay < DISPLAY_LOG_LINES) logLengthDisplay++;
-        if (showInfoDisplayActive == false) {
-          refreshDisplayLog();
-        }
-#endif
+        bool isTelegram = fillLogTable(SerialBuffer[b], b);
+        if (isTelegram && logLengthDisplay < DISPLAY_LOG_LINES) logLengthDisplay++;
       }
       msgBufferCount = 0;
     }
 
+#ifdef USE_DISPLAY
+
+    static uint32_t last_allCount = 0;
+
+    static bool last_pinstate = HIGH;
+    static bool screenChanged = true;
+
+    //check for button press and set screen
+
+    if (digitalRead(START_WIFIMANAGER_PIN) == LOW && last_pinstate == HIGH) {
+      delay(100); //debounce
+      last_pinstate = LOW;
+      DPRINT(F("SWITCH SCREEN TO "));
+      switch (currentScreen) {
+        case TELEGRAM_LIST:
+          currentScreen = RSSI_TEXT;
+          DPRINTLN(F("RSSI_TEXT"));
+          break;
+        case RSSI_TEXT:
+          currentScreen = RSSI_GRAPHIC;
+          DPRINTLN(F("RSSI_GRAPHIC"));
+          break;
+        case RSSI_GRAPHIC:
+          currentScreen = ONLINE_MODE ? INFO : TELEGRAM_LIST;
+          DPRINTLN(F(ONLINE_MODE ? "INFO" : "TELEGRAM_LIST"));
+          break;
+        case INFO:
+          currentScreen = TELEGRAM_LIST;
+          DPRINTLN(F("TELEGRAM_LIST"));
+          break;
+      }
+      screenChanged = true;
+    } else if (digitalRead(START_WIFIMANAGER_PIN) == HIGH)
+      last_pinstate = HIGH;
+
+    //show selected screen
+    switch (currentScreen) {
+      case TELEGRAM_LIST:
+        if (screenChanged) refreshDisplayLog(true);
+        if (allCount != last_allCount) {
+          refreshDisplayLog(false);
+        }
+        break;
+      case RSSI_TEXT:
+        showRSSI_TEXTDisplay(screenChanged);
+        break;
+      case RSSI_GRAPHIC:
+        showRSSI_GRAPHICDisplay(screenChanged);
+        break;
+      case INFO:
+        showInfoDisplay(screenChanged);
+        break;
+    }
+
+    screenChanged = false;
+    last_allCount = allCount;
+#endif
   }
 }
-
