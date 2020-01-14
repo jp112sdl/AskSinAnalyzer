@@ -19,6 +19,7 @@ void drawStatusCircle(uint16_t color) {
   else
     tft.drawCircle(5, 5, 5, color);
 #endif
+  currentCircleColor = color;
 }
 
 void drawRowLines() {
@@ -50,17 +51,21 @@ void initTFT() {
   u8g.setFontDirection(0);
   u8g.setForegroundColor(ILI9341_WHITE);
   u8g.setBackgroundColor(ILI9341_BLACK);
-  drawStatusCircle(ILI9341_RED);
-  u8g.setFont(u8g2_font_9x15B_mr);
-  u8g.setCursor(0, 10);
-  u8g.println("   FROM        TO      RSSI LEN CNT");
-  u8g.setCursor(78, 10);
-  u8g.setForegroundColor(ILI9341_WHITE);
-  drawRowLines();
   DPRINTLN(F("- INIT TFT DONE."));
 }
 
-void refreshDisplayLog() {
+void refreshDisplayLog(bool firstrun) {
+  if (firstrun) {
+    tft.fillRect(0, 0, tft.width(), tft.height(), ILI9341_BLACK);
+    u8g.setFont(u8g2_font_9x15B_mr);
+    u8g.setCursor(0, 10);
+    u8g.println("   FROM        TO      RSSI LEN CNT");
+    u8g.setCursor(78, 10);
+    u8g.setForegroundColor(ILI9341_WHITE);
+    drawRowLines();
+    drawStatusCircle(currentCircleColor);
+
+  }
   for (uint8_t c = 0; c < logLengthDisplay; c++) {
     u8g.setCursor(0, DISPLAY_LOG_OFFSET_TOP + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c));
     u8g.setFont(u8g2_font_9x15_mr);
@@ -117,28 +122,114 @@ void refreshDisplayLog() {
   u8g.setFont(u8g2_font_7x13_mr);
   String allCntStr = String(allCount);
   int16_t allCntStrLen = u8g.getUTF8Width(allCntStr.c_str());
-  u8g.setCursor(88 - allCntStrLen/2, 10);
+  u8g.setCursor(88 - allCntStrLen / 2, 10);
   u8g.print("(#" + allCntStr + ")");
 }
 
 
-void showInfoDisplay() {
+void showInfoDisplay(bool firstrun) {
+  if (firstrun) {
+    tft.fillRect(0, 0, tft.width(), tft.height(), ILI9341_BLACK);
 
-  tft.fillRect(0, 15, tft.width(), tft.height(), ILI9341_BLACK);
+    u8g.setFont(u8g2_font_7x14_mr);
+    u8g.setForegroundColor(ILI9341_WHITE);
+    u8g.setCursor(0, 40);
 
-  u8g.setFont(u8g2_font_7x14_mr);
-  u8g.setForegroundColor(ILI9341_WHITE);
-  u8g.setCursor(0, 40);
-
-  u8g.print(F("Mac-Address: ")); u8g.println(WiFi.macAddress()); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
-  u8g.print(F("       SSID: ")); u8g.println(WiFi.SSID()); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
-  u8g.print(F("       RSSI: ")); u8g.print(WiFi.RSSI()); u8g.println(F(" dBm")); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
-  u8g.println();
-  u8g.print(F("         IP: ")); u8g.println(WiFi.localIP()); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
-  u8g.print(F("        NTP: ")); u8g.println(NetConfig.ntp); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
-  u8g.println();
-  u8g.print(F("     CCU IP: ")); u8g.println(HomeMaticConfig.ccuIP); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
+    u8g.print(F("     Mac-Address: ")); u8g.println(WiFi.macAddress()); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
+    u8g.print(F("            SSID: ")); u8g.println(WiFi.SSID()); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
+    u8g.print(F("            RSSI: ")); u8g.print(WiFi.RSSI()); u8g.println(F(" dBm")); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
+    u8g.println();
+    u8g.print(F("              IP: ")); u8g.println(WiFi.localIP()); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
+    u8g.print(F("             NTP: ")); u8g.println(NetConfig.ntp); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
+    u8g.println();
+    u8g.print(F("          CCU IP: ")); u8g.println(HomeMaticConfig.ccuIP); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
+  }
 }
 
+uint16_t centerPosition(const char * text) {
+  return (tft.width() / 2) - (u8g.getUTF8Width(text) / 2);
+}
+
+void showRSSI_TEXTDisplay(bool firstrun) {
+  static int last_rssi = 128;
+
+  if (firstrun) {
+    tft.fillRect(0, 0, tft.width(), tft.height(), ILI9341_BLACK);
+
+    u8g.setFont(u8g2_font_helvB24_tf);
+    u8g.setForegroundColor(ILI9341_WHITE);
+    const char * headertext = "RSSI - Level";
+    u8g.setCursor(centerPosition(headertext), 32);
+    u8g.print(headertext);
+
+    u8g.setFont(u8g2_font_helvB24_tr);
+    tft.drawRoundRect(60, 70, 200, 100, 4, ILI9341_LIGHTGREY);
+    u8g.setForegroundColor(ILI9341_GREEN);
+    u8g.setCursor(170, 134);
+    u8g.print("dBm");
+    last_rssi = 1;
+  }
+
+  if (last_rssi != RSSILogTable[0].rssi) {
+    uint8_t minus_width = u8g.getUTF8Width("-");
+
+    u8g.setForegroundColor(ILI9341_BLACK);
+    u8g.setCursor(96 - (last_rssi < -99 ? minus_width : 0), 134);
+    u8g.print(last_rssi);
+
+    u8g.setForegroundColor(ILI9341_GREEN);
+    u8g.setCursor(96 - (RSSILogTable[0].rssi < -99 ? minus_width : 0) , 134);
+    u8g.print(RSSILogTable[0].rssi);
+
+    last_rssi = RSSILogTable[0].rssi;
+  }
+}
+
+void showRSSI_GRAPHICDisplay(bool firstrun) {
+  const int8_t rss_min = -110;
+  const int8_t rss_max = -40;
+
+  if (firstrun) {
+    tft.fillRect(0, 0, tft.width(), tft.height(), ILI9341_BLACK);
+    tft.drawLine(30, 1, 30, 240, ILI9341_WHITE);
+
+    u8g.setFont(u8g2_font_6x10_tr);
+    u8g.setForegroundColor(ILI9341_WHITE);
+    u8g.setCursor(2, 226);
+    u8g.print(rss_min);
+    u8g.setCursor(8, 10);
+    u8g.print(rss_max);
+
+    for (uint8_t i = 0; i < 10; i++)
+      tft.drawLine(26, i * 22 + 15, 30, i * 22 + 15, ILI9341_WHITE);
+
+    tft.drawLine(0, 230, 320, 230, ILI9341_WHITE);
+  }
+
+  static uint32_t last_rssiLogLength = 0;
+  static int last_rssi = 128;
+
+  if (last_rssiLogLength != rssiLogLength) {
+    for (uint8_t i = 0; i < 57; i++) {
+      tft.fillRect(32 + (i * 6), 0, 5, 229, ILI9341_BLACK);
+
+      int8_t rss = (i >= rssiLogLength) ? rss_min : RSSILogTable[i].rssi;
+      uint8_t h = map(rss, rss_min, rss_max, 0, 229);
+
+      tft.fillRect(32 + (i * 6), 229 - h, 5, h, ILI9341_GREEN);
+    }
+
+    u8g.setForegroundColor(ILI9341_BLACK);
+    u8g.setCursor(2, 122);
+    u8g.print(last_rssi);
+
+    u8g.setForegroundColor(ILI9341_GREEN);
+    u8g.setCursor(2, 122);
+    u8g.print(RSSILogTable[0].rssi);
+
+    last_rssi = RSSILogTable[0].rssi;
+  }
+  last_rssiLogLength = rssiLogLength;
+}
 #endif
 #endif

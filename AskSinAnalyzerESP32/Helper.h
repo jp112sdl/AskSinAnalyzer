@@ -71,8 +71,9 @@ String getTyp(String in) {
   return typ;
 }
 
-void initLogTable() {
+void initLogTables() {
   memset(LogTable, 0, MAX_LOG_ENTRIES);
+  memset(RSSILogTable, 0, MAX_RSSILOG_ENTRIES);
 }
 
 String loadAskSinAnalyzerDevListFromCCU() {
@@ -178,6 +179,15 @@ void shiftLogArray() {
       memcpy(LogTable[c].flags, LogTable[c - 1].flags, SIZE_FLAGS);
       LogTable[c].time = LogTable[c - 1].time;
       LogTable[c].lognumber = LogTable[c - 1].lognumber;
+    }
+  }
+}
+
+void shiftRSSILogArray() {
+  if (rssiLogLength > 0) {
+    for (uint16_t c = rssiLogLength; c > 0; c--) {
+      RSSILogTable[c].rssi = RSSILogTable[c - 1].rssi;
+      RSSILogTable[c].time = RSSILogTable[c - 1].time;
     }
   }
 }
