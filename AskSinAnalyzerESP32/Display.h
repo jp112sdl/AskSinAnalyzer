@@ -146,11 +146,9 @@ void showInfoDisplay(bool firstrun) {
   }
 }
 
-uint16_t centerPosition(const char * text) {
-  return (tft.width() / 2) - (u8g.getUTF8Width(text) / 2);
-}
-
 void showRSSI_TEXTDisplay(bool firstrun) {
+  const int8_t rssi_min = -110;
+  const int8_t rssi_max = -20;
   static int last_rssi = 128;
 
   if (firstrun) {
@@ -159,46 +157,66 @@ void showRSSI_TEXTDisplay(bool firstrun) {
     u8g.setFont(u8g2_font_helvB24_tf);
     u8g.setForegroundColor(ILI9341_WHITE);
     const char * headertext = "RSSI - Level";
-    u8g.setCursor(centerPosition(headertext), 32);
-    u8g.print(headertext);
+    u8g.setCursor(102, 32);
+    u8g.print("RSSI - Level");
+
+    u8g.setFont(u8g2_font_helvB08_tr);
+    u8g.setForegroundColor(ILI9341_WHITE);
+    u8g.setCursor(2, 230);
+    u8g.print(rssi_min);
+    u8g.setCursor(8, 20);
+    u8g.print(rssi_max);
 
     u8g.setFont(u8g2_font_helvB24_tr);
-    tft.drawRoundRect(60, 70, 200, 100, 4, ILI9341_LIGHTGREY);
+    tft.drawRoundRect(95, 70, 200, 100, 4, ILI9341_LIGHTGREY);
+    tft.drawRoundRect(30, 6, 28, 228, 4, ILI9341_LIGHTGREY);
     u8g.setForegroundColor(ILI9341_GREEN);
-    u8g.setCursor(170, 134);
+    u8g.setCursor(190, 134);
     u8g.print("dBm");
+
     last_rssi = 1;
   }
 
   if (last_rssi != RSSILogTable[0].rssi) {
     uint8_t minus_width = u8g.getUTF8Width("-");
 
+    int8_t rssi = RSSILogTable[0].rssi;
+    if (rssi < rssi_min) rssi = rssi_min;
+    if (rssi > rssi_max) rssi = rssi_max;
+
     u8g.setForegroundColor(ILI9341_BLACK);
-    u8g.setCursor(96 - (last_rssi < -99 ? minus_width : 0), 134);
+    u8g.setCursor(131 - (last_rssi < -99 ? minus_width : 0), 134);
     u8g.print(last_rssi);
 
     u8g.setForegroundColor(ILI9341_GREEN);
-    u8g.setCursor(96 - (RSSILogTable[0].rssi < -99 ? minus_width : 0) , 134);
+    u8g.setCursor(131 - (RSSILogTable[0].rssi < -99 ? minus_width : 0) , 134);
     u8g.print(RSSILogTable[0].rssi);
+
+    const uint8_t bar_height = 220;
+
+    uint8_t h = map(rssi, rssi_min, rssi_max, 0, bar_height);
+    tft.fillRect(34, 10, 20, bar_height, ILI9341_BLACK);
+    tft.fillRect(34, bar_height - h + 4, 20, h, ILI9341_GREEN);
 
     last_rssi = RSSILogTable[0].rssi;
   }
 }
 
 void showRSSI_GRAPHICDisplay(bool firstrun) {
-  const int8_t rss_min = -110;
-  const int8_t rss_max = -40;
+  const int8_t rssi_min = -110;
+  const int8_t rssi_max = -20;
 
   if (firstrun) {
+
     tft.fillRect(0, 0, tft.width(), tft.height(), ILI9341_BLACK);
     tft.drawLine(30, 1, 30, 240, ILI9341_WHITE);
 
     u8g.setFont(u8g2_font_6x10_tr);
     u8g.setForegroundColor(ILI9341_WHITE);
     u8g.setCursor(2, 226);
-    u8g.print(rss_min);
+    u8g.print(rssi_min);
     u8g.setCursor(8, 10);
-    u8g.print(rss_max);
+    u8g.print(rssi_max);
 
     for (uint8_t i = 0; i < 10; i++)
       tft.drawLine(26, i * 22 + 15, 30, i * 22 + 15, ILI9341_WHITE);
@@ -206,30 +224,35 @@ void showRSSI_GRAPHICDisplay(bool firstrun) {
     tft.drawLine(0, 230, 320, 230, ILI9341_WHITE);
   }
 
-  static uint32_t last_rssiLogLength = 0;
+  static bool last_rssiValueAdded = true;
   static int last_rssi = 128;
 
-  if (last_rssiLogLength != rssiLogLength) {
+  if (last_rssiValueAdded != rssiValueAdded) {
     for (uint8_t i = 0; i < 57; i++) {
-      tft.fillRect(32 + (i * 6), 0, 5, 229, ILI9341_BLACK);
+      int8_t rssi = RSSILogTable[i].rssi;
+      if (i >= rssiLogLength || rssi < rssi_min) rssi = rssi_min;
+      if (rssi > rssi_max) rssi = rssi_max;
 
-      int8_t rss = (i >= rssiLogLength) ? rss_min : RSSILogTable[i].rssi;
-      uint8_t h = map(rss, rss_min, rss_max, 0, 229);
 
-      tft.fillRect(32 + (i * 6), 229 - h, 5, h, ILI9341_GREEN);
+      const uint8_t bar_height = 229;
+
+      uint8_t h = map(rssi, rssi_min, rssi_max, 0, bar_height);
+
+      tft.fillRect(32 + (i * 6), 0, 5, bar_height, ILI9341_BLACK);
+      tft.fillRect(32 + (i * 6), bar_height - h, 5, h, ILI9341_GREEN);
     }
 
     u8g.setForegroundColor(ILI9341_BLACK);
-    u8g.setCursor(2, 122);
+    u8g.setCursor(2, 120);
     u8g.print(last_rssi);
 
     u8g.setForegroundColor(ILI9341_GREEN);
-    u8g.setCursor(2, 122);
+    u8g.setCursor(2, 120);
     u8g.print(RSSILogTable[0].rssi);
 
     last_rssi = RSSILogTable[0].rssi;
   }
-  last_rssiLogLength = rssiLogLength;
+  last_rssiValueAdded = rssiValueAdded;
 }
 #endif
 #endif

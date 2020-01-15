@@ -83,6 +83,7 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
     RSSILogTable[0].time = sb.t;
     RSSILogTable[0].rssi = rssi;
     if (rssiLogLength < MAX_RSSILOG_ENTRIES - 1) rssiLogLength++;
+    rssiValueAdded = !rssiValueAdded;
     return false;
   }
 
