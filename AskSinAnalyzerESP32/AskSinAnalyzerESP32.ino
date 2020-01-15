@@ -112,9 +112,11 @@ struct _LogTable {
 uint16_t   logLength                  = 0;
 uint16_t   logLengthDisplay           = 0;
 
+enum RssiTypes { RSSITYPE_NONE, RSSITYPE_HMRF, RSSITYPE_HMIP };
 struct _RSSILogTable {
   time_t   time                       = 0;
   int      rssi                       = -255;
+  uint8_t  type                       = RSSITYPE_NONE;
 } RSSILogTable[MAX_RSSILOG_ENTRIES + 1];
 
 uint16_t   rssiLogLength                  = 0;
