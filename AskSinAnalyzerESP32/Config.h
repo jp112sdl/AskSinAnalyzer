@@ -13,6 +13,7 @@
 #define CONFIG_NTP                    "ntp"
 #define CONFIG_CCUIP                  "ccuip"
 #define CONFIG_BOOTCONFIGMODE         "bootConfigMode"
+#define CONFIG_RSSI_HISTOGRAMBARWIDTH "rssi_hbw"
 
 void dumpSystemConfig() {
   DPRINTLN(F("- dump config:"));
@@ -22,6 +23,7 @@ void dumpSystemConfig() {
   DPRINT(F(" - Static IP   : ")); DPRINTLN(NetConfig.ip);
   DPRINT(F(" - Static Mask : ")); DPRINTLN(NetConfig.netmask);
   DPRINT(F(" - Static GW   : ")); DPRINTLN(NetConfig.gw);
+  DPRINT(F(" - RSSI Hist.BW: ")); DPRINTLN(RSSIConfig.histogramBarWidth);
 }
 
 bool loadSystemConfig() {
@@ -43,6 +45,8 @@ bool loadSystemConfig() {
   configPreferences.getString(CONFIG_NETMASK, "0.0.0.0").toCharArray(NetConfig.netmask, IPSIZE, 0);
   configPreferences.getString(CONFIG_GW, "0.0.0.0").toCharArray(NetConfig.gw, IPSIZE, 0);
 
+  RSSIConfig.histogramBarWidth = configPreferences.getUChar(CONFIG_RSSI_HISTOGRAMBARWIDTH, 5);
+
   configPreferences.end();
   dumpSystemConfig();
   return true;
@@ -58,6 +62,7 @@ bool saveSystemConfig() {
   configPreferences.putString(CONFIG_NTP, NetConfig.ntp);
   configPreferences.putString(CONFIG_HOSTNAME, NetConfig.hostname);
   configPreferences.putString(CONFIG_CCUIP, HomeMaticConfig.ccuIP);
+  configPreferences.putUChar(CONFIG_RSSI_HISTOGRAMBARWIDTH, RSSIConfig.histogramBarWidth);
   delay(300);
   configPreferences.end();
   return true;

@@ -275,6 +275,15 @@ String createJSONFromLogTableEntry(_LogTable &lt) {
   return json;
 }
 
+String createJSONFromRSSILogTableEntry(_RSSILogTable &lt) {
+  String json = "{";
+  json += "\"tstamp\": " + String(lt.time) + ", ";
+  json += "\"rssi\": " + String(lt.rssi) + ", ";
+  json += "\"type\": " + String(lt.type);
+  json += "}";
+  return json;
+}
+
 void dumpLogTableEntry(_LogTable &lt) {
   DPRINT(F(" - fromAddress : ")); DPRINTLN(lt.fromAddress);
   DPRINT(F(" - fromSerial  : ")); DPRINTLN(lt.fromSerial);
