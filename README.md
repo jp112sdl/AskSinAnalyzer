@@ -14,4 +14,6 @@ und im Diskussions-Thread des [HomeMatic Forums](https://homematic-forum.de/foru
 
 <img src="Images/proto1.jpg" height=200 /> <img src="Images/proto2.jpg" height=200 /> <img src="Images/proto3.jpg" height=200 />
 <br/>
+<img src="Images/RSSI_Single.jpeg" height=200 /> <img src="Images/RSSI_NormalBar.jpeg" height=200 /> <img src="Images/RSSI_SmallBar.jpeg" height=200 />
+<br/>
 Prototyp
