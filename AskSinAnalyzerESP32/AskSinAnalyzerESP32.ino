@@ -88,12 +88,16 @@ struct _HomeMaticConfig {
   char ccuIP[IPSIZE]   = "";
 } HomeMaticConfig;
 
-#define MAX_LOG_ENTRIES 51
+struct _RSSIConfig {
+  uint8_t histogramBarWidth = 5;
+} RSSIConfig;
+
+#define MAX_LOG_ENTRIES      51
 #define MAX_RSSILOG_ENTRIES 255
-#define SIZE_ADDRESS   (6+1)    // address has 6 chars
-#define SIZE_SERIAL    (10+1)   // serial has 10 chars
-#define SIZE_TYPE       32
-#define SIZE_FLAGS      32
+#define SIZE_ADDRESS       (6+1)    // address has 6 chars
+#define SIZE_SERIAL        (10+1)   // serial has 10 chars
+#define SIZE_TYPE            32
+#define SIZE_FLAGS           32
 
 struct _LogTable {
   uint32_t lognumber                  = 0;

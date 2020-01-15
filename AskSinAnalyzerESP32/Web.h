@@ -122,6 +122,17 @@ void setConfig(AsyncWebServerRequest *request) {
     DPRINT(F("  - gw: ")); DPRINTLN(NetConfig.gw);
   }
 
+  if (request->hasParam("rssi_hbw", true)) {
+    AsyncWebParameter* p = request->getParam("rssi_hbw", true);
+    uint8_t val = atoi(p->value().c_str());
+    if (val > 0 && val <  64) {
+      RSSIConfig.histogramBarWidth = val;
+      DPRINT(F("  - rssi_hbw: ")); DPRINTLN(RSSIConfig.histogramBarWidth);
+    } else {
+      DPRINT(F("  - rssi_hbw OUT OF RANGE (0-63) : ")); DDEC(val);
+    }
+  }
+
   DPRINTLN(F("- setConfig END"));
 
   bool ok = saveSystemConfig();
@@ -163,13 +174,15 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"sdcardusedspacemb\":\"" + String(getSDCardUsedSpaceMB()) + "\"";
   json += ",";
-  json += "\"spiffssizekb\":" + String(getSPIFFSSizeKB());                                      
+  json += "\"spiffssizekb\":" + String(getSPIFFSSizeKB());
   json += ",";
-  json += "\"spiffsusedkb\":" + String(getSPIFFSUsedKB());                                       
+  json += "\"spiffsusedkb\":" + String(getSPIFFSUsedKB());
   json += ",";
   json += "\"boottime\":" + String(bootTime); // time must be UTC
   json += ",";
   json += "\"display\":" + String(HAS_DISPLAY);
+  json += ",";
+  json += "\"rssi_hbw\":" + String(RSSIConfig.histogramBarWidth);
   json += ",";
   json += "\"version_upper\":" + String(VERSION_UPPER);
   json += ",";
@@ -193,6 +206,21 @@ void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
     DPRINTLN(F("-> E: js == null"));
     request->send(422, "text/plain", "Fehler beim Abruf der SV");
   }
+}
+
+void getRSSILog(AsyncWebServerRequest * request) {
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  response->print("[");
+
+  for (uint8_t l = 0; l < _min(rssiLogLength, MAX_RSSILOG_ENTRIES); l++) {
+    String json = "";
+    if (l > 0) json += ",";
+    json += createJSONFromRSSILogTableEntry(RSSILogTable[l]);
+    response->print(json);
+  }
+
+  response->print("]");
+  request->send(response);
 }
 
 void getLogByLogNumber (AsyncWebServerRequest * request) {
@@ -284,7 +312,7 @@ void checkUpdate(String url) {
   if (updating == true) {
     updating = false;
     DPRINTLN(F("Check for Updates..."));
-   
+
     digitalWrite(AP_MODE_LED_PIN, HIGH);
     ESPhttpUpdate.rebootOnUpdate(false);
     t_httpUpdate_return ret = ESPhttpUpdate.update(url);
@@ -362,6 +390,10 @@ void initWebServer() {
 
   webServer.on("/getLogByLogNumber", HTTP_GET, [](AsyncWebServerRequest * request) {
     getLogByLogNumber(request);
+  });
+
+  webServer.on("/getRSSILog", HTTP_GET, [](AsyncWebServerRequest * request) {
+    getRSSILog(request);
   });
 
   webServer.on("/httpupdate", HTTP_GET, [](AsyncWebServerRequest * request) {
