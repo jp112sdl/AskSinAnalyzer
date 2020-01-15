@@ -147,9 +147,9 @@ void showInfoDisplay(bool firstrun) {
 }
 
 uint16_t getRssiForegroundColor(uint8_t type) {
-    uint16_t fgColor = ILI9341_GREEN;
-    if (type == RSSITYPE_HMRF) fgColor = ILI9341_YELLOW;
-    else if (type == RSSITYPE_HMIP) fgColor = ILI9341_BLUE;
+    uint16_t fgColor = ILI9341_YELLOW;
+    if (type == RSSITYPE_HMRF) fgColor = ILI9341_GREEN;
+    else if (type == RSSITYPE_HMIP) fgColor = ILI9341_CYAN;
     return fgColor;
 }
 
