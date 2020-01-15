@@ -157,8 +157,8 @@ void showRSSI_TEXTDisplay(bool firstrun) {
   const uint8_t bar_height  = 220;
   const uint8_t bar_start_x = 34;
   const uint8_t bar_width   = 20;
-  const int8_t  rssi_min    = -110;
-  const int8_t  rssi_max    = -20;
+  const int8_t  rssi_min    = -120;
+  const int8_t  rssi_max    =  -20;
   static int    last_rssi   = 128;
 
   if (firstrun) {
@@ -213,7 +213,7 @@ void showRSSI_TEXTDisplay(bool firstrun) {
 void showRSSI_GRAPHICDisplay(bool firstrun) {
   const uint8_t bar_height        = 229;
   const uint8_t bar_start_x       = 32;
-  const int8_t  rssi_min          = -110;
+  const int8_t  rssi_min          = -120;
   const int8_t  rssi_max          = -20;
   static bool last_rssiValueAdded = true;
   static int last_rssi            = 128;
