@@ -118,6 +118,7 @@ struct _RSSILogTable {
 } RSSILogTable[MAX_RSSILOG_ENTRIES + 1];
 
 uint16_t   rssiLogLength                  = 0;
+bool       rssiValueAdded                 = false;
 
 struct _SerialBuffer {
   String   Msg            = "";
