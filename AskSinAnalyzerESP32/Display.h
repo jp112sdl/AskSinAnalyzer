@@ -253,7 +253,7 @@ void showRSSI_GRAPHICDisplay(bool firstrun) {
     }
 
     u8g.setForegroundColor(ILI9341_BLACK);
-    u8g.setCursor(2, 120);
+    u8g.setCursor(2, 118);
     u8g.print(last_rssi);
 
     u8g.setForegroundColor(getRssiForegroundColor(RSSILogTable[0].type));
