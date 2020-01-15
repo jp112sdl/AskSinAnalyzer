@@ -188,8 +188,18 @@ void shiftRSSILogArray() {
     for (uint16_t c = rssiLogLength; c > 0; c--) {
       RSSILogTable[c].rssi = RSSILogTable[c - 1].rssi;
       RSSILogTable[c].time = RSSILogTable[c - 1].time;
+      RSSILogTable[c].type = RSSILogTable[c - 1].type;
     }
   }
+}
+
+void addRssiValueToRSSILogTable(int8_t rssi, time_t ts, uint8_t type) {
+  shiftRSSILogArray();
+  RSSILogTable[0].time = ts;
+  RSSILogTable[0].rssi = rssi;
+  RSSILogTable[0].type = type;
+  if (rssiLogLength < MAX_RSSILOG_ENTRIES - 1) rssiLogLength++;
+  rssiValueAdded = !rssiValueAdded;
 }
 
 String createCSVFromLogTableEntry(_LogTable lt, bool lng) {

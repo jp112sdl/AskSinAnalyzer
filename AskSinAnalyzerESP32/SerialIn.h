@@ -78,12 +78,9 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   String rssiIn = (sb.Msg).substring(STRPOS_RSSI_BEGIN, STRPOS_LENGTH_BEGIN);
   int rssi = -1 * (strtol(&rssiIn[0], NULL, 16) & 0xFF);
 
+  addRssiValueToRSSILogTable(rssi, sb.t, dataIsRSSIOnly ? RSSITYPE_NONE : RSSITYPE_HMRF);  
+
   if (dataIsRSSIOnly) {
-    shiftRSSILogArray();
-    RSSILogTable[0].time = sb.t;
-    RSSILogTable[0].rssi = rssi;
-    if (rssiLogLength < MAX_RSSILOG_ENTRIES - 1) rssiLogLength++;
-    rssiValueAdded = !rssiValueAdded;
     return false;
   }
 
@@ -125,6 +122,8 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   LogTable[0].cnt = cnt;
   memcpy(LogTable[0].typ, typ.c_str(), SIZE_TYPE);
   memcpy(LogTable[0].flags, flags.c_str(), SIZE_FLAGS);
+
+  if (flags.startsWith("HMIP_UNKNOWN")) RSSILogTable[0].type = RSSITYPE_HMIP; //alter RSSI value type to HMIP
 
   writeLogEntryToSD(LogTable[0]);
   writeLogEntryToWebSocket(LogTable[0]);

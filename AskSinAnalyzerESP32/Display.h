@@ -146,6 +146,13 @@ void showInfoDisplay(bool firstrun) {
   }
 }
 
+uint16_t getRssiForegroundColor(uint8_t type) {
+    uint16_t fgColor = ILI9341_GREEN;
+    if (type == RSSITYPE_HMRF) fgColor = ILI9341_YELLOW;
+    else if (type == RSSITYPE_HMIP) fgColor = ILI9341_BLUE;
+    return fgColor;
+}
+
 void showRSSI_TEXTDisplay(bool firstrun) {
   const int8_t rssi_min = -110;
   const int8_t rssi_max = -20;
@@ -188,7 +195,7 @@ void showRSSI_TEXTDisplay(bool firstrun) {
     u8g.setCursor(131 - (last_rssi < -99 ? minus_width : 0), 134);
     u8g.print(last_rssi);
 
-    u8g.setForegroundColor(ILI9341_GREEN);
+    u8g.setForegroundColor(getRssiForegroundColor(RSSILogTable[0].type));
     u8g.setCursor(131 - (RSSILogTable[0].rssi < -99 ? minus_width : 0) , 134);
     u8g.print(RSSILogTable[0].rssi);
 
@@ -196,7 +203,7 @@ void showRSSI_TEXTDisplay(bool firstrun) {
 
     uint8_t h = map(rssi, rssi_min, rssi_max, 0, bar_height);
     tft.fillRect(34, 10, 20, bar_height, ILI9341_BLACK);
-    tft.fillRect(34, bar_height - h + 4, 20, h, ILI9341_GREEN);
+    tft.fillRect(34, bar_height - h + 4, 20, h, getRssiForegroundColor(RSSILogTable[0].type));
 
     last_rssi = RSSILogTable[0].rssi;
   }
@@ -233,21 +240,20 @@ void showRSSI_GRAPHICDisplay(bool firstrun) {
       if (i >= rssiLogLength || rssi < rssi_min) rssi = rssi_min;
       if (rssi > rssi_max) rssi = rssi_max;
 
-
       const uint8_t bar_height = 229;
 
       uint8_t h = map(rssi, rssi_min, rssi_max, 0, bar_height);
 
       tft.fillRect(32 + (i * 6), 0, 5, bar_height, ILI9341_BLACK);
-      tft.fillRect(32 + (i * 6), bar_height - h, 5, h, ILI9341_GREEN);
+      tft.fillRect(32 + (i * 6), bar_height - h, 5, h, getRssiForegroundColor(RSSILogTable[i].type));
     }
 
     u8g.setForegroundColor(ILI9341_BLACK);
     u8g.setCursor(2, 120);
     u8g.print(last_rssi);
 
-    u8g.setForegroundColor(ILI9341_GREEN);
-    u8g.setCursor(2, 120);
+    u8g.setForegroundColor(getRssiForegroundColor(RSSILogTable[0].type));
+    u8g.setCursor(2, 118);
     u8g.print(RSSILogTable[0].rssi);
 
     last_rssi = RSSILogTable[0].rssi;
