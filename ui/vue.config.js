@@ -11,6 +11,10 @@ module.exports = {
     /[\\\/]node_modules[\\\/]quasar[\\\/]/
   ],
 
+  devServer: {
+    proxy: 'http://localhost:3000'
+  },
+
   chainWebpack: config => {
     config.plugins.delete('preload');
     config.plugins.delete('prefetch');
