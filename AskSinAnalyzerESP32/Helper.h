@@ -76,18 +76,34 @@ void initLogTables() {
   memset(RSSILogTable, 0, MAX_RSSILOG_ENTRIES);
 }
 
-String loadAskSinAnalyzerDevListFromCCU() {
+String fetchAskSinAnalyzerDevList() {
   if (!RESOLVE_ADDRESS) return "NO_RESOLVE";
   if (isOnline && WiFi.status() == WL_CONNECTED) {
-    DPRINTLN(F("- Loading DevList from CCU... "));
+    DPRINT(F("- Loading DevList from ")); DPRINT(HomeMaticConfig.backendType == BT_CCU ? "CCU " : "FHEM ");
 #ifdef USE_DISPLAY
     drawStatusCircle(ILI9341_BLUE);
 #endif
     HTTPClient http;
+    String url = "";
     //http.setTimeout(HTTPTimeOut);
     //String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + CCU_SV + "%22).Value()";
-    String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(ID_SYSTEM_VARIABLES).Get(%22" + CCU_SV + "%22).Value()";
-    //DPRINTLN("loadAskSinAnalyzerDevListFromCCU url: " + url);
+    switch (HomeMaticConfig.backendType) {
+      case BT_CCU:
+        url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(ID_SYSTEM_VARIABLES).Get(%22" + CCU_SV + "%22).Value()";
+        break;
+
+      case BT_FHEM:
+        url = "http://" + String(HomeMaticConfig.ccuIP) + ":8083/fhem?cmd={printHMDevs()}&XHR=1";
+        break;
+
+      default:
+        DPRINTLN(F(" - fetchAskSinAnalyzerDevList: Empty URL?"));
+        drawStatusCircle(ILI9341_RED);
+        return "ERROR";
+        break;
+
+    }
+    DPRINTLN("fetchAskSinAnalyzerDevList url: " + url);
     http.begin(url);
     int httpCode = http.GET();
     String payload = "ERROR";
@@ -99,8 +115,10 @@ String loadAskSinAnalyzerDevListFromCCU() {
     }
     http.end();
 
-    payload = payload.substring(payload.indexOf("<ret>"));
-    payload = payload.substring(5, payload.indexOf("</ret>"));
+    if (HomeMaticConfig.backendType == BT_CCU) {
+      payload = payload.substring(payload.indexOf("<ret>"));
+      payload = payload.substring(5, payload.indexOf("</ret>"));
+    }
     payload.replace("&quot;", "\"");
     //DPRINTLN("result: " + payload);
 #ifdef USE_DISPLAY
@@ -109,7 +127,7 @@ String loadAskSinAnalyzerDevListFromCCU() {
     return payload;
   }
 
-  DPRINTLN(" - loadAskSinAnalyzerDevListFromCCU: ERROR");
+  DPRINTLN(" - fetchAskSinAnalyzerDevList: ERROR");
 #ifdef USE_DISPLAY
   drawStatusCircle(ILI9341_RED);
 #endif

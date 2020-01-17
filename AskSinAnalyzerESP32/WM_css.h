@@ -3,7 +3,7 @@
 // 2019-06-01 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 //- -----------------------------------------------------------------------------------------------------------------------
 
-const char HTTP_STYLE[] PROGMEM = R"=====(
+const char WM_HTTP_STYLE[] PROGMEM = R"=====(
 <style>
   .c {
     text-align: center;
@@ -41,7 +41,7 @@ const char HTTP_STYLE[] PROGMEM = R"=====(
   
   .cob { 
     border: 1px solid #ccc; 
-    width: 180px; 
+    width: 100px; 
     border-radius: 3px; 
     overflow: hidden; 
     background: #fafafa no-repeat 90% 50%;
@@ -72,4 +72,3 @@ const char HTTP_STYLE[] PROGMEM = R"=====(
   }
 </style>
 )=====";
-
