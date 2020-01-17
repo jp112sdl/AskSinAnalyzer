@@ -166,7 +166,6 @@ void showRSSI_TEXTDisplay(bool firstrun) {
 
     u8g.setFont(u8g2_font_helvB24_tf);
     u8g.setForegroundColor(ILI9341_WHITE);
-    const char * headertext = "RSSI - Level";
     u8g.setCursor(102, 32);
     u8g.print("RSSI - Level");
 

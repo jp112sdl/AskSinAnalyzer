@@ -96,7 +96,7 @@ void setConfig(AsyncWebServerRequest *request) {
     AsyncWebParameter* p = request->getParam("backend", true);
 
     uint8_t val = atoi(p->value().c_str());
-    if (val == BT_CCU || val ==  BT_FHEM) {
+    if (val == BT_CCU || val ==  BT_OTHER) {
       HomeMaticConfig.backendType = val;
       DPRINT(F("  - backend: ")); DPRINTLN(HomeMaticConfig.backendType);
     } else {
