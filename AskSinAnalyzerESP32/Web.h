@@ -212,7 +212,8 @@ void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
   DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevListJSON"));
   String js = fetchAskSinAnalyzerDevList();
   if (js != "null") {
-    AsyncResponseStream *response = request->beginResponseStream("application/json;charset=iso-8859-1");
+    String charset = (HomeMaticConfig.backendType == BT_CCU) ? "iso-8859-1" : "utf-8";
+    AsyncResponseStream *response = request->beginResponseStream("application/json;charset="+charset);
     createJSONDevList(js);  //refresh local DevList
     response->print(js);    //send DevList to Web
     request->send(response);
