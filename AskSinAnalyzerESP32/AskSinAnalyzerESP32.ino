@@ -84,10 +84,11 @@ struct _NetConfig {
   char ntp[VARIABLESIZE]      = DEFAULT_NTP_SERVER;
 } NetConfig;
 
-enum BackendTypes { BT_CCU = 0, BT_FHEM };
+enum BackendTypes { BT_CCU, BT_OTHER };
 struct _HomeMaticConfig {
-  char ccuIP[IPSIZE]   = "";
-  bool backendType     = BT_CCU;
+  char ccuIP[IPSIZE]            = "";
+  uint8_t backendType           = BT_CCU;
+  char backendUrl[VARIABLESIZE] = "";
 } HomeMaticConfig;
 
 struct _RSSIConfig {

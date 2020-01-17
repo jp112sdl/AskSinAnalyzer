@@ -26,6 +26,7 @@
 #include <memory>
 
 #include "WM_css.h"
+#include "WM_js.h"
 
 
 #if defined(ESP8266)
@@ -39,7 +40,6 @@ extern "C" {
 #endif
 
 const char WM_HTTP_HEAD[] PROGMEM          = "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\"/><title>{v}</title>";
-const char WM_HTTP_SCRIPT[] PROGMEM          = "<script>function c(l){document.getElementById('s').value=l.innerText||l.textContent;document.getElementById('p').focus();}</script>";
 const char WM_HTTP_HEAD_END[] PROGMEM        = "</head><body><div style='text-align:left;display:inline-block;min-width:260px;'>";
 const char WM_HTTP_PORTAL_OPTIONS[] PROGMEM  = "<form action=\"/wifi\" method=\"post\"><button>AskSinAnalyzer konfigurieren</button></form><br/><br/><form action=\"/i\" method=\"get\"><button>ESP32 Info</button></form><br/><form action=\"/sformat\" method=\"get\"><button>SPIFFS formatieren</button></form><br/><form action=\"/r\" method=\"post\"><button>Restart</button></form>";
 const char WM_HTTP_ITEM[] PROGMEM            = "<div><a href='#p' onclick='c(this)'>{v}</a>&nbsp;<span class='q {i}'>{r}%</span></div>";
@@ -52,7 +52,7 @@ const char WM_HTTP_END[] PROGMEM             = "</div></body></html>";
 
 const char WM_HTTP_FORM_PARAM_INPUT[] PROGMEM= "<div id='div_{i}'><input type='text' id='{i}' name='{n}' length={l} placeholder='{p}' value='{v}' {c}></div>";
 const char WM_HTTP_FORM_PARAM_CKB[] PROGMEM   = "<div id='div_{i}'><label for='{i}'>{p}</label><span class='ckb'><input id='{i}' type=\"checkbox\" name='{n}' {v} value=1></span></div>";
-const char WM_HTTP_FORM_PARAM_COB[] PROGMEM   = "<div id='div_{i}'><label for='{i}'>{p}</label><span class='cob ckb'><select id='{i}' name=\"{n}\">{c}</select></span></div>";
+const char WM_HTTP_FORM_PARAM_COB[] PROGMEM   = "<div id='div_{i}'><label for='{i}'>{p}</label><span class='cob ckb'><select id='{i}' name=\"{n}\" onchange='setBackendType()'>{c}</select></span></div>";
 const char WM_HTTP_FORM_PARAM_PWD[] PROGMEM   = "<div id='div_{i}'><input type='password' id='{i}' name='{n}' length={l} placeholder='{p}' value='{v}' {c}></div>";
 
 

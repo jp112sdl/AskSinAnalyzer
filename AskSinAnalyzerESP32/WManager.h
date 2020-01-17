@@ -97,18 +97,19 @@ bool doWifiConnect() {
     WiFiManagerParameter custom_gw("custom_gw", "Gateway",  (String(NetConfig.gw) != "0.0.0.0") ? NetConfig.gw : "", IPSIZE, 0, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
     WiFiManagerParameter custom_hostname("custom_hostname", "Hostname (leave blank to reset to default)", NetConfig.hostname, VARIABLESIZE, 0, "pattern='[A-Za-z0-9_ -.]+'");
     WiFiManagerParameter custom_ntp("custom_ntp", "NTP-Server (leave blank to reset to default)", NetConfig.ntp, VARIABLESIZE, 0, "pattern='[A-Za-z0-9_ -.]+'");
-    WiFiManagerParameter custom_ccuip("ccu", "IP der CCU", HomeMaticConfig.ccuIP, IPSIZE, 0, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
+    WiFiManagerParameter custom_ccuip("ccu", "CCU IP", HomeMaticConfig.ccuIP, IPSIZE, 0, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
+    WiFiManagerParameter custom_backendurl("backendurl", "Backend URL", HomeMaticConfig.backendUrl, VARIABLESIZE, 0, "");
 
     String backend = "";
     switch (HomeMaticConfig.backendType) {
       case BT_CCU:
-        backend = F("<option selected value='0'>CCU</option><option value='1'>FHEM</option>");
+        backend = F("<option selected value='0'>CCU</option><option value='1'>Other</option>");
         break;
-      case BT_FHEM:
-        backend = F("<option value='0'>CCU</option><option selected value='1'>FHEM</option>");
+      case BT_OTHER:
+        backend = F("<option value='0'>CCU</option><option selected value='1'>Other</option>");
         break;
       default:
-        backend = F("<option value='0'>CCU</option><option value='1'>FHEM</option>");
+        backend = F("<option value='0'>CCU</option><option value='1'>Other</option>");
         break;
     }
     WiFiManagerParameter custom_backendtype("backendtype", "Backend", "", 8, 2, backend.c_str());
@@ -119,8 +120,9 @@ bool doWifiConnect() {
     //wifiManager.setSTAStaticIPConfig(IPAddress(10, 0, 1, 99), IPAddress(10, 0, 1, 1), IPAddress(255, 255, 255, 0));
     WiFi.mode(WIFI_STA);
 
-    wifiManager.addParameter(&custom_ccuip);
     wifiManager.addParameter(&custom_backendtype);
+    wifiManager.addParameter(&custom_ccuip);
+    wifiManager.addParameter(&custom_backendurl);
     wifiManager.addParameter(&custom_ip);
     wifiManager.addParameter(&custom_netmask);
     wifiManager.addParameter(&custom_gw);
@@ -171,6 +173,7 @@ bool doWifiConnect() {
       }
 
       strcpy(HomeMaticConfig.ccuIP, custom_ccuip.getValue());
+      strcpy(HomeMaticConfig.backendUrl, custom_backendurl.getValue());
       HomeMaticConfig.backendType = (atoi(custom_backendtype.getValue()));
 
       saveSystemConfig();

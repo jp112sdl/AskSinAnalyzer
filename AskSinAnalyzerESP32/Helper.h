@@ -86,14 +86,13 @@ String fetchAskSinAnalyzerDevList() {
     HTTPClient http;
     String url = "";
     //http.setTimeout(HTTPTimeOut);
-    //String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + CCU_SV + "%22).Value()";
     switch (HomeMaticConfig.backendType) {
       case BT_CCU:
         url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(ID_SYSTEM_VARIABLES).Get(%22" + CCU_SV + "%22).Value()";
         break;
 
-      case BT_FHEM:
-        url = "http://" + String(HomeMaticConfig.ccuIP) + ":8083/fhem?cmd={printHMDevs()}&XHR=1";
+      case BT_OTHER:
+        url = String(HomeMaticConfig.backendUrl);
         break;
 
       default:
