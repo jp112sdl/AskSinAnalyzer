@@ -92,12 +92,26 @@ bool doWifiConnect() {
   } else {
     digitalWrite(AP_MODE_LED_PIN, HIGH);
     WiFiManager wifiManager;
-    WiFiManagerParameter custom_ip("custom_ip", "IP-Adresse", (String(NetConfig.ip) != "0.0.0.0") ? NetConfig.ip : "", IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
-    WiFiManagerParameter custom_netmask("custom_netmask", "Netzmaske", (String(NetConfig.netmask) != "0.0.0.0") ? NetConfig.netmask : "", IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
-    WiFiManagerParameter custom_gw("custom_gw", "Gateway",  (String(NetConfig.gw) != "0.0.0.0") ? NetConfig.gw : "", IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
-    WiFiManagerParameter custom_hostname("custom_hostname", "Hostname (leave blank to reset to default)", NetConfig.hostname, VARIABLESIZE, "pattern='[A-Za-z0-9_ -.]+'");
-    WiFiManagerParameter custom_ntp("custom_ntp", "NTP-Server (leave blank to reset to default)", NetConfig.ntp, VARIABLESIZE, "pattern='[A-Za-z0-9_ -.]+'");
-    WiFiManagerParameter custom_ccuip("ccu", "IP der CCU", HomeMaticConfig.ccuIP, IPSIZE, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
+    WiFiManagerParameter custom_ip("custom_ip", "IP-Adresse", (String(NetConfig.ip) != "0.0.0.0") ? NetConfig.ip : "", IPSIZE, 0, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
+    WiFiManagerParameter custom_netmask("custom_netmask", "Netzmaske", (String(NetConfig.netmask) != "0.0.0.0") ? NetConfig.netmask : "", IPSIZE, 0, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
+    WiFiManagerParameter custom_gw("custom_gw", "Gateway",  (String(NetConfig.gw) != "0.0.0.0") ? NetConfig.gw : "", IPSIZE, 0, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
+    WiFiManagerParameter custom_hostname("custom_hostname", "Hostname (leave blank to reset to default)", NetConfig.hostname, VARIABLESIZE, 0, "pattern='[A-Za-z0-9_ -.]+'");
+    WiFiManagerParameter custom_ntp("custom_ntp", "NTP-Server (leave blank to reset to default)", NetConfig.ntp, VARIABLESIZE, 0, "pattern='[A-Za-z0-9_ -.]+'");
+    WiFiManagerParameter custom_ccuip("ccu", "IP der CCU", HomeMaticConfig.ccuIP, IPSIZE, 0, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
+
+    String backend = "";
+    switch (HomeMaticConfig.backendType) {
+      case BT_CCU:
+        backend = F("<option selected value='0'>CCU</option><option value='1'>FHEM</option>");
+        break;
+      case BT_FHEM:
+        backend = F("<option value='0'>CCU</option><option selected value='1'>FHEM</option>");
+        break;
+      default:
+        backend = F("<option value='0'>CCU</option><option value='1'>FHEM</option>");
+        break;
+    }
+    WiFiManagerParameter custom_backendtype("backendtype", "Backend", "", 8, 2, backend.c_str());
 
     wifiManager.setSaveConfigCallback(saveConfigCallback);
 
@@ -106,6 +120,7 @@ bool doWifiConnect() {
     WiFi.mode(WIFI_STA);
 
     wifiManager.addParameter(&custom_ccuip);
+    wifiManager.addParameter(&custom_backendtype);
     wifiManager.addParameter(&custom_ip);
     wifiManager.addParameter(&custom_netmask);
     wifiManager.addParameter(&custom_gw);
@@ -156,6 +171,7 @@ bool doWifiConnect() {
       }
 
       strcpy(HomeMaticConfig.ccuIP, custom_ccuip.getValue());
+      HomeMaticConfig.backendType = (atoi(custom_backendtype.getValue()));
 
       saveSystemConfig();
       digitalWrite(AP_MODE_LED_PIN, LOW);

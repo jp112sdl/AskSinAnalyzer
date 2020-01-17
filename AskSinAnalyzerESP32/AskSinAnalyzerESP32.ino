@@ -84,8 +84,10 @@ struct _NetConfig {
   char ntp[VARIABLESIZE]      = DEFAULT_NTP_SERVER;
 } NetConfig;
 
+enum BackendTypes { BT_CCU = 0, BT_FHEM };
 struct _HomeMaticConfig {
   char ccuIP[IPSIZE]   = "";
+  bool backendType     = BT_CCU;
 } HomeMaticConfig;
 
 struct _RSSIConfig {
@@ -213,7 +215,7 @@ void setup() {
     DPRINT(F("- INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE (" + getDatum(now()) + " " + getUhrzeit(now()) + ")" : "NOT AVAILABLE");
     initWebServer();
     DPRINTLN(F("- INIT WEBSERVER DONE."));
-    createJSONDevList(loadAskSinAnalyzerDevListFromCCU());
+    createJSONDevList(fetchAskSinAnalyzerDevList());
     DPRINTLN(F("DONE"));
   }
 

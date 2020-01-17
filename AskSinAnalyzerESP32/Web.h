@@ -92,6 +92,18 @@ void setConfig(AsyncWebServerRequest *request) {
     DPRINT(F("  - ccuip: ")); DPRINTLN(HomeMaticConfig.ccuIP);
   }
 
+  if (request->hasParam("backend", true)) {
+    AsyncWebParameter* p = request->getParam("backend", true);
+
+    uint8_t val = atoi(p->value().c_str());
+    if (val == BT_CCU || val ==  BT_FHEM) {
+      HomeMaticConfig.backendType = val;
+      DPRINT(F("  - backend: ")); DPRINTLN(HomeMaticConfig.backendType);
+    } else {
+      DPRINT(F("  - backend OUT OF RANGE : ")); DDEC(val);
+    }
+  }
+
   if (request->hasParam("ntp", true)) {
     AsyncWebParameter* p = request->getParam("ntp", true);
     p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
@@ -164,6 +176,8 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"ccuip\":\"" + String(HomeMaticConfig.ccuIP) + "\"";
   json += ",";
+  json += "\"backend\":" + String(HomeMaticConfig.backendType);
+  json += ",";
   json += "\"resolve\":" + String(RESOLVE_ADDRESS);
   json += ",";
   json += "\"sdcardavailable\":" + String(sdAvailable);
@@ -196,7 +210,7 @@ void getConfig (AsyncWebServerRequest *request) {
 
 void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
   DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevListJSON"));
-  String js = loadAskSinAnalyzerDevListFromCCU();
+  String js = fetchAskSinAnalyzerDevList();
   if (js != "null") {
     AsyncResponseStream *response = request->beginResponseStream("application/json;charset=iso-8859-1");
     createJSONDevList(js);  //refresh local DevList

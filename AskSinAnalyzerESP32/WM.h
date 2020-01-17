@@ -38,17 +38,23 @@ extern "C" {
 #define ESP_getChipId()   ((uint32_t)ESP.getEfuseMac())
 #endif
 
-const char HTTP_HEADWM[] PROGMEM          = "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\"/><title>{v}</title>";
-const char HTTP_SCRIPT[] PROGMEM          = "<script>function c(l){document.getElementById('s').value=l.innerText||l.textContent;document.getElementById('p').focus();}</script>";
-const char HTTP_HEAD_END[] PROGMEM        = "</head><body><div style='text-align:left;display:inline-block;min-width:260px;'>";
-const char HTTP_PORTAL_OPTIONS[] PROGMEM  = "<form action=\"/wifi\" method=\"post\"><button>AskSinAnalyzer konfigurieren</button></form><br/><br/><form action=\"/i\" method=\"get\"><button>ESP32 Info</button></form><br/><form action=\"/sformat\" method=\"get\"><button>SPIFFS formatieren</button></form><br/><form action=\"/r\" method=\"post\"><button>Restart</button></form>";
-const char HTTP_ITEM[] PROGMEM            = "<div><a href='#p' onclick='c(this)'>{v}</a>&nbsp;<span class='q {i}'>{r}%</span></div>";
-const char HTTP_FORM_START[] PROGMEM      = "<form method='get' action='wifisave'><input type='text' id='s' name='s' length=32 placeholder='SSID'><br/><input id='p' name='p' length=64 type='password' placeholder='Passwort'><br/>";
-const char HTTP_FORM_PARAM[] PROGMEM      = "<br/><input type='text' id='{i}' name='{n}' length={l} placeholder='{p}' value='{v}' {c}>";
-const char HTTP_FORM_END[] PROGMEM        = "<br/><button type='submit'>Speichern</button></form>";
-const char HTTP_SCAN_LINK[] PROGMEM       = "<br/><div class=\"c\"><a href=\"/wifi\">Re-Scan APs</a></div>";
-const char HTTP_SAVED[] PROGMEM           = "<div>Credentials Saved<br />Trying to connect AskSinAnalyzer to network.<br />If it fails reconnect to AP to try again</div>";
-const char HTTP_END[] PROGMEM             = "</div></body></html>";
+const char WM_HTTP_HEAD[] PROGMEM          = "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\"/><title>{v}</title>";
+const char WM_HTTP_SCRIPT[] PROGMEM          = "<script>function c(l){document.getElementById('s').value=l.innerText||l.textContent;document.getElementById('p').focus();}</script>";
+const char WM_HTTP_HEAD_END[] PROGMEM        = "</head><body><div style='text-align:left;display:inline-block;min-width:260px;'>";
+const char WM_HTTP_PORTAL_OPTIONS[] PROGMEM  = "<form action=\"/wifi\" method=\"post\"><button>AskSinAnalyzer konfigurieren</button></form><br/><br/><form action=\"/i\" method=\"get\"><button>ESP32 Info</button></form><br/><form action=\"/sformat\" method=\"get\"><button>SPIFFS formatieren</button></form><br/><form action=\"/r\" method=\"post\"><button>Restart</button></form>";
+const char WM_HTTP_ITEM[] PROGMEM            = "<div><a href='#p' onclick='c(this)'>{v}</a>&nbsp;<span class='q {i}'>{r}%</span></div>";
+const char WM_HTTP_FORM_START[] PROGMEM      = "<form method='get' action='wifisave'><div id='div_ssid'><input type='text' id='s' name='s' length=32 placeholder='SSID'></div><div id='div_psk'><input id='p' name='p' length=64 type='password' placeholder='Passwort'></div>";
+const char WM_HTTP_FORM_PARAM[] PROGMEM      = "<br/><input type='text' id='{i}' name='{n}' length={l} placeholder='{p}' value='{v}' {c}>";
+const char WM_HTTP_FORM_END[] PROGMEM        = "<br/><button type='submit'>Speichern</button></form>";
+const char WM_HTTP_SCAN_LINK[] PROGMEM       = "<br/><div class=\"c\"><a href=\"/wifi\">Re-Scan APs</a></div>";
+const char WM_HTTP_SAVED[] PROGMEM           = "<div>Credentials Saved<br />Trying to connect AskSinAnalyzer to network.<br />If it fails reconnect to AP to try again</div>";
+const char WM_HTTP_END[] PROGMEM             = "</div></body></html>";
+
+const char WM_HTTP_FORM_PARAM_INPUT[] PROGMEM= "<div id='div_{i}'><input type='text' id='{i}' name='{n}' length={l} placeholder='{p}' value='{v}' {c}></div>";
+const char WM_HTTP_FORM_PARAM_CKB[] PROGMEM   = "<div id='div_{i}'><label for='{i}'>{p}</label><span class='ckb'><input id='{i}' type=\"checkbox\" name='{n}' {v} value=1></span></div>";
+const char WM_HTTP_FORM_PARAM_COB[] PROGMEM   = "<div id='div_{i}'><label for='{i}'>{p}</label><span class='cob ckb'><select id='{i}' name=\"{n}\">{c}</select></span></div>";
+const char WM_HTTP_FORM_PARAM_PWD[] PROGMEM   = "<div id='div_{i}'><input type='password' id='{i}' name='{n}' length={l} placeholder='{p}' value='{v}' {c}></div>";
+
 
 #define WIFI_MANAGER_MAX_PARAMS 10
 
@@ -56,21 +62,24 @@ class WiFiManagerParameter {
   public:
     WiFiManagerParameter(const char *custom);
     WiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length);
-    WiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom);
+    WiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length, byte type);
+    WiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length, byte type, const char *custom);
 
     const char *getID();
     const char *getValue();
     const char *getPlaceholder();
     int         getValueLength();
+    byte        getType();
     const char *getCustomHTML();
   private:
     const char *_id;
     const char *_placeholder;
     char       *_value;
+    byte        _type;
     int         _length;
     const char *_customHTML;
 
-    void init(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom);
+    void init(const char *id, const char *placeholder, const char *defaultValue, int length, byte type, const char *custom);
 
     friend class WiFiManager;
 };
@@ -213,4 +222,3 @@ class WiFiManager
 };
 
 #endif
-
