@@ -205,10 +205,18 @@ export default class EspService {
 
   async fetchDevList() {
     try {
-      const blob = await (await this._fetch(`${ this.baseUrl }/getAskSinAnalyzerDevListJSON`, { cache: 'reload' })).blob();
+      const res = await this._fetch(`${ this.baseUrl }/getAskSinAnalyzerDevListJSON`, { cache: 'reload' });
+      const blob = await res.blob();
+      let resCharset = 'utf-8';
+      try {
+        resCharset = res.headers.get('Content-Type').match(/charset=(.+)$/)[1];
+        console.log('Use Charset', resCharset, 'for DevList');
+      } catch (e) {
+        console.warn('Could not read charset from DevList response, using', resCharset);
+      }
       const filereader = new FileReader();
       const readed = new Promise(resolve => filereader.addEventListener('loadend', () => resolve(filereader.result)));
-      filereader.readAsText(blob, 'iso-8859-1');
+      filereader.readAsText(blob, resCharset);
       const data = await readed;
       this.devlist = JSON.parse(data);
       this.data.devlistCreated = this.devlist.created_at;

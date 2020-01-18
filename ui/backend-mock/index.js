@@ -56,7 +56,7 @@ const server = http.createServer(function(req, res) {
     switch (url.pathname) {
 
       case '/getAskSinAnalyzerDevListJSON':
-        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Type', 'application/json charset=iso-8859-1');
         res.write(JSON.stringify(devlist, null,2));
         res.end();
         break;
