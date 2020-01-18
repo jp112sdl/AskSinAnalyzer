@@ -194,7 +194,7 @@ void shiftLogArray() {
       LogTable[c].cnt = LogTable[c - 1].cnt;
       memcpy(LogTable[c].typ, LogTable[c - 1].typ, SIZE_TYPE);
       memcpy(LogTable[c].flags, LogTable[c - 1].flags, SIZE_FLAGS);
-      memcpy(LogTable[c].payload, LogTable[c - 1].flags, SIZE_PAYLOAD);
+      memcpy(LogTable[c].msg, LogTable[c - 1].msg, SIZE_MSG);
       LogTable[c].time = LogTable[c - 1].time;
       LogTable[c].lognumber = LogTable[c - 1].lognumber;
     }
@@ -267,7 +267,7 @@ String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
   temp.trim();
   csvLine += temp;
   csvLine += ";";
-  temp = lt.payload;
+  temp = lt.msg;
   temp.trim();
   csvLine += temp;
   csvLine += ";";
@@ -293,9 +293,9 @@ String createJSONFromLogTableEntry(_LogTable &lt) {
   String fl = String(lt.flags);
   fl.trim();
   json += "\"flags\": \"" + fl + "\", ";
-  String pl = String(lt.payload);
-  pl.trim();
-  json += "\"payload\": \"" + pl + "\"";
+  String msg = String(lt.msg);
+  msg.trim();
+  json += "\"msg\": \"" + msg + "\"";
   json += "}";
   return json;
 }
@@ -319,7 +319,7 @@ void dumpLogTableEntry(_LogTable &lt) {
   DPRINT(F(" - cnt         : ")); DPRINTLN(lt.cnt);
   DPRINT(F(" - typ         : ")); DPRINTLN(lt.typ);
   DPRINT(F(" - flags       : ")); DPRINTLN(lt.flags);
-  DPRINT(F(" - payload     : ")); DPRINTLN(lt.payload);
+  DPRINT(F(" - msg         : ")); DPRINTLN(lt.msg);
   DPRINT(F(" - time        : ")); DPRINTLN(getDatum(lt.time) + " " + getUhrzeit(lt.time));
 }
 
