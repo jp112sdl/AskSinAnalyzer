@@ -107,13 +107,13 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN).toCharArray(fromAddress, SIZE_ADDRESS);
   char toAddress[SIZE_ADDRESS];
   (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN).toCharArray(toAddress, SIZE_ADDRESS);
-  char pl[SIZE_PAYLOAD];
-  (sb.Msg).substring(STRPOS_PAYLOAD_BEGIN).toCharArray(pl, SIZE_PAYLOAD);
-  String payload = "";
-  for (uint8_t i = 0; i< SIZE_PAYLOAD; i++) {
-    if (pl[i] == 0) break;
-    payload += pl[i];
-    if (i % 2) payload += " ";
+  char msg[SIZE_MSG];
+  (sb.Msg).substring(3).toCharArray(msg, SIZE_MSG);
+  String msgStr = "";
+  for (uint8_t i = 0; i< SIZE_MSG; i++) {
+    if (msg[i] == 0) break;
+    msgStr += msg[i];
+    if (i % 2) msgStr += " ";
   }
 
 
@@ -130,7 +130,7 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   LogTable[0].cnt = cnt;
   memcpy(LogTable[0].typ, typ.c_str(), SIZE_TYPE);
   memcpy(LogTable[0].flags, flags.c_str(), SIZE_FLAGS);
-  memcpy(LogTable[0].payload, payload.c_str(), SIZE_PAYLOAD);
+  memcpy(LogTable[0].msg, msgStr.c_str(), SIZE_MSG);
 
   if (flags.startsWith("HMIP")) RSSILogTable[0].type = RSSITYPE_HMIP; //alter RSSI value type to HMIP
 

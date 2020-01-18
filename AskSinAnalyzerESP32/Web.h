@@ -36,9 +36,9 @@ void writeLogEntryToWebSocket(const _LogTable &lt) {
       String fl = String(lt.flags);
       fl.trim();
       json += "\"flags\": \"" + fl + "\", ";
-      String pl = String(lt.payload);
-      pl.trim();
-      json += "\"payload\": \"" + pl + "\"";
+      String msg = String(lt.msg);
+      msg.trim();
+      json += "\"msg\": \"" + msg + "\"";
       json += "}";
       wsClient->text(json);
     }
