@@ -59,7 +59,7 @@ void receiveMessages() {
 #define STRPOS_TYPE_BEGIN     9
 #define STRPOS_FROM_BEGIN     11
 #define STRPOS_TO_BEGIN       17
-#define STRPOS_TO_END         23
+#define STRPOS_PAYLOAD_BEGIN  23
 
 bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
 #ifdef VDEBUG
@@ -97,16 +97,24 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   String toStr = "";
   if (ONLINE_MODE && RESOLVE_ADDRESS) {
     fromStr = getSerialFromIntAddress(hexToDec((sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN)));
-    toStr = getSerialFromIntAddress(hexToDec((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END)));
+    toStr = getSerialFromIntAddress(hexToDec((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN)));
   }
 
   if (fromStr == "")  fromStr = "  " + (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN) + "  ";
-  if (toStr == "")    toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END) + "  ";
+  if (toStr == "")    toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN) + "  ";
 
   char fromAddress[SIZE_ADDRESS];
   (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN).toCharArray(fromAddress, SIZE_ADDRESS);
   char toAddress[SIZE_ADDRESS];
-  (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END).toCharArray(toAddress, SIZE_ADDRESS);
+  (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN).toCharArray(toAddress, SIZE_ADDRESS);
+  char pl[SIZE_PAYLOAD];
+  (sb.Msg).substring(STRPOS_PAYLOAD_BEGIN).toCharArray(pl, SIZE_PAYLOAD);
+  String payload = "";
+  for (uint8_t i = 0; i< SIZE_PAYLOAD; i++) {
+    if (pl[i] == 0) break;
+    payload += pl[i];
+    if (i % 2) payload += " ";
+  }
 
 
   shiftLogArray();
@@ -122,6 +130,7 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   LogTable[0].cnt = cnt;
   memcpy(LogTable[0].typ, typ.c_str(), SIZE_TYPE);
   memcpy(LogTable[0].flags, flags.c_str(), SIZE_FLAGS);
+  memcpy(LogTable[0].payload, payload.c_str(), SIZE_PAYLOAD);
 
   if (flags.startsWith("HMIP")) RSSILogTable[0].type = RSSITYPE_HMIP; //alter RSSI value type to HMIP
 

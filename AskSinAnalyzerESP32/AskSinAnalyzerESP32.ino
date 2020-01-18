@@ -69,7 +69,7 @@ uint16_t currentCircleColor = ILI9341_RED;
 #endif
 
 #define CSV_FILENAME                "/log.csv"
-#define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;"
+#define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;payload;"
 
 #define IPSIZE                16
 #define VARIABLESIZE          255
@@ -101,6 +101,7 @@ struct _RSSIConfig {
 #define SIZE_SERIAL        (10+1)   // serial has 10 chars
 #define SIZE_TYPE            32
 #define SIZE_FLAGS           32
+#define SIZE_PAYLOAD         64
 
 struct _LogTable {
   uint32_t lognumber                  = 0;
@@ -114,6 +115,7 @@ struct _LogTable {
   char     toAddress  [SIZE_ADDRESS];
   char     typ        [SIZE_TYPE];
   char     flags      [SIZE_FLAGS];
+  char     payload    [SIZE_PAYLOAD];
 } LogTable[MAX_LOG_ENTRIES + 1];
 
 uint16_t   logLength                  = 0;

@@ -194,6 +194,7 @@ void shiftLogArray() {
       LogTable[c].cnt = LogTable[c - 1].cnt;
       memcpy(LogTable[c].typ, LogTable[c - 1].typ, SIZE_TYPE);
       memcpy(LogTable[c].flags, LogTable[c - 1].flags, SIZE_FLAGS);
+      memcpy(LogTable[c].payload, LogTable[c - 1].flags, SIZE_PAYLOAD);
       LogTable[c].time = LogTable[c - 1].time;
       LogTable[c].lognumber = LogTable[c - 1].lognumber;
     }
@@ -266,6 +267,10 @@ String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
   temp.trim();
   csvLine += temp;
   csvLine += ";";
+  temp = lt.payload;
+  temp.trim();
+  csvLine += temp;
+  csvLine += ";";
   return csvLine;
 }
 
@@ -287,7 +292,10 @@ String createJSONFromLogTableEntry(_LogTable &lt) {
   json += "\"typ\": \"" + t + "\", ";
   String fl = String(lt.flags);
   fl.trim();
-  json += "\"flags\": \"" + fl + "\"";
+  json += "\"flags\": \"" + fl + "\", ";
+  String pl = String(lt.payload);
+  pl.trim();
+  json += "\"payload\": \"" + pl + "\"";
   json += "}";
   return json;
 }
@@ -311,6 +319,7 @@ void dumpLogTableEntry(_LogTable &lt) {
   DPRINT(F(" - cnt         : ")); DPRINTLN(lt.cnt);
   DPRINT(F(" - typ         : ")); DPRINTLN(lt.typ);
   DPRINT(F(" - flags       : ")); DPRINTLN(lt.flags);
+  DPRINT(F(" - payload     : ")); DPRINTLN(lt.payload);
   DPRINT(F(" - time        : ")); DPRINTLN(getDatum(lt.time) + " " + getUhrzeit(lt.time));
 }
 
