@@ -40,7 +40,7 @@ extern "C" {
 #endif
 
 const char WM_HTTP_HEAD[] PROGMEM          = "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\"/><title>{v}</title>";
-const char WM_HTTP_HEAD_END[] PROGMEM        = "</head><body><div style='text-align:left;display:inline-block;min-width:260px;'>";
+const char WM_HTTP_HEAD_END[] PROGMEM        = "</head><body onload=\"setBackendType()\"><div style='text-align:left;display:inline-block;min-width:260px;'>";
 const char WM_HTTP_PORTAL_OPTIONS[] PROGMEM  = "<form action=\"/wifi\" method=\"post\"><button>AskSinAnalyzer konfigurieren</button></form><br/><br/><form action=\"/i\" method=\"get\"><button>ESP32 Info</button></form><br/><form action=\"/sformat\" method=\"get\"><button>SPIFFS formatieren</button></form><br/><form action=\"/r\" method=\"post\"><button>Restart</button></form>";
 const char WM_HTTP_ITEM[] PROGMEM            = "<div><a href='#p' onclick='c(this)'>{v}</a>&nbsp;<span class='q {i}'>{r}%</span></div>";
 const char WM_HTTP_FORM_START[] PROGMEM      = "<form method='get' action='wifisave'><div id='div_ssid'><input type='text' id='s' name='s' length=32 placeholder='SSID'></div><div id='div_psk'><input id='p' name='p' length=64 type='password' placeholder='Passwort'></div>";
