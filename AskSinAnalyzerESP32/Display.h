@@ -242,7 +242,7 @@ void showRSSI_GRAPHICDisplay(bool firstrun) {
   if (last_rssiValueAdded != rssiValueAdded) {
     for (uint8_t i = 0; i < (tft.width() - bar_start_x)  / (bar_width + 1); i++) {
       int8_t rssi = RSSILogTable[i].rssi;
-      if (i >= rssiLogLength || rssi < rssi_min) rssi = rssi_min;
+      if (i >= RSSILogTable.count() || rssi < rssi_min) rssi = rssi_min;
       if (rssi > rssi_max) rssi = rssi_max;
 
       uint8_t h = map(rssi, rssi_min, rssi_max, 0, bar_height);

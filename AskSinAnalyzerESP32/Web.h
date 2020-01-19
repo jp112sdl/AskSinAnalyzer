@@ -230,7 +230,7 @@ void getRSSILog(AsyncWebServerRequest * request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   response->print("[");
 
-  for (uint8_t l = 0; l < _min(rssiLogLength, MAX_RSSILOG_ENTRIES); l++) {
+  for (uint8_t l = 0; l < _min(RSSILogTable.count(), MAX_RSSILOG_ENTRIES); l++) {
     String json = "";
     if (l > 0) json += ",";
     json += createJSONFromRSSILogTableEntry(RSSILogTable[l]);
@@ -271,10 +271,10 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
           }
           DPRINT("-");
         }
-        msgBufferProcessing = true;
         temp.close();
 
         DPRINT("] done. duration (ms): "); DDECLN(millis() - startMillis);
+        msgBufferProcessing = true;
         response = request->beginResponse(SPIFFS, "/temp.log", "text/comma-separated-values");
       } else {
         response = request->beginResponse(SPIFFS, "/0.log", "text/comma-separated-values");
@@ -283,7 +283,7 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
 
     } else {
       AsyncResponseStream *response = request->beginResponseStream("text/comma-separated-values");
-      for (uint16_t l = 0; l < logLength; l++) {
+      for (uint16_t l = 0; l < LogTable.count(); l++) {
         if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
           response->println(createCSVFromLogTableEntry(LogTable[l], false));
         }
@@ -294,7 +294,7 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
   } else {
     AsyncResponseStream *response = request->beginResponseStream("application/json");
     response->print("[");
-    for (uint16_t l = 0; l < logLength; l++) {
+    for (uint16_t l = 0; l < LogTable.count(); l++) {
       if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
         String json = "";
         if (l > 0) json += ",";

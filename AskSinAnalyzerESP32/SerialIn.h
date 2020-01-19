@@ -118,7 +118,7 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   }
 
 
-  shiftLogArray();
+  LogTable.shift();
 
   LogTable[0].lognumber = allCount;
   LogTable[0].time = sb.t;
@@ -139,7 +139,7 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   writeLogEntryToWebSocket(LogTable[0]);
   writeSessionLogToSPIFFS(LogTable[0]);
 
-  if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
+  //if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
   allCount++;
 
