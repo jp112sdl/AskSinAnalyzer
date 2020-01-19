@@ -6,6 +6,8 @@
 #ifndef HELPER_H_
 #define HELPER_H_
 
+void drawStatusCircle(uint16_t c);
+
 bool isNotEmpty(const char *string) {
   return *string;
 }
@@ -21,8 +23,7 @@ void parseBytes(const char* str, char sep, byte* bytes, int maxBytes, int base) 
   }
 }
 
-String getFlags(String in) {
-  int flagsInt =  (strtol(&in[0], NULL, 16) & 0xFF);
+String getFlags(uint8_t flagsInt) {
   String flags = "";
   if (flagsInt & 0x01) flags += "WKUP ";
   if (flagsInt & 0x02) flags += "WKMEUP ";
@@ -40,29 +41,29 @@ String getFlags(String in) {
   return flags;
 }
 
-String getTyp(String in) {
+String getTyp(uint8_t in) {
   String typ = "";
-  if (in == "00") typ = "DEVINFO";
-  else if (in == "01") typ = "CONFIG";
-  else if (in == "02") typ = "RESPONSE";
-  else if (in == "03") typ = "RESPONSE_AES";
-  else if (in == "04") typ = "KEY_EXCHANGE";
-  else if (in == "10") typ = "INFO";
-  else if (in == "11") typ = "ACTION";
-  else if (in == "12") typ = "HAVE_DATA";
-  else if (in == "3E") typ = "SWITCH_EVENT";
-  else if (in == "3F") typ = "TIMESTAMP";
-  else if (in == "40") typ = "REMOTE_EVENT";
-  else if (in == "41") typ = "SENSOR_EVENT";
-  else if (in == "53") typ = "SENSOR_DATA";
-  else if (in == "58") typ = "CLIMATE_EVENT";
-  else if (in == "5A") typ = "CLIMATECTRL_EVENT";
-  else if (in == "5E") typ = "POWER_EVENT";
-  else if (in == "5F") typ = "POWER_EVENT_CYCLIC";
-  else if (in == "70") typ = "WEATHER";
-  else if (in.startsWith("8")) typ = "HMIP_TYPE";
+  if (in == 0x00) typ = "DEVINFO";
+  else if (in == 0x01) typ = "CONFIG";
+  else if (in == 0x02) typ = "RESPONSE";
+  else if (in == 0x03) typ = "RESPONSE_AES";
+  else if (in == 0x04) typ = "KEY_EXCHANGE";
+  else if (in == 0x10) typ = "INFO";
+  else if (in == 0x11) typ = "ACTION";
+  else if (in == 0x12) typ = "HAVE_DATA";
+  else if (in == 0x3E) typ = "SWITCH_EVENT";
+  else if (in == 0x3F) typ = "TIMESTAMP";
+  else if (in == 0x40) typ = "REMOTE_EVENT";
+  else if (in == 0x41) typ = "SENSOR_EVENT";
+  else if (in == 0x53) typ = "SENSOR_DATA";
+  else if (in == 0x58) typ = "CLIMATE_EVENT";
+  else if (in == 0x5A) typ = "CLIMATECTRL_EVENT";
+  else if (in == 0x5E) typ = "POWER_EVENT";
+  else if (in == 0x5F) typ = "POWER_EVENT_CYCLIC";
+  else if (in == 0x70) typ = "WEATHER";
+  else if (in >= 0x80) typ = "HMIP_TYPE";
 
-  else typ = in;
+  else typ = String(in);
   uint8_t typlen = typ.length();
   if (typ.length() < 30)
     for (uint8_t i = 0; i < (30 - typlen); i++)
@@ -182,42 +183,12 @@ String getSerialFromIntAddress(int intAddr) {
   return "";
 }
 
-/*void shiftLogArray() {
-  if (logLength > 0) {
-    for (uint16_t c = logLength; c > 0; c--) {
-      memcpy(LogTable[c].fromSerial, LogTable[c - 1].fromSerial, SIZE_SERIAL);
-      memcpy(LogTable[c].toSerial, LogTable[c - 1].toSerial, SIZE_SERIAL);
-      memcpy(LogTable[c].fromAddress, LogTable[c - 1].fromAddress, SIZE_ADDRESS);
-      memcpy(LogTable[c].toAddress, LogTable[c - 1].toAddress, SIZE_ADDRESS);
-      LogTable[c].rssi = LogTable[c - 1].rssi;
-      LogTable[c].len = LogTable[c - 1].len;
-      LogTable[c].cnt = LogTable[c - 1].cnt;
-      memcpy(LogTable[c].typ, LogTable[c - 1].typ, SIZE_TYPE);
-      memcpy(LogTable[c].flags, LogTable[c - 1].flags, SIZE_FLAGS);
-      memcpy(LogTable[c].msg, LogTable[c - 1].msg, SIZE_MSG);
-      LogTable[c].time = LogTable[c - 1].time;
-      LogTable[c].lognumber = LogTable[c - 1].lognumber;
-    }
-  }
-}*/
-
-/*void shiftRSSILogArray() {
-  if (rssiLogLength > 0) {
-    for (uint16_t c = rssiLogLength; c > 0; c--) {
-      RSSILogTable[c].rssi = RSSILogTable[c - 1].rssi;
-      RSSILogTable[c].time = RSSILogTable[c - 1].time;
-      RSSILogTable[c].type = RSSILogTable[c - 1].type;
-    }
-  }
-}*/
-
 void addRssiValueToRSSILogTable(int8_t rssi, time_t ts, uint8_t type) {
   //shiftRSSILogArray();
   RSSILogTable.shift();
   RSSILogTable[0].time = ts;
   RSSILogTable[0].rssi = rssi;
   RSSILogTable[0].type = type;
-  //if (rssiLogLength < MAX_RSSILOG_ENTRIES - 1) rssiLogLength++;
   rssiValueAdded = !rssiValueAdded;
 }
 
@@ -260,11 +231,11 @@ String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
   csvLine += ";";
   csvLine += String(lt.cnt);
   csvLine += ";";
-  temp = lt.typ;
+  temp = getTyp(lt.typ);
   temp.trim();
   csvLine += temp;
   csvLine += ";";
-  temp = lt.flags;
+  temp = getFlags(lt.flags);
   temp.trim();
   csvLine += temp;
   csvLine += ";";
@@ -290,10 +261,10 @@ String createJSONFromLogTableEntry(_LogTable &lt) {
   json += "\"to\": \"" + to + "\", ";
   json += "\"len\": " + String(lt.len) + ", ";
   json += "\"cnt\": " + String(lt.cnt) + ", ";
-  String t = String(lt.typ);
+  String t = getTyp(lt.typ);
   t.trim();
   json += "\"typ\": \"" + t + "\", ";
-  String fl = String(lt.flags);
+  String fl = getFlags(lt.flags);
   fl.trim();
   json += "\"flags\": \"" + fl + "\", ";
   String msg = String(lt.msg);
@@ -320,8 +291,8 @@ void dumpLogTableEntry(_LogTable &lt) {
   DPRINT(F(" - rssi        : ")); DPRINTLN(lt.rssi);
   DPRINT(F(" - len         : ")); DPRINTLN(lt.len);
   DPRINT(F(" - cnt         : ")); DPRINTLN(lt.cnt);
-  DPRINT(F(" - typ         : ")); DPRINTLN(lt.typ);
-  DPRINT(F(" - flags       : ")); DPRINTLN(lt.flags);
+  DPRINT(F(" - typ         : ")); DPRINTLN(getTyp(lt.typ));
+  DPRINT(F(" - flags       : ")); DPRINTLN(getFlags(lt.flags));
   DPRINT(F(" - msg         : ")); DPRINTLN(lt.msg);
   DPRINT(F(" - time        : ")); DPRINTLN(getDatum(lt.time) + " " + getUhrzeit(lt.time));
 }

@@ -30,10 +30,10 @@ void writeLogEntryToWebSocket(const _LogTable &lt) {
       json += "\"to\": \"" + to + "\", ";
       json += "\"len\": " + String(lt.len) + ", ";
       json += "\"cnt\": " + String(lt.cnt) + ", ";
-      String t = String(lt.typ);
+      String t = getTyp(lt.typ);
       t.trim();
       json += "\"typ\": \"" + t + "\", ";
-      String fl = String(lt.flags);
+      String fl = getFlags(lt.flags);
       fl.trim();
       json += "\"flags\": \"" + fl + "\", ";
       String msg = String(lt.msg);

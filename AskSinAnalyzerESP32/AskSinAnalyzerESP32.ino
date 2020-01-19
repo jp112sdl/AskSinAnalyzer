@@ -114,13 +114,12 @@ struct _LogTable {
   char     toSerial   [SIZE_SERIAL];
   char     fromAddress[SIZE_ADDRESS];
   char     toAddress  [SIZE_ADDRESS];
-  char     typ        [SIZE_TYPE];
-  char     flags      [SIZE_FLAGS];
+  uint8_t  typ                        = 0x00;
+  uint8_t  flags                      = 0x00;
   char     msg        [SIZE_MSG];
 };
 RingStack<_LogTable,MAX_LOG_ENTRIES> LogTable;
 
-//uint16_t   logLength                  = 0;
 uint16_t   logLengthDisplay           = 0;
 
 enum RssiTypes { RSSITYPE_NONE, RSSITYPE_HMRF, RSSITYPE_HMIP };
@@ -131,7 +130,6 @@ struct _RSSILogTable {
 };
 RingStack<_RSSILogTable,MAX_RSSILOG_ENTRIES> RSSILogTable;
 
-//uint16_t   rssiLogLength                  = 0;
 bool       rssiValueAdded                 = false;
 
 struct _SerialBuffer {
@@ -160,8 +158,8 @@ String   updateUrl             = "https://raw.githubusercontent.com/jp112sdl/Ask
 
 #include "Config.h"
 #include "NTP.h"
-#include "Display.h"
 #include "Helper.h"
+#include "Display.h"
 #include "File.h"
 #include "Web.h"
 #include "WManager.h"
