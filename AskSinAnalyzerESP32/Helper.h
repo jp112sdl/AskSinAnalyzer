@@ -268,10 +268,12 @@ String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
   temp.trim();
   csvLine += temp;
   csvLine += ";";
-  temp = lt.msg;
-  temp.trim();
-  csvLine += temp;
-  csvLine += ";";
+  if (lng) {
+    temp = lt.msg;
+    temp.trim();
+    csvLine += temp;
+    csvLine += ";";
+  }
   return csvLine;
 }
 
