@@ -62,18 +62,19 @@ void receiveMessages() {
 #define STRPOS_PAYLOAD_BEGIN  23
 
 bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
-#ifdef VDEBUG
-  DPRINTLN(F("# PROCESSING SERIAL DATA #"));
-#endif
-
   bool dataIsRSSIOnly = ((sb.Msg).length() == 3);
 
-  DPRINT("I ");
-  DPRINT(dataIsRSSIOnly ? "R" : "P");
-  DPRINT(" #");
-  DPRINT(String(b));
-  DPRINT(": ");
-  DPRINTLN(sb.Msg);
+#ifdef VDEBUG
+  if (!dataIsRSSIOnly) {
+    DPRINTLN(F("# PROCESSING SERIAL DATA #"));
+    DPRINT("I ");
+    DPRINT(dataIsRSSIOnly ? "R" : "P");
+    DPRINT(" #");
+    DPRINT(String(b));
+    DPRINT(": ");
+    DPRINTLN(sb.Msg);
+  }
+#endif
 
   String rssiIn = (sb.Msg).substring(STRPOS_RSSI_BEGIN, STRPOS_LENGTH_BEGIN);
   int rssi = -1 * (strtol(&rssiIn[0], NULL, 16) & 0xFF);
