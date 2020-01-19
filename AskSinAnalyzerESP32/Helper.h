@@ -71,10 +71,10 @@ String getTyp(String in) {
   return typ;
 }
 
-void initLogTables() {
-  memset(LogTable, 0, MAX_LOG_ENTRIES);
-  memset(RSSILogTable, 0, MAX_RSSILOG_ENTRIES);
-}
+//void initLogTables() {
+  //memset(LogTable, 0, MAX_LOG_ENTRIES);
+  //memset(RSSILogTable, 0, MAX_RSSILOG_ENTRIES);
+//}
 
 String fetchAskSinAnalyzerDevList() {
   if (!RESOLVE_ADDRESS) return "NO_RESOLVE";
@@ -182,7 +182,7 @@ String getSerialFromIntAddress(int intAddr) {
   return "";
 }
 
-void shiftLogArray() {
+/*void shiftLogArray() {
   if (logLength > 0) {
     for (uint16_t c = logLength; c > 0; c--) {
       memcpy(LogTable[c].fromSerial, LogTable[c - 1].fromSerial, SIZE_SERIAL);
@@ -199,9 +199,9 @@ void shiftLogArray() {
       LogTable[c].lognumber = LogTable[c - 1].lognumber;
     }
   }
-}
+}*/
 
-void shiftRSSILogArray() {
+/*void shiftRSSILogArray() {
   if (rssiLogLength > 0) {
     for (uint16_t c = rssiLogLength; c > 0; c--) {
       RSSILogTable[c].rssi = RSSILogTable[c - 1].rssi;
@@ -209,14 +209,15 @@ void shiftRSSILogArray() {
       RSSILogTable[c].type = RSSILogTable[c - 1].type;
     }
   }
-}
+}*/
 
 void addRssiValueToRSSILogTable(int8_t rssi, time_t ts, uint8_t type) {
-  shiftRSSILogArray();
+  //shiftRSSILogArray();
+  RSSILogTable.shift();
   RSSILogTable[0].time = ts;
   RSSILogTable[0].rssi = rssi;
   RSSILogTable[0].type = type;
-  if (rssiLogLength < MAX_RSSILOG_ENTRIES - 1) rssiLogLength++;
+  //if (rssiLogLength < MAX_RSSILOG_ENTRIES - 1) rssiLogLength++;
   rssiValueAdded = !rssiValueAdded;
 }
 

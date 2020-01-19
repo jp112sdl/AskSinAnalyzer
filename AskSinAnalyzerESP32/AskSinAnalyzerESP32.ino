@@ -33,6 +33,7 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #else
 #define HAS_DISPLAY 0
 #endif
+#include "RingBuffer.h"
 
 #define VERSION_UPPER "3"
 #define VERSION_LOWER "0"
@@ -116,9 +117,10 @@ struct _LogTable {
   char     typ        [SIZE_TYPE];
   char     flags      [SIZE_FLAGS];
   char     msg        [SIZE_MSG];
-} LogTable[MAX_LOG_ENTRIES + 1];
+};
+RingStack<_LogTable,MAX_LOG_ENTRIES> LogTable;
 
-uint16_t   logLength                  = 0;
+//uint16_t   logLength                  = 0;
 uint16_t   logLengthDisplay           = 0;
 
 enum RssiTypes { RSSITYPE_NONE, RSSITYPE_HMRF, RSSITYPE_HMIP };
@@ -126,9 +128,10 @@ struct _RSSILogTable {
   time_t   time                       = 0;
   int      rssi                       = -255;
   uint8_t  type                       = RSSITYPE_NONE;
-} RSSILogTable[MAX_RSSILOG_ENTRIES + 1];
+};
+RingStack<_RSSILogTable,MAX_RSSILOG_ENTRIES> RSSILogTable;
 
-uint16_t   rssiLogLength                  = 0;
+//uint16_t   rssiLogLength                  = 0;
 bool       rssiValueAdded                 = false;
 
 struct _SerialBuffer {
@@ -190,7 +193,7 @@ void setup() {
   initTFT();
 #endif
 
-  initLogTables();
+  //initLogTables();
 
   if (ONLINE_MODE) {
     if (!loadSystemConfig()) startWifiManager = true;
