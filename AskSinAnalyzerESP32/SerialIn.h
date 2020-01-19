@@ -86,14 +86,17 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   }
 
   String lengthIn = (sb.Msg).substring(STRPOS_LENGTH_BEGIN, STRPOS_COUNT_BEGIN);
-  uint8_t len = (strtol(&lengthIn[0], NULL, 16) & 0xFF);
+  uint8_t len = strtol(&lengthIn[0], NULL, 16) & 0xFF;
 
   String countIn = (sb.Msg).substring(STRPOS_COUNT_BEGIN, STRPOS_FLAGS_BEGIN);
-  uint8_t cnt = (strtol(&countIn[0], NULL, 16) & 0xFF);
+  uint8_t cnt = strtol(&countIn[0], NULL, 16) & 0xFF;
+  
+  String flagsStr =  (sb.Msg).substring(STRPOS_FLAGS_BEGIN, STRPOS_TYPE_BEGIN);
+  uint8_t flags = strtol(&flagsStr[0], NULL, 16) & 0xFF;
 
-  String flags = getFlags((sb.Msg).substring(STRPOS_FLAGS_BEGIN, STRPOS_TYPE_BEGIN));
-  String typ = getTyp((sb.Msg).substring(STRPOS_TYPE_BEGIN, STRPOS_FROM_BEGIN));
-
+  String typStr =  (sb.Msg).substring(STRPOS_TYPE_BEGIN, STRPOS_FROM_BEGIN);
+  uint8_t typ = strtol(&typStr[0], NULL, 16) & 0xFF;
+  
   String fromStr = "";
   String toStr = "";
   if (ONLINE_MODE && RESOLVE_ADDRESS) {
@@ -129,17 +132,15 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   memcpy(LogTable[0].toAddress, toAddress, SIZE_ADDRESS);
   LogTable[0].len = len;
   LogTable[0].cnt = cnt;
-  memcpy(LogTable[0].typ, typ.c_str(), SIZE_TYPE);
-  memcpy(LogTable[0].flags, flags.c_str(), SIZE_FLAGS);
+  LogTable[0].typ = typ;
+  LogTable[0].flags = flags;
   memcpy(LogTable[0].msg, msgStr.c_str(), SIZE_MSG);
 
-  if (flags.startsWith("HMIP")) RSSILogTable[0].type = RSSITYPE_HMIP; //alter RSSI value type to HMIP
+  if (flags == 0x00) RSSILogTable[0].type = RSSITYPE_HMIP; //alter RSSI value type to HMIP
 
   writeLogEntryToSD(LogTable[0]);
   writeLogEntryToWebSocket(LogTable[0]);
   writeSessionLogToSPIFFS(LogTable[0]);
-
-  //if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
   allCount++;
 

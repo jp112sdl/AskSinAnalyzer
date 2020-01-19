@@ -69,7 +69,7 @@ void refreshDisplayLog(bool firstrun) {
   for (uint8_t c = 0; c < logLengthDisplay; c++) {
     u8g.setCursor(0, DISPLAY_LOG_OFFSET_TOP + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c));
     u8g.setFont(u8g2_font_9x15_mr);
-    u8g.setForegroundColor( String(LogTable[c].typ).startsWith("HMIP") ? ILI9341_CYAN : ILI9341_WHITE);
+    u8g.setForegroundColor(getTyp(LogTable[c].typ).startsWith("HMIP") ? ILI9341_CYAN : ILI9341_WHITE);
 
     String from = LogTable[c].fromSerial;
     if (from.startsWith("BidCoS-RF") || from.startsWith("HmIP-RF")) from = "-ZENTRALE-";
@@ -105,12 +105,12 @@ void refreshDisplayLog(bool firstrun) {
       u8g.setForegroundColor(ILI9341_DARKGREY);
       u8g.print("   TYP: ");
       u8g.setForegroundColor(ILI9341_CYAN);
-      u8g.print(LogTable[c].typ);
+      u8g.print(getTyp(LogTable[c].typ));
       u8g.setCursor(0, DISPLAY_LOG_OFFSET_TOP + (2 * DISPLAY_LOG_LINE_HEIGHT) + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * c));
       u8g.setForegroundColor(ILI9341_DARKGREY);
       u8g.print(" FLAGS: ");
       u8g.setForegroundColor(ILI9341_OLIVE);
-      u8g.print(LogTable[c].flags);
+      u8g.print(getFlags(LogTable[c].flags));
     }
     if (showDisplayLines == true) {
       int y = DISPLAY_LOG_OFFSET_TOP + (DISPLAY_LOG_LINE_HEIGHT * LOG_BLOCK_SIZE * (c + 1)) - DISPLAY_LOG_LINE_HEIGHT + 2;
