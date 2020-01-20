@@ -11,6 +11,8 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 // #define NDEBUG //No DEBUG -> no output
 #define VDEBUG //Verbose DEBUG -> more output
 
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
 #include "Debug.h"
 #include <Preferences.h>
 #include "WM.h"
@@ -166,6 +168,7 @@ String   updateUrl             = "https://raw.githubusercontent.com/jp112sdl/Ask
 #include "SerialIn.h"
 
 void setup() {
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); // disable brownout detection
   DINIT(57600, F("\nASKSINANALYZER ESP32 " VERSION_UPPER "." VERSION_LOWER " (" __DATE__ " " __TIME__ ")\n--------------------------------"));
   pinMode(SD_CS, OUTPUT);
   Serial1.begin(EXTSERIALBAUDRATE, SERIAL_8N1, EXTSERIALRX_PIN, EXTSERIALTX_PIN);
