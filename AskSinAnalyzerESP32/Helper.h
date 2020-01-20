@@ -6,6 +6,17 @@
 #ifndef HELPER_H_
 #define HELPER_H_
 
+String intToHexString(int input) {
+  std::stringstream ss;
+  ss << std::uppercase << std::hex << std::setfill('0') << input;
+  std::string str = ss.str();
+  for (uint8_t t = str.length() ; t < 6; t++) { str.insert(0,"0"); }
+
+  char cstr[7];
+  strcpy(cstr, str.c_str());
+  return cstr;
+}
+
 void drawStatusCircle(uint16_t c);
 
 bool isNotEmpty(const char *string) {
@@ -72,11 +83,6 @@ String getTyp(uint8_t in) {
   return typ;
 }
 
-//void initLogTables() {
-  //memset(LogTable, 0, MAX_LOG_ENTRIES);
-  //memset(RSSILogTable, 0, MAX_RSSILOG_ENTRIES);
-//}
-
 String fetchAskSinAnalyzerDevList() {
   if (!RESOLVE_ADDRESS) return "NO_RESOLVE";
   if (isOnline && WiFi.status() == WL_CONNECTED) {
@@ -134,7 +140,7 @@ String fetchAskSinAnalyzerDevList() {
   return "ERROR";
 }
 
-unsigned int hexToDec(String hexString) {
+/*unsigned int hexToDec(String hexString) {
   unsigned int decValue = 0;
   int nextInt;
 
@@ -149,10 +155,37 @@ unsigned int hexToDec(String hexString) {
     decValue = (decValue * 16) + nextInt;
   }
   return decValue;
-}
+}*/
 
 const size_t listCapacity = JSON_ARRAY_SIZE(400) + JSON_OBJECT_SIZE(2) + 400 * JSON_OBJECT_SIZE(3) + 4 * 4620;
 DynamicJsonDocument JSONDevList(listCapacity);
+std::map<String,JsonObject> devicemap;
+void createJSONDevList(String js) {
+  DeserializationError error = deserializeJson(JSONDevList, js);
+  if (error) {
+    DPRINT(F(" - JSON DeserializationError: ")); DPRINTLN(error.c_str());
+  } else {
+    devices = JSONDevList["devices"];
+    DPRINT(F(" - Device List created with ")); DDEC(devices.size()); DPRINTLN(F(" entries"));
+    devicemap.clear();
+    for (uint16_t i = 0; i < devices.size(); i++) {
+      JsonObject device = devices[i];
+      devicemap[ intToHexString(device["address"].as<unsigned int>()) ] = device;
+    }
+  }
+}
+
+String getSerialFromAddress(String hexAdr) {
+  if (isOnline) {
+    DPRINT("getSerialFromAddress ");DPRINTLN(hexAdr);
+    std::map<String,JsonObject>::const_iterator idx = devicemap.find(hexAdr);
+    if (idx != devicemap.end()) {
+      return idx->second["serial"].as<String>();
+    }
+  }
+  return "";
+}
+/*
 void createJSONDevList(String js) {
   DeserializationError error = deserializeJson(JSONDevList, js);
   if (error) {
@@ -182,6 +215,7 @@ String getSerialFromIntAddress(int intAddr) {
   }
   return "";
 }
+*/
 
 void addRssiValueToRSSILogTable(int8_t rssi, time_t ts, uint8_t type) {
   //shiftRSSILogArray();

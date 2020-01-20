@@ -11,6 +11,9 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 // #define NDEBUG //No DEBUG -> no output
 #define VDEBUG //Verbose DEBUG -> more output
 
+#include <sstream>
+#include <iomanip>
+#include <map>
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
 #include "Debug.h"
