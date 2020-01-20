@@ -194,8 +194,6 @@ void setup() {
   initTFT();
 #endif
 
-  //initLogTables();
-
   if (ONLINE_MODE) {
     if (!loadSystemConfig()) startWifiManager = true;
 
