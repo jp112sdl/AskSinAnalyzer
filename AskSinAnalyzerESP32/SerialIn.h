@@ -100,8 +100,8 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   String fromStr = "";
   String toStr = "";
   if (ONLINE_MODE && RESOLVE_ADDRESS) {
-    fromStr = getSerialFromAddress((sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN));
-    toStr = getSerialFromAddress((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN));
+    fromStr = getSerialFromAddress(hexToDec((sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN)));
+    toStr = getSerialFromAddress(hexToDec((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN)));
   }
 
   if (fromStr == "")  fromStr = "  " + (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN) + "  ";

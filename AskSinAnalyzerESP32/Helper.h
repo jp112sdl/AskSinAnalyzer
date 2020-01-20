@@ -6,7 +6,7 @@
 #ifndef HELPER_H_
 #define HELPER_H_
 
-String intToHexString(int input) {
+/*String intToHexString(int input) {
   std::stringstream ss;
   ss << std::uppercase << std::hex << std::setfill('0') << input;
   std::string str = ss.str();
@@ -15,7 +15,7 @@ String intToHexString(int input) {
   char cstr[7];
   strcpy(cstr, str.c_str());
   return cstr;
-}
+}*/
 
 void drawStatusCircle(uint16_t c);
 
@@ -140,7 +140,7 @@ String fetchAskSinAnalyzerDevList() {
   return "ERROR";
 }
 
-/*unsigned int hexToDec(String hexString) {
+unsigned int hexToDec(String hexString) {
   unsigned int decValue = 0;
   int nextInt;
 
@@ -155,11 +155,11 @@ String fetchAskSinAnalyzerDevList() {
     decValue = (decValue * 16) + nextInt;
   }
   return decValue;
-}*/
+}
 
 const size_t listCapacity = JSON_ARRAY_SIZE(400) + JSON_OBJECT_SIZE(2) + 400 * JSON_OBJECT_SIZE(3) + 4 * 4620;
 DynamicJsonDocument JSONDevList(listCapacity);
-std::map<String,JsonObject> devicemap;
+std::map<int,JsonObject> devicemap;
 void createJSONDevList(String js) {
   DeserializationError error = deserializeJson(JSONDevList, js);
   if (error) {
@@ -170,21 +170,22 @@ void createJSONDevList(String js) {
     devicemap.clear();
     for (uint16_t i = 0; i < devices.size(); i++) {
       JsonObject device = devices[i];
-      devicemap[ intToHexString(device["address"].as<unsigned int>()) ] = device;
+      devicemap[ device["address"].as<unsigned int>() ] = device;
     }
   }
 }
 
-String getSerialFromAddress(String hexAdr) {
+String getSerialFromAddress(int intAdr) {
   if (isOnline) {
-    DPRINT("getSerialFromAddress ");DPRINTLN(hexAdr);
-    std::map<String,JsonObject>::const_iterator idx = devicemap.find(hexAdr);
+    DPRINT("getSerialFromAddress ");DPRINTLN(intAdr);
+    std::map<int,JsonObject>::const_iterator idx = devicemap.find(intAdr);
     if (idx != devicemap.end()) {
       return idx->second["serial"].as<String>();
     }
   }
   return "";
 }
+
 /*
 void createJSONDevList(String js) {
   DeserializationError error = deserializeJson(JSONDevList, js);
