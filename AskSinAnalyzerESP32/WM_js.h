@@ -9,7 +9,13 @@
 
 const char WM_HTTP_SCRIPT[] PROGMEM = R"=====(
 <script>
-function setBackendType() {
+  function c(l) { 
+    document.getElementById('s').value = l.innerText || l.textContent; document.getElementById('p').focus();
+  }
+
+  function setBackendType() {
+    var backendtype = document.getElementById('backendtype'); 
+    
     var qsa = document.querySelectorAll('[id^=div_]'); 
     qsa.forEach(function(e) { 
       e.style.display = 'block'; 
@@ -28,7 +34,7 @@ function setBackendType() {
       qsa = document.querySelectorAll('[id^=div_' + flt + ']'); 
       qsa.forEach(function(e) { e.style.display = 'none'; }); 
     } 
-}
+  }
 </script>
 )=====";
 
