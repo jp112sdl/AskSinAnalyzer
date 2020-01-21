@@ -44,10 +44,11 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #define VERSION_LOWER "1"
 
 //Pin definitions for external switches
-#define START_WIFIMANAGER_PIN    15
-#define SHOW_DISPLAY_LINES_PIN   13
-#define SHOW_DISPLAY_DETAILS_PIN 12
-#define ONLINE_MODE_PIN          14
+#define START_WIFIMANAGER_PIN    15 //LOW = on boot: start wifimanager, on run: switch between tft screens
+#define SHOW_DISPLAY_LINES_PIN   13 //LOW = show lines between rows
+#define SHOW_DISPLAY_DETAILS_PIN 12 //LOW = show detailed information on display, HIGH = show only main infos
+#define RSSI_PEAK_HOLD_MODE_PIN   4 //LOW = show peak line only for noisefloor, HIGH = show also for hm(ip) messages
+#define ONLINE_MODE_PIN          14 //LOW = enable WIFI
 
 //Pin definition for LED
 #define AP_MODE_LED_PIN          32
@@ -60,10 +61,10 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #define EXTSERIALBAUDRATE        57600
 
 #ifdef USE_DISPLAY
-#define TFT_LED                 33
-#define TFT_CS                   5
-#define TFT_RST                 26
-#define TFT_DC                  25
+#define TFT_LED                  33
+#define TFT_CS                    5
+#define TFT_RST                  26
+#define TFT_DC                   25
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 U8G2_FOR_ADAFRUIT_GFX u8g;
 
@@ -137,7 +138,6 @@ struct _RSSILogTable {
 };
 RingStack<_RSSILogTable,MAX_RSSILOG_ENTRIES> RSSILogTable;
 bool       rssiValueAdded                 = false;
-bool       rssiPeakHoldNoiseFloorOnly     = true;
 
 struct _SerialBuffer {
   String   Msg            = "";
@@ -182,6 +182,7 @@ void setup() {
   pinMode(START_WIFIMANAGER_PIN, INPUT_PULLUP);
   pinMode(SHOW_DISPLAY_LINES_PIN, INPUT_PULLUP);
   pinMode(SHOW_DISPLAY_DETAILS_PIN, INPUT_PULLUP);
+  pinMode(RSSI_PEAK_HOLD_MODE_PIN, INPUT_PULLUP);
   pinMode(ONLINE_MODE_PIN, INPUT_PULLUP);
   pinMode(AP_MODE_LED_PIN, OUTPUT);
 
