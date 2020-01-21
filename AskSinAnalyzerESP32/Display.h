@@ -190,11 +190,14 @@ void showRSSI_TEXTDisplay(bool firstrun) {
   }
 
   if (last_rssi != RSSILogTable[0].rssi) {
+    u8g.setFont(u8g2_font_helvB24_tr);
+
     uint8_t minus_width = u8g.getUTF8Width("-");
 
     int8_t rssi = RSSILogTable[0].rssi;
     if (rssi < rssi_min) rssi = rssi_min;
     if (rssi > rssi_max) rssi = rssi_max;
+
 
     u8g.setForegroundColor(ILI9341_BLACK);
     u8g.setCursor(131 - (last_rssi < -99 ? minus_width : 0), 134);
@@ -219,6 +222,14 @@ void showRSSI_TEXTDisplay(bool firstrun) {
     }
 
     h = map(peak, rssi_min, rssi_max, 0, bar_height);
+
+    //print peak value
+    tft.fillRect(60, 10, 30, bar_height, ILI9341_BLACK);
+    u8g.setFont(u8g2_font_helvB08_tr);
+    u8g.setForegroundColor(ILI9341_RED);
+    u8g.setCursor(60, bar_height - h + 8);
+    u8g.print(peak);
+
     if (peak > rssi_min) tft.drawLine(bar_start_x, bar_height - h + 4, bar_start_x + bar_width - 1, bar_height - h + 4, ILI9341_RED);
 
     if (millis() - peak_set_millis > RSSI_PEAK_HOLD_MILLIS) {
