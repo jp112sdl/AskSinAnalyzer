@@ -154,12 +154,15 @@ uint16_t getRssiForegroundColor(uint8_t type) {
 }
 
 void showRSSI_TEXTDisplay(bool firstrun) {
-  const uint8_t bar_height  = 220;
-  const uint8_t bar_start_x = 34;
-  const uint8_t bar_width   = 20;
-  const int8_t  rssi_min    = -120;
-  const int8_t  rssi_max    =  -20;
-  static int    last_rssi   = 128;
+  const uint8_t bar_height             = 220;
+  const uint8_t bar_start_x            = 34;
+  const uint8_t bar_width              = 20;
+  const int8_t  rssi_min               = -120;
+  const int8_t  rssi_max               =  -20;
+  static int8_t last_rssi              = 128;
+  static int8_t peak                   = -128;
+  static unsigned long peak_set_millis = 0;
+
 
   if (firstrun) {
     tft.fillRect(0, 0, tft.width(), tft.height(), ILI9341_BLACK);
@@ -179,7 +182,7 @@ void showRSSI_TEXTDisplay(bool firstrun) {
     u8g.setFont(u8g2_font_helvB24_tr);
     tft.drawRoundRect(95, 70, 200, 100, 4, ILI9341_LIGHTGREY);
     tft.drawRoundRect(30, 6, 28, 228, 4, ILI9341_LIGHTGREY);
-    u8g.setForegroundColor(ILI9341_GREEN);
+    u8g.setForegroundColor(ILI9341_WHITE);
     u8g.setCursor(190, 134);
     u8g.print("dBm");
 
@@ -205,6 +208,22 @@ void showRSSI_TEXTDisplay(bool firstrun) {
     tft.fillRect(bar_start_x, 10, bar_width, bar_height, ILI9341_BLACK);
     tft.fillRect(bar_start_x, bar_height - h + 4, bar_width, h, getRssiForegroundColor(RSSILogTable[0].type));
 
+    if (rssiPeakHoldNoiseFloorOnly) {
+      if (RSSILogTable[0].type == RSSITYPE_NONE) {
+        peak = _max(peak, RSSILogTable[0].rssi);
+      }
+    } else {
+      peak = _max(peak, RSSILogTable[0].rssi);
+    }
+
+    h = map(peak, rssi_min, rssi_max, 0, bar_height);
+    if (peak > rssi_min) tft.drawLine(bar_start_x, bar_height - h + 4, bar_start_x + bar_width - 1, bar_height - h + 4, ILI9341_RED);
+
+    if (millis() - peak_set_millis > RSSI_PEAK_HOLD_MILLIS) {
+      peak = -128;
+      peak_set_millis = millis();
+    }
+    
     last_rssi = RSSILogTable[0].rssi;
   }
 }
@@ -215,13 +234,13 @@ void showRSSI_GRAPHICDisplay(bool firstrun) {
   const int8_t  rssi_min          = -120;
   const int8_t  rssi_max          = -20;
   static bool last_rssiValueAdded = true;
-  static int last_rssi            = 128;
+  static int8_t last_rssi         = 128;
 
   uint8_t bar_width = RSSIConfig.histogramBarWidth;
   static uint8_t last_bar_width = 0;
 
   if (last_bar_width != bar_width) firstrun = true;
-  
+
   if (firstrun) {
     tft.fillRect(0, 0, tft.width(), tft.height(), ILI9341_BLACK);
     tft.drawLine(30, 1, 30, 240, ILI9341_WHITE);
