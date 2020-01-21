@@ -41,7 +41,7 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #include "RingBuffer.h"
 
 #define VERSION_UPPER "3"
-#define VERSION_LOWER "0"
+#define VERSION_LOWER "1"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15
@@ -81,6 +81,8 @@ uint16_t currentCircleColor = ILI9341_RED;
 #define VARIABLESIZE          255
 #define DEFAULT_NTP_SERVER    "0.de.pool.ntp.org"
 #define DEFAULT_HOSTNAME      "AskSinAnalyzer"
+
+#define RSSI_PEAK_HOLD_MILLIS 30000 //30 seconds peak hold on rssi text screen
 
 struct _NetConfig {
   char ip[IPSIZE]             = "0.0.0.0";
@@ -134,8 +136,8 @@ struct _RSSILogTable {
   uint8_t  type                       = RSSITYPE_NONE;
 };
 RingStack<_RSSILogTable,MAX_RSSILOG_ENTRIES> RSSILogTable;
-
 bool       rssiValueAdded                 = false;
+bool       rssiPeakHoldNoiseFloorOnly     = true;
 
 struct _SerialBuffer {
   String   Msg            = "";
