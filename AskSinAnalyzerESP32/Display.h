@@ -208,6 +208,8 @@ void showRSSI_TEXTDisplay(bool firstrun) {
     tft.fillRect(bar_start_x, 10, bar_width, bar_height, ILI9341_BLACK);
     tft.fillRect(bar_start_x, bar_height - h + 4, bar_width, h, getRssiForegroundColor(RSSILogTable[0].type));
 
+    bool rssiPeakHoldNoiseFloorOnly =  digitalRead(RSSI_PEAK_HOLD_MODE_PIN) == LOW;
+
     if (rssiPeakHoldNoiseFloorOnly) {
       if (RSSILogTable[0].type == RSSITYPE_NONE) {
         peak = _max(peak, RSSILogTable[0].rssi);
