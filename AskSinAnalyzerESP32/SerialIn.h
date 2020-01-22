@@ -59,43 +59,69 @@ void receiveMessages() {
 #define STRPOS_TYPE_BEGIN     9
 #define STRPOS_FROM_BEGIN     11
 #define STRPOS_TO_BEGIN       17
-#define STRPOS_TO_END         23
+#define STRPOS_PAYLOAD_BEGIN  23
 
-void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
+bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
+  bool dataIsRSSIOnly = ((sb.Msg).length() == 3);
+
 #ifdef VDEBUG
-  DPRINTLN(F("######## PROCESSING NEW MESSAGE ########"));
+  if (!dataIsRSSIOnly) {
+    DPRINTLN(F("# PROCESSING SERIAL DATA #"));
+    DPRINT("I ");
+    DPRINT(dataIsRSSIOnly ? "R" : "P");
+    DPRINT(" #");
+    DPRINT(String(b));
+    DPRINT(": ");
+    DPRINTLN(sb.Msg);
+  }
 #endif
-  DPRINTLN("I #" + String(b) + ": " + sb.Msg);
 
   String rssiIn = (sb.Msg).substring(STRPOS_RSSI_BEGIN, STRPOS_LENGTH_BEGIN);
   int rssi = -1 * (strtol(&rssiIn[0], NULL, 16) & 0xFF);
 
+
+  if (dataIsRSSIOnly) {
+    addRssiValueToRSSILogTable(rssi, sb.t, RSSITYPE_NONE, "NOISE");
+    return false;
+  }
+
   String lengthIn = (sb.Msg).substring(STRPOS_LENGTH_BEGIN, STRPOS_COUNT_BEGIN);
-  uint8_t len = (strtol(&lengthIn[0], NULL, 16) & 0xFF);
+  uint8_t len = strtol(&lengthIn[0], NULL, 16) & 0xFF;
 
   String countIn = (sb.Msg).substring(STRPOS_COUNT_BEGIN, STRPOS_FLAGS_BEGIN);
-  uint8_t cnt = (strtol(&countIn[0], NULL, 16) & 0xFF);
+  uint8_t cnt = strtol(&countIn[0], NULL, 16) & 0xFF;
+  
+  String flagsStr =  (sb.Msg).substring(STRPOS_FLAGS_BEGIN, STRPOS_TYPE_BEGIN);
+  uint8_t flags = strtol(&flagsStr[0], NULL, 16) & 0xFF;
 
-  String flags = getFlags((sb.Msg).substring(STRPOS_FLAGS_BEGIN, STRPOS_TYPE_BEGIN));
-  String typ = getTyp((sb.Msg).substring(STRPOS_TYPE_BEGIN, STRPOS_FROM_BEGIN));
-
+  String typStr =  (sb.Msg).substring(STRPOS_TYPE_BEGIN, STRPOS_FROM_BEGIN);
+  uint8_t typ = strtol(&typStr[0], NULL, 16) & 0xFF;
+  
   String fromStr = "";
   String toStr = "";
   if (ONLINE_MODE && RESOLVE_ADDRESS) {
-    fromStr = getSerialFromIntAddress(hexToDec((sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN)));
-    toStr = getSerialFromIntAddress(hexToDec((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END)));
+    fromStr = getSerialFromAddress(hexToDec((sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN)));
+    toStr = getSerialFromAddress(hexToDec((sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN)));
   }
 
   if (fromStr == "")  fromStr = "  " + (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN) + "  ";
-  if (toStr == "")    toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END) + "  ";
+  if (toStr == "")    toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN) + "  ";
 
   char fromAddress[SIZE_ADDRESS];
   (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN).toCharArray(fromAddress, SIZE_ADDRESS);
   char toAddress[SIZE_ADDRESS];
-  (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_TO_END).toCharArray(toAddress, SIZE_ADDRESS);
+  (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN).toCharArray(toAddress, SIZE_ADDRESS);
+  char msg[SIZE_MSG];
+  (sb.Msg).substring(3).toCharArray(msg, SIZE_MSG);
+  String msgStr = "";
+  for (uint8_t i = 0; i< SIZE_MSG; i++) {
+    if (msg[i] == 0) break;
+    msgStr += msg[i];
+    if (i % 2) msgStr += " ";
+  }
 
 
-  shiftLogArray();
+  LogTable.shift();
 
   LogTable[0].lognumber = allCount;
   LogTable[0].time = sb.t;
@@ -106,14 +132,15 @@ void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   memcpy(LogTable[0].toAddress, toAddress, SIZE_ADDRESS);
   LogTable[0].len = len;
   LogTable[0].cnt = cnt;
-  memcpy(LogTable[0].typ, typ.c_str(), SIZE_TYPE);
-  memcpy(LogTable[0].flags, flags.c_str(), SIZE_FLAGS);
+  LogTable[0].typ = typ;
+  LogTable[0].flags = flags;
+  memcpy(LogTable[0].msg, msgStr.c_str(), SIZE_MSG);
+
+  addRssiValueToRSSILogTable(rssi, sb.t, (flags == 0x00) ? RSSITYPE_HMIP : RSSITYPE_HMRF, fromStr.c_str());
 
   writeLogEntryToSD(LogTable[0]);
   writeLogEntryToWebSocket(LogTable[0]);
   writeSessionLogToSPIFFS(LogTable[0]);
-
-  if (logLength < MAX_LOG_ENTRIES - 1) logLength++;
 
   allCount++;
 
@@ -122,7 +149,7 @@ void fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   dumpLogTableEntry(LogTable[0]);
   DPRINT(F("######## PROCESSING ")); DDEC(allCount); DPRINTLN(F(" END ########\n"));
 #endif
-
+  return true;
 }
 
 #endif

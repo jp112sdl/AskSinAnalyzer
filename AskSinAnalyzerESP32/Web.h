@@ -30,12 +30,15 @@ void writeLogEntryToWebSocket(const _LogTable &lt) {
       json += "\"to\": \"" + to + "\", ";
       json += "\"len\": " + String(lt.len) + ", ";
       json += "\"cnt\": " + String(lt.cnt) + ", ";
-      String t = String(lt.typ);
+      String t = getTyp(lt.typ);
       t.trim();
       json += "\"typ\": \"" + t + "\", ";
-      String fl = String(lt.flags);
+      String fl = getFlags(lt.flags);
       fl.trim();
-      json += "\"flags\": \"" + fl + "\"";
+      json += "\"flags\": \"" + fl + "\", ";
+      String msg = String(lt.msg);
+      msg.trim();
+      json += "\"msg\": \"" + msg + "\"";
       json += "}";
       wsClient->text(json);
     }
@@ -92,6 +95,18 @@ void setConfig(AsyncWebServerRequest *request) {
     DPRINT(F("  - ccuip: ")); DPRINTLN(HomeMaticConfig.ccuIP);
   }
 
+  if (request->hasParam("backend", true)) {
+    AsyncWebParameter* p = request->getParam("backend", true);
+
+    uint8_t val = atoi(p->value().c_str());
+    if (val == BT_CCU || val ==  BT_OTHER) {
+      HomeMaticConfig.backendType = val;
+      DPRINT(F("  - backend: ")); DPRINTLN(HomeMaticConfig.backendType);
+    } else {
+      DPRINT(F("  - backend OUT OF RANGE : ")); DDEC(val);
+    }
+  }
+
   if (request->hasParam("ntp", true)) {
     AsyncWebParameter* p = request->getParam("ntp", true);
     p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
@@ -120,6 +135,17 @@ void setConfig(AsyncWebServerRequest *request) {
     AsyncWebParameter* p = request->getParam("gw", true);
     p->value().toCharArray(NetConfig.gw, IPSIZE, 0);
     DPRINT(F("  - gw: ")); DPRINTLN(NetConfig.gw);
+  }
+
+  if (request->hasParam("rssi_hbw", true)) {
+    AsyncWebParameter* p = request->getParam("rssi_hbw", true);
+    uint8_t val = atoi(p->value().c_str());
+    if (val > 0 && val <  64) {
+      RSSIConfig.histogramBarWidth = val;
+      DPRINT(F("  - rssi_hbw: ")); DPRINTLN(RSSIConfig.histogramBarWidth);
+    } else {
+      DPRINT(F("  - rssi_hbw OUT OF RANGE (0-63) : ")); DDEC(val);
+    }
   }
 
   DPRINTLN(F("- setConfig END"));
@@ -153,6 +179,8 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"ccuip\":\"" + String(HomeMaticConfig.ccuIP) + "\"";
   json += ",";
+  json += "\"backend\":" + String(HomeMaticConfig.backendType);
+  json += ",";
   json += "\"resolve\":" + String(RESOLVE_ADDRESS);
   json += ",";
   json += "\"sdcardavailable\":" + String(sdAvailable);
@@ -163,13 +191,15 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"sdcardusedspacemb\":\"" + String(getSDCardUsedSpaceMB()) + "\"";
   json += ",";
-  json += "\"spiffssizekb\":" + String(getSPIFFSSizeKB());                                      
+  json += "\"spiffssizekb\":" + String(getSPIFFSSizeKB());
   json += ",";
-  json += "\"spiffsusedkb\":" + String(getSPIFFSUsedKB());                                       
+  json += "\"spiffsusedkb\":" + String(getSPIFFSUsedKB());
   json += ",";
   json += "\"boottime\":" + String(bootTime); // time must be UTC
   json += ",";
   json += "\"display\":" + String(HAS_DISPLAY);
+  json += ",";
+  json += "\"rssi_hbw\":" + String(RSSIConfig.histogramBarWidth);
   json += ",";
   json += "\"version_upper\":" + String(VERSION_UPPER);
   json += ",";
@@ -183,9 +213,10 @@ void getConfig (AsyncWebServerRequest *request) {
 
 void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
   DPRINTLN(F("::: Web.h /getAskSinAnalyzerDevListJSON"));
-  String js = loadAskSinAnalyzerDevListFromCCU();
+  String js = fetchAskSinAnalyzerDevList();
   if (js != "null") {
-    AsyncResponseStream *response = request->beginResponseStream("application/json;charset=iso-8859-1");
+    String charset = (HomeMaticConfig.backendType == BT_CCU) ? "iso-8859-1" : "utf-8";
+    AsyncResponseStream *response = request->beginResponseStream("application/json;charset="+charset);
     createJSONDevList(js);  //refresh local DevList
     response->print(js);    //send DevList to Web
     request->send(response);
@@ -193,6 +224,21 @@ void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
     DPRINTLN(F("-> E: js == null"));
     request->send(422, "text/plain", "Fehler beim Abruf der SV");
   }
+}
+
+void getRSSILog(AsyncWebServerRequest * request) {
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  response->print("[");
+
+  for (uint8_t l = 0; l < _min(RSSILogTable.count(), MAX_RSSILOG_ENTRIES); l++) {
+    String json = "";
+    if (l > 0) json += ",";
+    json += createJSONFromRSSILogTableEntry(RSSILogTable[l]);
+    response->print(json);
+  }
+
+  response->print("]");
+  request->send(response);
 }
 
 void getLogByLogNumber (AsyncWebServerRequest * request) {
@@ -225,10 +271,10 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
           }
           DPRINT("-");
         }
-        msgBufferProcessing = true;
         temp.close();
 
         DPRINT("] done. duration (ms): "); DDECLN(millis() - startMillis);
+        msgBufferProcessing = true;
         response = request->beginResponse(SPIFFS, "/temp.log", "text/comma-separated-values");
       } else {
         response = request->beginResponse(SPIFFS, "/0.log", "text/comma-separated-values");
@@ -237,7 +283,7 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
 
     } else {
       AsyncResponseStream *response = request->beginResponseStream("text/comma-separated-values");
-      for (uint16_t l = 0; l < logLength; l++) {
+      for (uint16_t l = 0; l < LogTable.count(); l++) {
         if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
           response->println(createCSVFromLogTableEntry(LogTable[l], false));
         }
@@ -248,7 +294,7 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
   } else {
     AsyncResponseStream *response = request->beginResponseStream("application/json");
     response->print("[");
-    for (uint16_t l = 0; l < logLength; l++) {
+    for (uint16_t l = 0; l < LogTable.count(); l++) {
       if ((int32_t)LogTable[l].lognumber > lognum && l < MAX_LOG_ENTRIES) {
         String json = "";
         if (l > 0) json += ",";
@@ -284,7 +330,7 @@ void checkUpdate(String url) {
   if (updating == true) {
     updating = false;
     DPRINTLN(F("Check for Updates..."));
-   
+
     digitalWrite(AP_MODE_LED_PIN, HIGH);
     ESPhttpUpdate.rebootOnUpdate(false);
     t_httpUpdate_return ret = ESPhttpUpdate.update(url);
@@ -362,6 +408,10 @@ void initWebServer() {
 
   webServer.on("/getLogByLogNumber", HTTP_GET, [](AsyncWebServerRequest * request) {
     getLogByLogNumber(request);
+  });
+
+  webServer.on("/getRSSILog", HTTP_GET, [](AsyncWebServerRequest * request) {
+    getRSSILog(request);
   });
 
   webServer.on("/httpupdate", HTTP_GET, [](AsyncWebServerRequest * request) {

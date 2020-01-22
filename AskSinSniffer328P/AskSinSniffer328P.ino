@@ -11,6 +11,8 @@
 #include <Device.h>
 #include <Register.h>
 
+#define RSSI_POLL_INTERVAL 750 //milliseconds
+
 // all library classes are placed in the namespace 'as'
 using namespace as;
 
@@ -34,7 +36,10 @@ class SnifferDevice : public Device<HalType, DefList0>, Alarm {
     virtual ~SnifferDevice () {}
 
     virtual void trigger (__attribute__ ((unused)) AlarmClock& clock) {
-      //
+      set(millis2ticks(RSSI_POLL_INTERVAL));
+      clock.add(*this);
+      this->radio().pollRSSI();
+      DPRINT(":"); DHEX(this->radio().rssi());DPRINTLN(";");
     }
 
     virtual bool process(Message& msg) {
@@ -58,6 +63,7 @@ class SnifferDevice : public Device<HalType, DefList0>, Alarm {
       this->getDeviceID(id);
       hal.init(id);
       hal.config(this->getConfigArea());
+      sysclock.add(*this);
       return false;
     }
 };

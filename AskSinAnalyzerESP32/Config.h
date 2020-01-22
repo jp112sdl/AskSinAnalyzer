@@ -12,16 +12,22 @@
 #define CONFIG_HOSTNAME               "hostname"
 #define CONFIG_NTP                    "ntp"
 #define CONFIG_CCUIP                  "ccuip"
+#define CONFIG_BACKEND                "backend"
+#define CONFIG_BACKEND_URL            "backendurl"
 #define CONFIG_BOOTCONFIGMODE         "bootConfigMode"
+#define CONFIG_RSSI_HISTOGRAMBARWIDTH "rssi_hbw"
 
 void dumpSystemConfig() {
   DPRINTLN(F("- dump config:"));
   DPRINT(F(" - Hostname    : ")); DPRINTLN(NetConfig.hostname);
+  DPRINT(F(" - BACKEND     : ")); DPRINTLN(HomeMaticConfig.backendType);
+  DPRINT(F(" - BACKEND URL : ")); DPRINTLN(HomeMaticConfig.backendUrl);
   DPRINT(F(" - CCU IP      : ")); DPRINTLN(HomeMaticConfig.ccuIP);
   DPRINT(F(" - NTP         : ")); DPRINTLN(NetConfig.ntp);
   DPRINT(F(" - Static IP   : ")); DPRINTLN(NetConfig.ip);
   DPRINT(F(" - Static Mask : ")); DPRINTLN(NetConfig.netmask);
   DPRINT(F(" - Static GW   : ")); DPRINTLN(NetConfig.gw);
+  DPRINT(F(" - RSSI Hist.BW: ")); DPRINTLN(RSSIConfig.histogramBarWidth);
 }
 
 bool loadSystemConfig() {
@@ -38,10 +44,14 @@ bool loadSystemConfig() {
   hostname.toCharArray(NetConfig.hostname, VARIABLESIZE, 0);
   configPreferences.getString(CONFIG_NTP, DEFAULT_NTP_SERVER).toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
   configPreferences.getString(CONFIG_CCUIP, "").toCharArray(HomeMaticConfig.ccuIP, IPSIZE, 0);
+  HomeMaticConfig.backendType = configPreferences.getUChar(CONFIG_BACKEND, BT_CCU);
+  configPreferences.getString(CONFIG_BACKEND_URL, "").toCharArray(HomeMaticConfig.backendUrl, VARIABLESIZE, 0);
 
   configPreferences.getString(CONFIG_IP, "0.0.0.0").toCharArray(NetConfig.ip, IPSIZE, 0);
   configPreferences.getString(CONFIG_NETMASK, "0.0.0.0").toCharArray(NetConfig.netmask, IPSIZE, 0);
   configPreferences.getString(CONFIG_GW, "0.0.0.0").toCharArray(NetConfig.gw, IPSIZE, 0);
+
+  RSSIConfig.histogramBarWidth = configPreferences.getUChar(CONFIG_RSSI_HISTOGRAMBARWIDTH, 5);
 
   configPreferences.end();
   dumpSystemConfig();
@@ -58,6 +68,9 @@ bool saveSystemConfig() {
   configPreferences.putString(CONFIG_NTP, NetConfig.ntp);
   configPreferences.putString(CONFIG_HOSTNAME, NetConfig.hostname);
   configPreferences.putString(CONFIG_CCUIP, HomeMaticConfig.ccuIP);
+  configPreferences.putString(CONFIG_BACKEND_URL, HomeMaticConfig.backendUrl);
+  configPreferences.putUChar(CONFIG_BACKEND, HomeMaticConfig.backendType);
+  configPreferences.putUChar(CONFIG_RSSI_HISTOGRAMBARWIDTH, RSSIConfig.histogramBarWidth);
   delay(300);
   configPreferences.end();
   return true;

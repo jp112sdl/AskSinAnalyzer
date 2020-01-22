@@ -5,13 +5,17 @@
 // 2019-06-01 psi-4ward Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 //- -----------------------------------------------------------------------------------------------------------------------
 
-
 #define USE_DISPLAY
 #define WEB_BRANCH            "master"                  //only changed for development
 const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used system variable on the CCU containing the device list
 // #define NDEBUG //No DEBUG -> no output
 #define VDEBUG //Verbose DEBUG -> more output
 
+//#include <sstream>
+//#include <iomanip>
+#include <map>
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
 #include "Debug.h"
 #include <Preferences.h>
 #include "WM.h"
@@ -34,15 +38,17 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #else
 #define HAS_DISPLAY 0
 #endif
+#include "RingBuffer.h"
 
-#define VERSION_UPPER "2"
-#define VERSION_LOWER "7"
+#define VERSION_UPPER "3"
+#define VERSION_LOWER "1"
 
 //Pin definitions for external switches
-#define START_WIFIMANAGER_PIN    15
-#define SHOW_DISPLAY_LINES_PIN   13
-#define SHOW_DISPLAY_DETAILS_PIN 12
-#define ONLINE_MODE_PIN          14
+#define START_WIFIMANAGER_PIN    15 //LOW = on boot: start wifimanager, on run: switch between tft screens
+#define SHOW_DISPLAY_LINES_PIN   13 //LOW = show lines between rows
+#define SHOW_DISPLAY_DETAILS_PIN 12 //LOW = show detailed information on display, HIGH = show only main infos
+#define RSSI_PEAK_HOLD_MODE_PIN   4 //LOW = show peak line only for noisefloor, HIGH = show also for hm(ip) messages
+#define ONLINE_MODE_PIN          14 //LOW = enable WIFI
 
 //Pin definition for LED
 #define AP_MODE_LED_PIN          32
@@ -55,24 +61,29 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #define EXTSERIALBAUDRATE        57600
 
 #ifdef USE_DISPLAY
-#define TFT_LED                 33
-#define TFT_CS                   5
-#define TFT_RST                 26
-#define TFT_DC                  25
+#define TFT_LED                  33
+#define TFT_CS                    5
+#define TFT_RST                  26
+#define TFT_DC                   25
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 U8G2_FOR_ADAFRUIT_GFX u8g;
 
 #define DISPLAY_LOG_LINE_HEIGHT  15
 #define DISPLAY_LOG_OFFSET_TOP   27
+enum Screens { TELEGRAM_LIST, RSSI_TEXT, RSSI_GRAPHIC, INFO };
+uint8_t currentScreen = TELEGRAM_LIST;
+uint16_t currentCircleColor = ILI9341_RED;
 #endif
 
 #define CSV_FILENAME                "/log.csv"
-#define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;"
+#define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;msg;"
 
 #define IPSIZE                16
 #define VARIABLESIZE          255
 #define DEFAULT_NTP_SERVER    "0.de.pool.ntp.org"
 #define DEFAULT_HOSTNAME      "AskSinAnalyzer"
+
+#define RSSI_PEAK_HOLD_MILLIS 30000 //30 seconds peak hold on rssi text screen
 
 struct _NetConfig {
   char ip[IPSIZE]             = "0.0.0.0";
@@ -82,15 +93,24 @@ struct _NetConfig {
   char ntp[VARIABLESIZE]      = DEFAULT_NTP_SERVER;
 } NetConfig;
 
+enum BackendTypes { BT_CCU, BT_OTHER };
 struct _HomeMaticConfig {
-  char ccuIP[IPSIZE]   = "";
+  char ccuIP[IPSIZE]            = "";
+  uint8_t backendType           = BT_CCU;
+  char backendUrl[VARIABLESIZE] = "";
 } HomeMaticConfig;
 
-#define MAX_LOG_ENTRIES 51
-#define SIZE_ADDRESS   (6+1)    // address has 6 chars
-#define SIZE_SERIAL    (10+1)   // serial has 10 chars
-#define SIZE_TYPE       32
-#define SIZE_FLAGS      32
+struct _RSSIConfig {
+  uint8_t histogramBarWidth = 5;
+} RSSIConfig;
+
+#define MAX_LOG_ENTRIES      51
+#define MAX_RSSILOG_ENTRIES 255
+#define SIZE_ADDRESS       (6+1)    // address has 6 chars
+#define SIZE_SERIAL        (10+1)   // serial has 10 chars
+#define SIZE_TYPE            32
+#define SIZE_FLAGS           32
+#define SIZE_MSG             128
 
 struct _LogTable {
   uint32_t lognumber                  = 0;
@@ -102,12 +122,23 @@ struct _LogTable {
   char     toSerial   [SIZE_SERIAL];
   char     fromAddress[SIZE_ADDRESS];
   char     toAddress  [SIZE_ADDRESS];
-  char     typ        [SIZE_TYPE];
-  char     flags      [SIZE_FLAGS];
-} LogTable[MAX_LOG_ENTRIES + 1];
+  uint8_t  typ                        = 0x00;
+  uint8_t  flags                      = 0x00;
+  char     msg        [SIZE_MSG];
+};
+RingStack<_LogTable,MAX_LOG_ENTRIES> LogTable;
 
-uint16_t   logLength                  = 0;
 uint16_t   logLengthDisplay           = 0;
+
+enum RssiTypes { RSSITYPE_NONE, RSSITYPE_HMRF, RSSITYPE_HMIP };
+struct _RSSILogTable {
+  time_t   time                       = 0;
+  int      rssi                       = -255;
+  uint8_t  type                       = RSSITYPE_NONE;
+  char     fromSerial [SIZE_SERIAL];
+};
+RingStack<_RSSILogTable,MAX_RSSILOG_ENTRIES> RSSILogTable;
+bool       rssiValueAdded                 = false;
 
 struct _SerialBuffer {
   String   Msg            = "";
@@ -121,7 +152,6 @@ uint32_t allCount              = 0;
 unsigned long lastDebugMillis  = 0;
 bool     updating              = false;
 bool     formatfs              = false;
-bool     showInfoDisplayActive = false;
 bool     isOnline              = false;
 bool     timeOK                = false;
 bool     SPIFFSAvailable       = false;
@@ -136,14 +166,15 @@ String   updateUrl             = "https://raw.githubusercontent.com/jp112sdl/Ask
 
 #include "Config.h"
 #include "NTP.h"
-#include "Display.h"
 #include "Helper.h"
+#include "Display.h"
 #include "File.h"
 #include "Web.h"
 #include "WManager.h"
 #include "SerialIn.h"
 
 void setup() {
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); // disable brownout detection
   DINIT(57600, F("\nASKSINANALYZER ESP32 " VERSION_UPPER "." VERSION_LOWER " (" __DATE__ " " __TIME__ ")\n--------------------------------"));
   pinMode(SD_CS, OUTPUT);
   Serial1.begin(EXTSERIALBAUDRATE, SERIAL_8N1, EXTSERIALRX_PIN, EXTSERIALTX_PIN);
@@ -152,6 +183,7 @@ void setup() {
   pinMode(START_WIFIMANAGER_PIN, INPUT_PULLUP);
   pinMode(SHOW_DISPLAY_LINES_PIN, INPUT_PULLUP);
   pinMode(SHOW_DISPLAY_DETAILS_PIN, INPUT_PULLUP);
+  pinMode(RSSI_PEAK_HOLD_MODE_PIN, INPUT_PULLUP);
   pinMode(ONLINE_MODE_PIN, INPUT_PULLUP);
   pinMode(AP_MODE_LED_PIN, OUTPUT);
 
@@ -168,8 +200,6 @@ void setup() {
 #ifdef USE_DISPLAY
   initTFT();
 #endif
-
-  initLogTable();
 
   if (ONLINE_MODE) {
     if (!loadSystemConfig()) startWifiManager = true;
@@ -197,7 +227,7 @@ void setup() {
     DPRINT(F("- INIT NTP DONE.          NTP IS "));   DPRINTLN(timeOK ? "AVAILABLE (" + getDatum(now()) + " " + getUhrzeit(now()) + ")" : "NOT AVAILABLE");
     initWebServer();
     DPRINTLN(F("- INIT WEBSERVER DONE."));
-    createJSONDevList(loadAskSinAnalyzerDevListFromCCU());
+    createJSONDevList(fetchAskSinAnalyzerDevList());
     DPRINTLN(F("DONE"));
   }
 
@@ -233,33 +263,70 @@ void loop() {
 
     receiveMessages();
 
-#ifdef USE_DISPLAY
-    if (ONLINE_MODE && (digitalRead(START_WIFIMANAGER_PIN) == LOW)) {
-      if (showInfoDisplayActive == false) {
-        showInfoDisplayActive = true;
-        showInfoDisplay();
-      }
-    } else if (showInfoDisplayActive == true && digitalRead(START_WIFIMANAGER_PIN) == HIGH) {
-      showInfoDisplayActive = false;
-      tft.fillRect(0, 15, tft.width(), tft.height(), ILI9341_BLACK);
-      drawRowLines();
-      refreshDisplayLog();
-    }
-#endif
-
     if (msgBufferCount > 0) {
       for (uint8_t b = 0; b < msgBufferCount; b++) {
-        fillLogTable(SerialBuffer[b], b);
-#ifdef USE_DISPLAY
-        if (logLengthDisplay < DISPLAY_LOG_LINES) logLengthDisplay++;
-        if (showInfoDisplayActive == false) {
-          refreshDisplayLog();
-        }
-#endif
+        bool isTelegram = fillLogTable(SerialBuffer[b], b);
+        if (isTelegram && logLengthDisplay < DISPLAY_LOG_LINES) logLengthDisplay++;
       }
       msgBufferCount = 0;
     }
 
+#ifdef USE_DISPLAY
+
+    static uint32_t last_allCount = 0;
+
+    static bool last_pinstate = HIGH;
+    static bool screenChanged = true;
+
+    //check for button press and set screen
+
+    if (digitalRead(START_WIFIMANAGER_PIN) == LOW && last_pinstate == HIGH) {
+      delay(100); //debounce
+      last_pinstate = LOW;
+      DPRINT(F("SWITCH SCREEN TO "));
+      switch (currentScreen) {
+        case TELEGRAM_LIST:
+          currentScreen = RSSI_TEXT;
+          DPRINTLN(F("RSSI_TEXT"));
+          break;
+        case RSSI_TEXT:
+          currentScreen = RSSI_GRAPHIC;
+          DPRINTLN(F("RSSI_GRAPHIC"));
+          break;
+        case RSSI_GRAPHIC:
+          currentScreen = ONLINE_MODE ? INFO : TELEGRAM_LIST;
+          DPRINTLN(F(ONLINE_MODE ? "INFO" : "TELEGRAM_LIST"));
+          break;
+        case INFO:
+          currentScreen = TELEGRAM_LIST;
+          DPRINTLN(F("TELEGRAM_LIST"));
+          break;
+      }
+      screenChanged = true;
+    } else if (digitalRead(START_WIFIMANAGER_PIN) == HIGH)
+      last_pinstate = HIGH;
+
+    //show selected screen
+    switch (currentScreen) {
+      case TELEGRAM_LIST:
+        if (screenChanged) refreshDisplayLog(true);
+        if (allCount != last_allCount) {
+          refreshDisplayLog(false);
+        }
+        break;
+      case RSSI_TEXT:
+        showRSSI_TEXTDisplay(screenChanged);
+        break;
+      case RSSI_GRAPHIC:
+        showRSSI_GRAPHICDisplay(screenChanged);
+        break;
+      case INFO:
+        showInfoDisplay(screenChanged);
+        break;
+    }
+
+    screenChanged = false;
+    last_allCount = allCount;
+#endif
   }
 }
-

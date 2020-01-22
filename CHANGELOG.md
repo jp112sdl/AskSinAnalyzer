@@ -1,3 +1,36 @@
+## Version 3.1
+- **AskSinSniffer328P:**<br/>
+⚠️ um alle neuen Features (RSSI-Anzeige) nutzen zu können, ist auch ein erneutes Flashen des [AskSinSniffer328P](https://github.com/jp112sdl/AskSinAnalyzer/tree/master/AskSinSniffer328P) notwendig!<br/>
+Der Code läuft mit dem aktuellen [AskSinPP-master](https://github.com/pa-pa/AskSinPP) Branch.
+  - zyklische Ausgabe des Empfangspegels (RSSI) alle 750ms hinzugefügt
+- **ESP32:**
+  - **neu:** RSSI Anzeige einzeln 
+    - Text+Bargraph des aktuellen Pegels, 
+    - Peak(-Hold) Anzeige, 
+    - Quelle des Pegels
+  - **neu:** RSSI Anzeige Bargraph
+  - farbliche Unterscheidung der Pegel:
+    - gelb = Störpegel
+    - grün = Empfangsstärke eines empfangenden HM RF Telegramms
+    - hellblau = Empfangsstärke eines empfangenden HmIP Telegramms
+  - **Schalter an GPIO 4** schaltet zwischen 2 RSSI Modi:
+    - _EIN_ = es wird nur der Wert des Störpegels _("Grundrauschen")_ angezeigt
+    - _AUS_ = es werden Störpegel und die Empfangsstärke von Telegrammen angezeigt
+  - kurzer Druck am Taster schaltet zwischen den Anzeigen
+    - Telegrammauswertung (Startseite)
+    - RSSI Anzeige einzeln
+    - RSSI Anzeige Balkendiagramm
+    - Info-Seite
+  - CSV-Datei:  
+    - Spalte "msg" hinzugefügt, sie enthält das komplette Telegramm
+  - AP-Modus:
+    - Zeige "AP-Modus" auf TFT Display
+    - Auswahl des Backends `CCU` oder `Other` (z.B. für FHEM) hinzugefügt
+    - Eingabe der CCU-IP (`CCU`) oder Backend-URL (`Other`)
+  - Codeoptimierungen (thx to [pa-pa](https://github.com/pa-pa))  
+- **WebUI:**
+  - Unterstützung weiterer Zeichenkodierungen
+
 ## Version 2.7
 - **ESP32:**
   - Behebung von Stabilitätsproblemen

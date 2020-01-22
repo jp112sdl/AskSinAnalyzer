@@ -31,8 +31,8 @@
             <code>http://&lt;EspIp&gt;/getConfig</code>. Funktioniert dies kann die Developer-Console des Browser
             zur weiteren Fehleranalyse herangezogen werden. <br/>
             Wird die WebUI über eine sichere Verbindung (http<strong>s</strong>) ausgeliefert,
-            dann blockieren die meisten Browser eine unserichere Verbindung (http). Man muss dies für die
-            WebUI zulassen, oft ist in der Adressbar ein Icon was darauf hinweist.
+            dann blockieren die meisten Browser eine unsichere Verbindung (http). Man muss dies für die
+            WebUI zulassen, oft ist in der Adressbar ein Icon, was darauf hinweist.
           </div>
           <div class="text-bold">Flags</div>
           <div class="q-mb-md">

@@ -6,6 +6,19 @@
 #ifndef HELPER_H_
 #define HELPER_H_
 
+/*String intToHexString(int input) {
+  std::stringstream ss;
+  ss << std::uppercase << std::hex << std::setfill('0') << input;
+  std::string str = ss.str();
+  for (uint8_t t = str.length() ; t < 6; t++) { str.insert(0,"0"); }
+
+  char cstr[7];
+  strcpy(cstr, str.c_str());
+  return cstr;
+  }*/
+
+void drawStatusCircle(uint16_t c);
+
 bool isNotEmpty(const char *string) {
   return *string;
 }
@@ -21,8 +34,7 @@ void parseBytes(const char* str, char sep, byte* bytes, int maxBytes, int base) 
   }
 }
 
-String getFlags(String in) {
-  int flagsInt =  (strtol(&in[0], NULL, 16) & 0xFF);
+String getFlags(uint8_t flagsInt) {
   String flags = "";
   if (flagsInt & 0x01) flags += "WKUP ";
   if (flagsInt & 0x02) flags += "WKMEUP ";
@@ -40,29 +52,29 @@ String getFlags(String in) {
   return flags;
 }
 
-String getTyp(String in) {
+String getTyp(uint8_t in) {
   String typ = "";
-  if (in == "00") typ = "DEVINFO";
-  else if (in == "01") typ = "CONFIG";
-  else if (in == "02") typ = "RESPONSE";
-  else if (in == "03") typ = "RESPONSE_AES";
-  else if (in == "04") typ = "KEY_EXCHANGE";
-  else if (in == "10") typ = "INFO";
-  else if (in == "11") typ = "ACTION";
-  else if (in == "12") typ = "HAVE_DATA";
-  else if (in == "3E") typ = "SWITCH_EVENT";
-  else if (in == "3F") typ = "TIMESTAMP";
-  else if (in == "40") typ = "REMOTE_EVENT";
-  else if (in == "41") typ = "SENSOR_EVENT";
-  else if (in == "53") typ = "SENSOR_DATA";
-  else if (in == "58") typ = "CLIMATE_EVENT";
-  else if (in == "5A") typ = "CLIMATECTRL_EVENT";
-  else if (in == "5E") typ = "POWER_EVENT";
-  else if (in == "5F") typ = "POWER_EVENT_CYCLIC";
-  else if (in == "70") typ = "WEATHER";
-  else if (in.startsWith("8")) typ = "HMIP_TYPE";
+  if (in == 0x00) typ = "DEVINFO";
+  else if (in == 0x01) typ = "CONFIG";
+  else if (in == 0x02) typ = "RESPONSE";
+  else if (in == 0x03) typ = "RESPONSE_AES";
+  else if (in == 0x04) typ = "KEY_EXCHANGE";
+  else if (in == 0x10) typ = "INFO";
+  else if (in == 0x11) typ = "ACTION";
+  else if (in == 0x12) typ = "HAVE_DATA";
+  else if (in == 0x3E) typ = "SWITCH_EVENT";
+  else if (in == 0x3F) typ = "TIMESTAMP";
+  else if (in == 0x40) typ = "REMOTE_EVENT";
+  else if (in == 0x41) typ = "SENSOR_EVENT";
+  else if (in == 0x53) typ = "SENSOR_DATA";
+  else if (in == 0x58) typ = "CLIMATE_EVENT";
+  else if (in == 0x5A) typ = "CLIMATECTRL_EVENT";
+  else if (in == 0x5E) typ = "POWER_EVENT";
+  else if (in == 0x5F) typ = "POWER_EVENT_CYCLIC";
+  else if (in == 0x70) typ = "WEATHER";
+  else if (in >= 0x80) typ = "HMIP_TYPE";
 
-  else typ = in;
+  else typ = String(in);
   uint8_t typlen = typ.length();
   if (typ.length() < 30)
     for (uint8_t i = 0; i < (30 - typlen); i++)
@@ -71,22 +83,35 @@ String getTyp(String in) {
   return typ;
 }
 
-void initLogTable() {
-  memset(LogTable, 0, MAX_LOG_ENTRIES);
-}
-
-String loadAskSinAnalyzerDevListFromCCU() {
+String fetchAskSinAnalyzerDevList() {
   if (!RESOLVE_ADDRESS) return "NO_RESOLVE";
   if (isOnline && WiFi.status() == WL_CONNECTED) {
-    DPRINTLN(F("- Loading DevList from CCU... "));
+    DPRINT(F("- Loading DevList from ")); DPRINT(HomeMaticConfig.backendType == BT_CCU ? "CCU " : "FHEM ");
 #ifdef USE_DISPLAY
     drawStatusCircle(ILI9341_BLUE);
 #endif
     HTTPClient http;
+    String url = "";
     //http.setTimeout(HTTPTimeOut);
-    //String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + CCU_SV + "%22).Value()";
-    String url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(ID_SYSTEM_VARIABLES).Get(%22" + CCU_SV + "%22).Value()";
-    //DPRINTLN("loadAskSinAnalyzerDevListFromCCU url: " + url);
+    switch (HomeMaticConfig.backendType) {
+      case BT_CCU:
+        url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(ID_SYSTEM_VARIABLES).Get(%22" + CCU_SV + "%22).Value()";
+        break;
+
+      case BT_OTHER:
+        url = String(HomeMaticConfig.backendUrl);
+        break;
+
+      default:
+        DPRINTLN(F(" - fetchAskSinAnalyzerDevList: Empty URL?"));
+#ifdef USE_DISPLAY
+        drawStatusCircle(ILI9341_RED);
+#endif
+        return "ERROR";
+        break;
+
+    }
+    DPRINTLN("fetchAskSinAnalyzerDevList url: " + url);
     http.begin(url);
     int httpCode = http.GET();
     String payload = "ERROR";
@@ -98,8 +123,10 @@ String loadAskSinAnalyzerDevListFromCCU() {
     }
     http.end();
 
-    payload = payload.substring(payload.indexOf("<ret>"));
-    payload = payload.substring(5, payload.indexOf("</ret>"));
+    if (HomeMaticConfig.backendType == BT_CCU) {
+      payload = payload.substring(payload.indexOf("<ret>"));
+      payload = payload.substring(5, payload.indexOf("</ret>"));
+    }
     payload.replace("&quot;", "\"");
     //DPRINTLN("result: " + payload);
 #ifdef USE_DISPLAY
@@ -108,7 +135,7 @@ String loadAskSinAnalyzerDevListFromCCU() {
     return payload;
   }
 
-  DPRINTLN(" - loadAskSinAnalyzerDevListFromCCU: ERROR");
+  DPRINTLN(" - fetchAskSinAnalyzerDevList: ERROR");
 #ifdef USE_DISPLAY
   drawStatusCircle(ILI9341_RED);
 #endif
@@ -134,7 +161,35 @@ unsigned int hexToDec(String hexString) {
 
 const size_t listCapacity = JSON_ARRAY_SIZE(400) + JSON_OBJECT_SIZE(2) + 400 * JSON_OBJECT_SIZE(3) + 4 * 4620;
 DynamicJsonDocument JSONDevList(listCapacity);
+std::map<int, JsonObject> devicemap;
 void createJSONDevList(String js) {
+  DeserializationError error = deserializeJson(JSONDevList, js);
+  if (error) {
+    DPRINT(F(" - JSON DeserializationError: ")); DPRINTLN(error.c_str());
+  } else {
+    devices = JSONDevList["devices"];
+    DPRINT(F(" - Device List created with ")); DDEC(devices.size()); DPRINTLN(F(" entries"));
+    devicemap.clear();
+    for (uint16_t i = 0; i < devices.size(); i++) {
+      JsonObject device = devices[i];
+      devicemap[ device["address"].as<unsigned int>() ] = device;
+    }
+  }
+}
+
+String getSerialFromAddress(int intAdr) {
+  if (isOnline) {
+    DPRINT("getSerialFromAddress "); DPRINTLN(intAdr);
+    std::map<int, JsonObject>::const_iterator idx = devicemap.find(intAdr);
+    if (idx != devicemap.end()) {
+      return idx->second["serial"].as<String>();
+    }
+  }
+  return "";
+}
+
+/*
+  void createJSONDevList(String js) {
   DeserializationError error = deserializeJson(JSONDevList, js);
   if (error) {
     DPRINT(F(" - JSON DeserializationError: ")); DPRINTLN(error.c_str());
@@ -146,9 +201,9 @@ void createJSONDevList(String js) {
     //  DPRINTLN("(" + String(device["address"].as<unsigned int>()) + ") - " + device["serial"].as<String>() + " - " + device["name"].as<String>());
     //}
   }
-}
+  }
 
-String getSerialFromIntAddress(int intAddr) {
+  String getSerialFromIntAddress(int intAddr) {
   if (isOnline) {
     if (devices.size() > 1) {
       for (uint16_t i = 0; i < devices.size(); i++) {
@@ -162,24 +217,17 @@ String getSerialFromIntAddress(int intAddr) {
     }
   }
   return "";
-}
-
-void shiftLogArray() {
-  if (logLength > 0) {
-    for (uint16_t c = logLength; c > 0; c--) {
-      memcpy(LogTable[c].fromSerial, LogTable[c - 1].fromSerial, SIZE_SERIAL);
-      memcpy(LogTable[c].toSerial, LogTable[c - 1].toSerial, SIZE_SERIAL);
-      memcpy(LogTable[c].fromAddress, LogTable[c - 1].fromAddress, SIZE_ADDRESS);
-      memcpy(LogTable[c].toAddress, LogTable[c - 1].toAddress, SIZE_ADDRESS);
-      LogTable[c].rssi = LogTable[c - 1].rssi;
-      LogTable[c].len = LogTable[c - 1].len;
-      LogTable[c].cnt = LogTable[c - 1].cnt;
-      memcpy(LogTable[c].typ, LogTable[c - 1].typ, SIZE_TYPE);
-      memcpy(LogTable[c].flags, LogTable[c - 1].flags, SIZE_FLAGS);
-      LogTable[c].time = LogTable[c - 1].time;
-      LogTable[c].lognumber = LogTable[c - 1].lognumber;
-    }
   }
+*/
+
+void addRssiValueToRSSILogTable(int8_t rssi, time_t ts, uint8_t type, const char * fromSerial) {
+  //shiftRSSILogArray();
+  RSSILogTable.shift();
+  RSSILogTable[0].time = ts;
+  RSSILogTable[0].rssi = rssi;
+  RSSILogTable[0].type = type;
+  memcpy(RSSILogTable[0].fromSerial, fromSerial, SIZE_SERIAL);
+  rssiValueAdded = !rssiValueAdded;
 }
 
 String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
@@ -221,14 +269,20 @@ String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
   csvLine += ";";
   csvLine += String(lt.cnt);
   csvLine += ";";
-  temp = lt.typ;
+  temp = getTyp(lt.typ);
   temp.trim();
   csvLine += temp;
   csvLine += ";";
-  temp = lt.flags;
+  temp = getFlags(lt.flags);
   temp.trim();
   csvLine += temp;
   csvLine += ";";
+  if (lng) {
+    temp = lt.msg;
+    temp.trim();
+    csvLine += temp;
+    csvLine += ";";
+  }
   return csvLine;
 }
 
@@ -245,12 +299,24 @@ String createJSONFromLogTableEntry(_LogTable &lt) {
   json += "\"to\": \"" + to + "\", ";
   json += "\"len\": " + String(lt.len) + ", ";
   json += "\"cnt\": " + String(lt.cnt) + ", ";
-  String t = String(lt.typ);
+  String t = getTyp(lt.typ);
   t.trim();
   json += "\"typ\": \"" + t + "\", ";
-  String fl = String(lt.flags);
+  String fl = getFlags(lt.flags);
   fl.trim();
-  json += "\"flags\": \"" + fl + "\"";
+  json += "\"flags\": \"" + fl + "\", ";
+  String msg = String(lt.msg);
+  msg.trim();
+  json += "\"msg\": \"" + msg + "\"";
+  json += "}";
+  return json;
+}
+
+String createJSONFromRSSILogTableEntry(_RSSILogTable &lt) {
+  String json = "{";
+  json += "\"tstamp\": " + String(lt.time) + ", ";
+  json += "\"rssi\": " + String(lt.rssi) + ", ";
+  json += "\"type\": " + String(lt.type);
   json += "}";
   return json;
 }
@@ -263,8 +329,9 @@ void dumpLogTableEntry(_LogTable &lt) {
   DPRINT(F(" - rssi        : ")); DPRINTLN(lt.rssi);
   DPRINT(F(" - len         : ")); DPRINTLN(lt.len);
   DPRINT(F(" - cnt         : ")); DPRINTLN(lt.cnt);
-  DPRINT(F(" - typ         : ")); DPRINTLN(lt.typ);
-  DPRINT(F(" - flags       : ")); DPRINTLN(lt.flags);
+  DPRINT(F(" - typ         : ")); DPRINTLN(getTyp(lt.typ));
+  DPRINT(F(" - flags       : ")); DPRINTLN(getFlags(lt.flags));
+  DPRINT(F(" - msg         : ")); DPRINTLN(lt.msg);
   DPRINT(F(" - time        : ")); DPRINTLN(getDatum(lt.time) + " " + getUhrzeit(lt.time));
 }
 
