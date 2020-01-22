@@ -218,12 +218,13 @@ String getSerialFromIntAddress(int intAddr) {
 }
 */
 
-void addRssiValueToRSSILogTable(int8_t rssi, time_t ts, uint8_t type) {
+void addRssiValueToRSSILogTable(int8_t rssi, time_t ts, uint8_t type, const char * fromSerial) {
   //shiftRSSILogArray();
   RSSILogTable.shift();
   RSSILogTable[0].time = ts;
   RSSILogTable[0].rssi = rssi;
   RSSILogTable[0].type = type;
+  memcpy(RSSILogTable[0].fromSerial, fromSerial, SIZE_SERIAL);
   rssiValueAdded = !rssiValueAdded;
 }
 

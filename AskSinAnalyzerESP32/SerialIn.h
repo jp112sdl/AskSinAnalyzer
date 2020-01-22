@@ -79,9 +79,9 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   String rssiIn = (sb.Msg).substring(STRPOS_RSSI_BEGIN, STRPOS_LENGTH_BEGIN);
   int rssi = -1 * (strtol(&rssiIn[0], NULL, 16) & 0xFF);
 
-  addRssiValueToRSSILogTable(rssi, sb.t, dataIsRSSIOnly ? RSSITYPE_NONE : RSSITYPE_HMRF);  
 
   if (dataIsRSSIOnly) {
+    addRssiValueToRSSILogTable(rssi, sb.t, RSSITYPE_NONE, "NOISE");
     return false;
   }
 
@@ -136,7 +136,7 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   LogTable[0].flags = flags;
   memcpy(LogTable[0].msg, msgStr.c_str(), SIZE_MSG);
 
-  if (flags == 0x00) RSSILogTable[0].type = RSSITYPE_HMIP; //alter RSSI value type to HMIP
+  addRssiValueToRSSILogTable(rssi, sb.t, (flags == 0x00) ? RSSITYPE_HMIP : RSSITYPE_HMRF, fromStr.c_str());
 
   writeLogEntryToSD(LogTable[0]);
   writeLogEntryToWebSocket(LogTable[0]);
