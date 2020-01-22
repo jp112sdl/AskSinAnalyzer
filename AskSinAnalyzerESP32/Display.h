@@ -328,5 +328,14 @@ void showRSSI_GRAPHICDisplay(bool firstrun) {
   last_rssiValueAdded = rssiValueAdded;
   last_bar_width = bar_width;
 }
+
+void showAPModeDisplay() {
+  tft.fillRect(0, 0, tft.width(), tft.height(), ILI9341_BLACK);
+  u8g.setFont(u8g2_font_helvB24_tf);
+  u8g.setForegroundColor(ILI9341_RED);
+  u8g.setCursor(80, 132);
+  u8g.print("AP-Modus");
+  u8g.setForegroundColor(ILI9341_WHITE);
+}
 #endif
 #endif
