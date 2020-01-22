@@ -4,11 +4,11 @@
 Der Code läuft mit dem aktuellen [AskSinPP-master](https://github.com/pa-pa/AskSinPP) Branch.
   - zyklische Ausgabe des Empfangspegels (RSSI) alle 750ms hinzugefügt
 - **ESP32:**
-  - neu: RSSI Anzeige einzeln 
+  - **neu:** RSSI Anzeige einzeln 
     - Text+Bargraph des aktuellen Pegels, 
     - Peak(-Hold) Anzeige, 
     - Quelle des Pegels
-  - neu: RSSI Anzeige Bargraph
+  - **neu:** RSSI Anzeige Bargraph
   - farbliche Unterscheidung der Pegel:
     - gelb = Störpegel
     - grün = Empfangsstärke eines empfangenden HM RF Telegramms
@@ -21,7 +21,9 @@ Der Code läuft mit dem aktuellen [AskSinPP-master](https://github.com/pa-pa/Ask
     - RSSI Anzeige einzeln
     - RSSI Anzeige Balkendiagramm
     - Info-Seite
-  - AP-Modus
+  - CSV-Datei:  
+    - Spalte "msg" hinzugefügt, sie enthält das komplette Telegramm
+  - AP-Modus:
     - Auswahl des Backends `CCU` oder `Other` (z.B. für FHEM) hinzugefügt
     - Eingabe der CCU-IP (`CCU`) oder Backend-URL (`Other`)
   - Codeoptimierungen (thx to [pa-pa](https://github.com/pa-pa))  
