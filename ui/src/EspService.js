@@ -40,7 +40,7 @@ export default class EspService {
       if (fromName && !devices.has(fromName)) devices.add(fromName);
       if (toName && !devices.has(toName)) devices.add(toName);
     });
-    devices = [...devices].sort();
+    devices = [...devices].sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
     this.data.devices.splice(0, this.data.devices.length, ...devices);
   }
 
