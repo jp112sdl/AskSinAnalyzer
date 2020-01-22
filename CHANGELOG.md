@@ -4,6 +4,7 @@
 Der Code läuft mit dem aktuellen [AskSinPP-master](https://github.com/pa-pa/AskSinPP) Branch.
   - zyklische Ausgabe des Empfangspegels (RSSI) alle 750ms hinzugefügt
 - **ESP32:**
+  - Verwendung mit FHEM möglich -> HowTo siehe [>>>Link<<<](https://homematic-forum.de/forum/viewtopic.php?f=76&t=56214&p=558680#p558680)
   - **neu:** RSSI Anzeige einzeln 
     - Text+Bargraph des aktuellen Pegels, 
     - Peak(-Hold) Anzeige, 
