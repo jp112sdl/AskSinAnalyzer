@@ -135,6 +135,7 @@ struct _RSSILogTable {
   time_t   time                       = 0;
   int      rssi                       = -255;
   uint8_t  type                       = RSSITYPE_NONE;
+  char     fromSerial [SIZE_SERIAL];
 };
 RingStack<_RSSILogTable,MAX_RSSILOG_ENTRIES> RSSILogTable;
 bool       rssiValueAdded                 = false;

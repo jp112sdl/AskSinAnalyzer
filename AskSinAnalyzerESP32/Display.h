@@ -161,10 +161,17 @@ void showRSSI_TEXTDisplay(bool firstrun) {
   const int8_t  rssi_max               =  -20;
   static int8_t last_rssi              = 128;
   static int8_t peak                   = -128;
+  static int8_t last_peak              = 0;
   static unsigned long peak_set_millis = 0;
+  static uint16_t peakFgCol            = ILI9341_BLACK;
 
 
   if (firstrun) {
+    last_rssi = 128;
+    peak = -128;
+    last_peak = 0;
+    peak_set_millis = millis();
+
     tft.fillRect(0, 0, tft.width(), tft.height(), ILI9341_BLACK);
 
     u8g.setFont(u8g2_font_helvB24_tf);
@@ -186,6 +193,13 @@ void showRSSI_TEXTDisplay(bool firstrun) {
     u8g.setCursor(190, 134);
     u8g.print("dBm");
 
+    //print Peak-Source label
+    u8g.setFont(u8g2_font_helvB14_tf);
+    u8g.setForegroundColor(ILI9341_WHITE);
+    const char * peak_source_caption = "Peak Source:";
+    u8g.setCursor(95 + (100 - (u8g.getUTF8Width(peak_source_caption) / 2)), 200);
+    u8g.print(peak_source_caption);
+
     last_rssi = 1;
   }
 
@@ -198,18 +212,19 @@ void showRSSI_TEXTDisplay(bool firstrun) {
     if (rssi < rssi_min) rssi = rssi_min;
     if (rssi > rssi_max) rssi = rssi_max;
 
+    uint16_t fgCol = getRssiForegroundColor(RSSILogTable[0].type);
 
     u8g.setForegroundColor(ILI9341_BLACK);
     u8g.setCursor(131 - (last_rssi < -99 ? minus_width : 0), 134);
     u8g.print(last_rssi);
 
-    u8g.setForegroundColor(getRssiForegroundColor(RSSILogTable[0].type));
+    u8g.setForegroundColor(fgCol);
     u8g.setCursor(131 - (RSSILogTable[0].rssi < -99 ? minus_width : 0) , 134);
     u8g.print(RSSILogTable[0].rssi);
 
     uint8_t h = map(rssi, rssi_min, rssi_max, 0, bar_height);
     tft.fillRect(bar_start_x, 10, bar_width, bar_height, ILI9341_BLACK);
-    tft.fillRect(bar_start_x, bar_height - h + 4, bar_width, h, getRssiForegroundColor(RSSILogTable[0].type));
+    tft.fillRect(bar_start_x, bar_height - h + 4, bar_width, h, fgCol);
 
     bool rssiPeakHoldNoiseFloorOnly =  digitalRead(RSSI_PEAK_HOLD_MODE_PIN) == LOW;
 
@@ -221,23 +236,40 @@ void showRSSI_TEXTDisplay(bool firstrun) {
       peak = _max(peak, RSSILogTable[0].rssi);
     }
 
-    h = map(peak, rssi_min, rssi_max, 0, bar_height);
+    uint8_t peak_h = map(peak, rssi_min, rssi_max, 0, bar_height);
 
-    //print peak value
-    tft.fillRect(60, 10, 30, bar_height, ILI9341_BLACK);
-    u8g.setFont(u8g2_font_helvB08_tr);
-    u8g.setForegroundColor(ILI9341_RED);
-    u8g.setCursor(60, bar_height - h + 8);
-    u8g.print(peak);
+    if (last_peak != peak) {
+      //print rssi peak cause
 
-    if (peak > rssi_min) tft.drawLine(bar_start_x, bar_height - h + 4, bar_start_x + bar_width - 1, bar_height - h + 4, ILI9341_RED);
+      u8g.setFont(u8g2_font_helvB14_tf);
+
+      peakFgCol = getRssiForegroundColor(RSSILogTable[0].type);
+      u8g.setForegroundColor(peakFgCol);
+
+      uint8_t peak_source_left = 95 + (100 - (u8g.getUTF8Width(RSSILogTable[0].fromSerial) / 2));
+      u8g.setCursor(peak_source_left, 220);
+      tft.fillRect(95, 200, tft.width() - 95, 25, ILI9341_BLACK);
+      u8g.print(RSSILogTable[0].fromSerial);
+
+      //print peak value right to the bar
+      tft.fillRect(60, 10, 30, bar_height, ILI9341_BLACK);
+      u8g.setFont(u8g2_font_helvB08_tr);
+      u8g.setForegroundColor(peakFgCol);
+      u8g.setCursor(60, bar_height - peak_h + 8);
+      u8g.print(peak);
+    }
+
+    if (peak > last_peak) peak_set_millis = millis();
+
+    if (peak > rssi_min) tft.drawLine(bar_start_x, bar_height - peak_h + 4, bar_start_x + bar_width - 1, bar_height - peak_h + 4, peakFgCol);
 
     if (millis() - peak_set_millis > RSSI_PEAK_HOLD_MILLIS) {
       peak = -128;
       peak_set_millis = millis();
     }
-    
+
     last_rssi = RSSILogTable[0].rssi;
+    last_peak = peak;
   }
 }
 
