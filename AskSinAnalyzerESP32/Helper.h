@@ -15,7 +15,7 @@
   char cstr[7];
   strcpy(cstr, str.c_str());
   return cstr;
-}*/
+  }*/
 
 void drawStatusCircle(uint16_t c);
 
@@ -104,7 +104,9 @@ String fetchAskSinAnalyzerDevList() {
 
       default:
         DPRINTLN(F(" - fetchAskSinAnalyzerDevList: Empty URL?"));
+#ifdef USE_DISPLAY
         drawStatusCircle(ILI9341_RED);
+#endif
         return "ERROR";
         break;
 
@@ -159,7 +161,7 @@ unsigned int hexToDec(String hexString) {
 
 const size_t listCapacity = JSON_ARRAY_SIZE(400) + JSON_OBJECT_SIZE(2) + 400 * JSON_OBJECT_SIZE(3) + 4 * 4620;
 DynamicJsonDocument JSONDevList(listCapacity);
-std::map<int,JsonObject> devicemap;
+std::map<int, JsonObject> devicemap;
 void createJSONDevList(String js) {
   DeserializationError error = deserializeJson(JSONDevList, js);
   if (error) {
@@ -177,8 +179,8 @@ void createJSONDevList(String js) {
 
 String getSerialFromAddress(int intAdr) {
   if (isOnline) {
-    DPRINT("getSerialFromAddress ");DPRINTLN(intAdr);
-    std::map<int,JsonObject>::const_iterator idx = devicemap.find(intAdr);
+    DPRINT("getSerialFromAddress "); DPRINTLN(intAdr);
+    std::map<int, JsonObject>::const_iterator idx = devicemap.find(intAdr);
     if (idx != devicemap.end()) {
       return idx->second["serial"].as<String>();
     }
@@ -187,7 +189,7 @@ String getSerialFromAddress(int intAdr) {
 }
 
 /*
-void createJSONDevList(String js) {
+  void createJSONDevList(String js) {
   DeserializationError error = deserializeJson(JSONDevList, js);
   if (error) {
     DPRINT(F(" - JSON DeserializationError: ")); DPRINTLN(error.c_str());
@@ -199,9 +201,9 @@ void createJSONDevList(String js) {
     //  DPRINTLN("(" + String(device["address"].as<unsigned int>()) + ") - " + device["serial"].as<String>() + " - " + device["name"].as<String>());
     //}
   }
-}
+  }
 
-String getSerialFromIntAddress(int intAddr) {
+  String getSerialFromIntAddress(int intAddr) {
   if (isOnline) {
     if (devices.size() > 1) {
       for (uint16_t i = 0; i < devices.size(); i++) {
@@ -215,7 +217,7 @@ String getSerialFromIntAddress(int intAddr) {
     }
   }
   return "";
-}
+  }
 */
 
 void addRssiValueToRSSILogTable(int8_t rssi, time_t ts, uint8_t type, const char * fromSerial) {

@@ -91,6 +91,9 @@ bool doWifiConnect() {
     return true;
   } else {
     digitalWrite(AP_MODE_LED_PIN, HIGH);
+#ifdef USE_DISPLAY
+    showAPModeDisplay();
+#endif
     WiFiManager wifiManager;
     WiFiManagerParameter custom_ip("custom_ip", "IP-Adresse", (String(NetConfig.ip) != "0.0.0.0") ? NetConfig.ip : "", IPSIZE, 0, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
     WiFiManagerParameter custom_netmask("custom_netmask", "Netzmaske", (String(NetConfig.netmask) != "0.0.0.0") ? NetConfig.netmask : "", IPSIZE, 0, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
@@ -148,7 +151,7 @@ bool doWifiConnect() {
       delay(300);
       wifiPreferences.end();
 
-     if (String(custom_ip.getValue()).length() > 5) {
+      if (String(custom_ip.getValue()).length() > 5) {
         DPRINTLN("Custom static IP Address is set!");
         strcpy(NetConfig.ip, custom_ip.getValue());
         strcpy(NetConfig.netmask, custom_netmask.getValue());

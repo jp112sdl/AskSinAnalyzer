@@ -6,13 +6,13 @@
 //- -----------------------------------------------------------------------------------------------------------------------
 
 #define USE_DISPLAY
-#define WEB_BRANCH            "dev_fhem"                  //only changed for development
+#define WEB_BRANCH            "master"                  //only changed for development
 const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used system variable on the CCU containing the device list
 // #define NDEBUG //No DEBUG -> no output
 #define VDEBUG //Verbose DEBUG -> more output
 
-#include <sstream>
-#include <iomanip>
+//#include <sstream>
+//#include <iomanip>
 #include <map>
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
