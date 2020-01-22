@@ -24,6 +24,7 @@ Der Code läuft mit dem aktuellen [AskSinPP-master](https://github.com/pa-pa/Ask
   - CSV-Datei:  
     - Spalte "msg" hinzugefügt, sie enthält das komplette Telegramm
   - AP-Modus:
+    - Zeige "AP-Modus" auf TFT Display
     - Auswahl des Backends `CCU` oder `Other` (z.B. für FHEM) hinzugefügt
     - Eingabe der CCU-IP (`CCU`) oder Backend-URL (`Other`)
   - Codeoptimierungen (thx to [pa-pa](https://github.com/pa-pa))  
