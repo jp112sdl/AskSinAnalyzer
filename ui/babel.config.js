@@ -1,16 +1,16 @@
 module.exports = {
   "presets": [
-    "@vue/app"
+    ["@vue/app", { useBuiltIns: "entry" }]
   ],
   "plugins": [
     [
       "transform-imports",
       {
         "quasar": {
-          "transform": "quasar/dist/babel-transforms/imports.js",
-          "preventFullImport": true
+          "transform": require("quasar/dist/babel-transforms/imports.js"),
+          "preventFullImport": false
         }
       }
     ]
   ]
-}
+};

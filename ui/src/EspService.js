@@ -9,18 +9,21 @@ export default class EspService {
     currentVersion: null,
     latestVersion: null,
     devlistCreated: null,
+    rssiLog: [],
   };
   devlist = [];
   maxTelegrams = 100;
   refreshInterval = 2;
   refreshTimeout = null;
   resolveNames = true;
+  rssiLogMap = new Map();
 
   constructor(baseUrl = '', maxTelegrams = 20000, refreshInterval = 2, resolveNames = true) {
     this.baseUrl = baseUrl;
     this.maxTelegrams = maxTelegrams;
     this.refreshInterval = refreshInterval;
     this.resolveNames = resolveNames;
+    setInterval(this.fetchRssiLog.bind(this), 1000);
   }
 
   addTelegrams(telegrams) {
@@ -84,6 +87,15 @@ export default class EspService {
       json.forEach(t => this.addNameFromDevlist(t));
     }
     return json;
+  }
+
+  async fetchRssiLog(tstamp = 0) {
+    const res = await this._fetch(`${ this.baseUrl }/getRSSILog?fromTstamp=${ tstamp }`);
+    (await res.json())
+      .filter(item => item.type === 0)
+      .forEach(item => this.rssiLogMap.set(item.tstamp * 1000, item.rssi));
+    this.data.rssiLog = Array.from(this.rssiLogMap).sort();
+
   }
 
   async fetchConfig() {
