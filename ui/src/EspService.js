@@ -93,7 +93,11 @@ export default class EspService {
     const res = await this._fetch(`${ this.baseUrl }/getRSSILog?fromTstamp=${ tstamp }`);
     (await res.json())
       .filter(item => item.type === 0)
-      .forEach(item => this.rssiLogMap.set(item.tstamp * 1000, item.rssi));
+      .forEach(item => {
+        if(!this.rssiLogMap.has(item.tstamp * 1000)) {
+          this.rssiLogMap.set(item.tstamp * 1000, item.rssi)
+        }
+      });
     this.data.rssiLog = Array.from(this.rssiLogMap).sort();
 
   }

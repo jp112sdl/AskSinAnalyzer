@@ -20,20 +20,7 @@
       },
     },
 
-    watch: {
-      data: {
-        immediate: false,
-        handler() {
-          this.updateData();
-        }
-      },
-      rssiLog: {
-        immediate: false,
-        handler() {
-          this.updateRssiLog();
-        }
-      },
-    },
+    updateInterval: null,
 
     mounted() {
       const $vm = this;
@@ -117,6 +104,11 @@
         }]
       });
       this.updateData();
+      this.updateInterval = setInterval(this.updateData.bind(this), 1000);
+    },
+
+    beforeDestroy() {
+      clearTimeout(this.updateInterval);
     },
 
     data() {
@@ -137,13 +129,9 @@
         m.forEach((v, k) => data.push([k * 1000, v]));
         data = data.sort((a, b) => a[0] - b[0]);
         this.hightchart.series[0].setData(data, false);
-        this.hightchart.redraw();
-      },
-      updateRssiLog() {
-        if (!this.rssiLog.length) return;
         this.hightchart.series[1].setData(this.rssiLog, false);
         this.hightchart.redraw();
-      }
+      },
     }
   }
 </script>
