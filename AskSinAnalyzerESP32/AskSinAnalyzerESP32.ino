@@ -2,11 +2,11 @@
 // AskSinAnalyzer
 // 2016-10-31 papa Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 // 2019-06-01 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
+// 2019-06-01 stan23 Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 // 2019-06-01 psi-4ward Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 //- -----------------------------------------------------------------------------------------------------------------------
 
 #define USE_DISPLAY
-#define WEB_BRANCH            "master"                  //only changed for development
 const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used system variable on the CCU containing the device list
 // #define NDEBUG //No DEBUG -> no output
 #define VDEBUG //Verbose DEBUG -> more output
@@ -41,7 +41,7 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #include "RingBuffer.h"
 
 #define VERSION_UPPER "3"
-#define VERSION_LOWER "1"
+#define VERSION_LOWER "2"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15 //LOW = on boot: start wifimanager, on run: switch between tft screens
