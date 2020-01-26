@@ -182,7 +182,7 @@ String getSerialFromAddress(int intAdr) {
     DPRINT("getSerialFromAddress "); DPRINTLN(intAdr);
     std::map<int, JsonObject>::const_iterator idx = devicemap.find(intAdr);
     if (idx != devicemap.end()) {
-      return idx->second["serial"].as<String>();
+      return idx->second["serial"].as<String>().substring(0, 10);
     }
   }
   return "";
