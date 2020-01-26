@@ -311,7 +311,13 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
 void indexHtml(AsyncWebServerRequest * request) {
   String page = FPSTR(HTTP_INDEX);
 
-  page.replace("{branch}", WEB_BRANCH);
+  String branch = "master";
+
+  if (request->hasParam("branch")) branch = (request->getParam("branch")->value());
+
+  page.replace("{branch}", branch);
+
+  DPRINT(F("Serving indexHtml using branch \""));DPRINT(branch);DPRINTLN(F("\""));
 
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(page.length()));
