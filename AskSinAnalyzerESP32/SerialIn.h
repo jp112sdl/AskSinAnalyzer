@@ -107,10 +107,7 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
   if (fromStr == "")  fromStr = "  " + (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN) + "  ";
   if (toStr == "")    toStr = "  " + (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN) + "  ";
 
-  char fromAddress[SIZE_ADDRESS];
-  (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN).toCharArray(fromAddress, SIZE_ADDRESS);
-  char toAddress[SIZE_ADDRESS];
-  (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN).toCharArray(toAddress, SIZE_ADDRESS);
+  
   char msg[SIZE_MSG];
   (sb.Msg).substring(3).toCharArray(msg, SIZE_MSG);
   String msgStr = "";
@@ -120,21 +117,20 @@ bool fillLogTable(const _SerialBuffer &sb, uint8_t b) {
     if (i % 2) msgStr += " ";
   }
 
-
   LogTable.shift();
 
   LogTable[0].lognumber = allCount;
   LogTable[0].time = sb.t;
   LogTable[0].rssi = rssi;
-  memcpy(LogTable[0].fromSerial, fromStr.c_str(), SIZE_SERIAL);
-  memcpy(LogTable[0].toSerial, toStr.c_str(), SIZE_SERIAL);
-  memcpy(LogTable[0].fromAddress, fromAddress, SIZE_ADDRESS);
-  memcpy(LogTable[0].toAddress, toAddress, SIZE_ADDRESS);
+  fromStr.toCharArray(LogTable[0].fromSerial, SIZE_SERIAL);
+  toStr.toCharArray(LogTable[0].toSerial, SIZE_SERIAL);
+  (sb.Msg).substring(STRPOS_FROM_BEGIN, STRPOS_TO_BEGIN).toCharArray(LogTable[0].fromAddress, SIZE_ADDRESS);
+  (sb.Msg).substring(STRPOS_TO_BEGIN, STRPOS_PAYLOAD_BEGIN).toCharArray(LogTable[0].toAddress, SIZE_ADDRESS);
   LogTable[0].len = len;
   LogTable[0].cnt = cnt;
   LogTable[0].typ = typ;
   LogTable[0].flags = flags;
-  memcpy(LogTable[0].msg, msgStr.c_str(), SIZE_MSG);
+  msgStr.toCharArray(LogTable[0].msg, SIZE_MSG);
 
   addRssiValueToRSSILogTable(rssi, sb.t, (flags == 0x00) ? RSSITYPE_HMIP : RSSITYPE_HMRF, fromStr.c_str());
 
