@@ -23,7 +23,7 @@ export default class EspService {
     this.maxTelegrams = maxTelegrams;
     this.refreshInterval = refreshInterval;
     this.resolveNames = resolveNames;
-    setInterval(this.fetchRssiLog.bind(this), 5000);
+    this.fetchRssiLog();
   }
 
   addTelegrams(telegrams) {
@@ -99,7 +99,7 @@ export default class EspService {
         }
       });
     this.data.rssiLog = Array.from(this.rssiLogMap).sort();
-
+    setTimeout(this.fetchRssiLog.bind(this), 2000);
   }
 
   async fetchConfig() {
