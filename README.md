@@ -11,6 +11,7 @@
 ### Nähere Informationen findet ihr im [Wiki](https://github.com/jp112sdl/AskSinAnalyzer/wiki)!
 und im Diskussions-Thread des [HomeMatic Forums](https://homematic-forum.de/forum/viewtopic.php?f=76&t=51161)
 
+**:point_right: Siehe auch [AskSinAnalyzerXS](https://github.com/psi-4ward/AskSinAnalyzerXS), der Analyzer als Desktop-App ohne ESP und Display.**
 
 <img src="Images/proto1.jpg" height=200 /> <img src="Images/proto2.jpg" height=200 /> <img src="Images/proto3.jpg" height=200 />
 <br/>
