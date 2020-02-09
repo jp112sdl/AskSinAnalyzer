@@ -83,6 +83,41 @@ String getTyp(uint8_t in) {
   return typ;
 }
 
+bool httpGet(String url) {
+  HTTPClient http;
+  http.begin(url);
+  int httpCode = http.GET();
+  if (httpCode != 200) {
+#ifdef USE_DISPLAY
+    drawStatusCircle(ILI9341_RED);
+#endif
+    DPRINT("HTTP Get for " + url + " failed with code "); DDECLN(httpCode);
+    http.end();
+    return false;
+  }
+
+#ifdef USE_DISPLAY
+  drawStatusCircle(ILI9341_GREEN);
+#endif
+  DPRINTLN("HTTP Get for " + url + " success");
+
+  http.end();
+  return true;
+}
+
+void setAlarmOnCCU(bool alState, String alDescription) {
+  if (isOnline && WiFi.status() == WL_CONNECTED) {
+    DPRINTLN(F("- Setting RSSI Alarm on CCU!"));
+#ifdef USE_DISPLAY
+    drawStatusCircle(ILI9341_BLUE);
+#endif
+    //set Alarm description
+    if (httpGet("http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + CCU_SV_ALARM + "%22).DPInfo(%22" + alDescription + "%22)") == true)
+      //set Alarm state
+      httpGet("http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + CCU_SV_ALARM + "%22).State(" + String(alState ? "true" : "false") + ")");
+  }
+}
+
 String fetchAskSinAnalyzerDevList() {
   if (!RESOLVE_ADDRESS) return "NO_RESOLVE";
   if (isOnline && WiFi.status() == WL_CONNECTED) {
@@ -95,7 +130,7 @@ String fetchAskSinAnalyzerDevList() {
     //http.setTimeout(HTTPTimeOut);
     switch (HomeMaticConfig.backendType) {
       case BT_CCU:
-        url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(ID_SYSTEM_VARIABLES).Get(%22" + CCU_SV + "%22).Value()";
+        url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(ID_SYSTEM_VARIABLES).Get(%22" + CCU_SV_DEVLIST + "%22).Value()";
         break;
 
       case BT_OTHER:
@@ -188,46 +223,35 @@ String getSerialFromAddress(int intAdr) {
   return "";
 }
 
-/*
-  void createJSONDevList(String js) {
-  DeserializationError error = deserializeJson(JSONDevList, js);
-  if (error) {
-    DPRINT(F(" - JSON DeserializationError: ")); DPRINTLN(error.c_str());
-  } else {
-    devices = JSONDevList["devices"];
-    DPRINT(F(" - Device List created with ")); DDEC(devices.size()); DPRINTLN(F(" entries"));
-    //for (uint16_t i = 0; i < devices.size(); i++) {
-    //  JsonObject device = devices[i];
-    //  DPRINTLN("(" + String(device["address"].as<unsigned int>()) + ") - " + device["serial"].as<String>() + " - " + device["name"].as<String>());
-    //}
-  }
-  }
-
-  String getSerialFromIntAddress(int intAddr) {
-  if (isOnline) {
-    if (devices.size() > 1) {
-      for (uint16_t i = 0; i < devices.size(); i++) {
-        JsonObject device = devices[i];
-        if (device["address"].as<unsigned int>() == intAddr) {
-          String _t =  device["serial"].as<String>();
-          _t += "         ";
-          return _t.substring(0, 10);
-        }
-      }
+bool checkRSSIAlarm(int8_t threshold, uint8_t cnt) {
+  if (cnt >= RSSILogTable.count()) return false;
+  
+  for (uint8_t i = 0; i < cnt; i++) {
+    if (RSSILogTable[i].rssi < threshold) {
+      return false;
     }
   }
-  return "";
-  }
-*/
+  
+  return true;
+}
 
 void addRssiValueToRSSILogTable(int8_t rssi, time_t ts, uint8_t type, const char * fromSerial) {
-  //shiftRSSILogArray();
   RSSILogTable.shift();
   RSSILogTable[0].time = ts;
   RSSILogTable[0].rssi = rssi;
   RSSILogTable[0].type = type;
   memcpy(RSSILogTable[0].fromSerial, fromSerial, SIZE_SERIAL);
   rssiValueAdded = !rssiValueAdded;
+
+  static bool lastRssiAlarmTriggered = false;
+  if (RSSIConfig.alarmCount > 0 && HomeMaticConfig.backendType == BT_CCU) {
+    rssiAlarmTriggered = checkRSSIAlarm(RSSIConfig.alarmThreshold, min(RSSIConfig.alarmCount, (uint8_t)MAX_RSSILOG_ENTRIES));
+    if (rssiAlarmTriggered != lastRssiAlarmTriggered) {
+      DPRINT(F("RSSI Alarm changed to ")); DDECLN(rssiAlarmTriggered);
+      if (rssiAlarmTriggered == true) setAlarmOnCCU(true, "RSSI%20is%20>%20" + String(RSSIConfig.alarmThreshold));
+      lastRssiAlarmTriggered = rssiAlarmTriggered;
+    }
+  }
 }
 
 String createCSVFromLogTableEntry(_LogTable lt, bool lng) {

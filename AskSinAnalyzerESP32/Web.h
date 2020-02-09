@@ -148,6 +148,24 @@ void setConfig(AsyncWebServerRequest *request) {
     }
   }
 
+  if (request->hasParam("rssi_alarmthreshold", true)) {
+    if (HomeMaticConfig.backendType == BT_CCU) {
+      AsyncWebParameter* p = request->getParam("rssi_alarmthreshold", true);
+      int8_t val = atoi(p->value().c_str());
+      RSSIConfig.alarmThreshold = val;
+      DPRINT(F("  - rssi_altrshld: ")); DPRINTLN(RSSIConfig.alarmThreshold);
+    }
+  }
+
+  if (request->hasParam("rssi_alarmcount", true)) {
+    if (HomeMaticConfig.backendType == BT_CCU) {
+      AsyncWebParameter* p = request->getParam("rssi_alarmcount", true);
+      uint8_t val = atoi(p->value().c_str());
+      RSSIConfig.alarmCount = val;
+      DPRINT(F("  - rssi_alcnt: ")); DPRINTLN(RSSIConfig.alarmCount);
+    }
+  }
+
   DPRINTLN(F("- setConfig END"));
 
   bool ok = saveSystemConfig();
