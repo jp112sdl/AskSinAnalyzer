@@ -216,7 +216,7 @@ void getAskSinAnalyzerDevListJSON (AsyncWebServerRequest *request) {
   String js = fetchAskSinAnalyzerDevList();
   if (js != "null") {
     String charset = (HomeMaticConfig.backendType == BT_CCU) ? "iso-8859-1" : "utf-8";
-    AsyncResponseStream *response = request->beginResponseStream("application/json;charset="+charset);
+    AsyncResponseStream *response = request->beginResponseStream("application/json;charset=" + charset);
     createJSONDevList(js);  //refresh local DevList
     response->print(js);    //send DevList to Web
     request->send(response);
@@ -317,7 +317,7 @@ void indexHtml(AsyncWebServerRequest * request) {
 
   page.replace("{branch}", branch);
 
-  DPRINT(F("Serving indexHtml using branch \""));DPRINT(branch);DPRINTLN(F("\""));
+  DPRINT(F("Serving indexHtml using branch \"")); DPRINT(branch); DPRINTLN(F("\""));
 
   AsyncWebServerResponse *response = request->beginResponse(200);
   response->addHeader("Content-Length", String(page.length()));
