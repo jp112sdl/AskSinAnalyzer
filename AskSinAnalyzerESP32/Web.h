@@ -219,6 +219,10 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"rssi_hbw\":" + String(RSSIConfig.histogramBarWidth);
   json += ",";
+  json += "\"rssi_alarmcount\":" + String(RSSIConfig.alarmCount);
+  json += ",";
+  json += "\"rssi_alarmthreshold\":" + String(RSSIConfig.alarmThreshold);
+  json += ",";
   json += "\"version_upper\":" + String(VERSION_UPPER);
   json += ",";
   json += "\"version_lower\":" + String(VERSION_LOWER);
