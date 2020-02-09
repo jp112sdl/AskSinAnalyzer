@@ -33,7 +33,7 @@ void printWifiStatus() {
 }
 
 void checkWifi() {
-  if (isOnline && WiFi.status() != WL_CONNECTED) {
+  if (isOnline && ( WiFi.status() != WL_CONNECTED || WiFi.SSID().length() < 2)) {
     if (millis() - lastReconnectMillis > 10000) {
       DPRINTLN("Wifi disconnected. Reconnect initiated.");
       WiFi.disconnect();
