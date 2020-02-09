@@ -1,19 +1,42 @@
 string svDevList = "AskSinAnalyzerDevList";
+string svAlarm   = "AskSinAnalyzerAlarm";
 
 string HmIPBroadcastName = "HmIP Broadcast";
 string HmRFBroadcastName = "HMRF Broadcast";
 
+object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
+
+!Alarmvariable anlegen
+object alarmObj = dom.GetObject(ID_SYSTEM_VARIABLES).Get(svAlarm);
+
+if(!alarmObj) {      
+  alarmObj = dom.CreateObject(OT_ALARMDP);
+                                                                                                                               
+  alarmObj.Name(svAlarm);                                                                     
+  alarmObj.ValueType(ivtBinary);                                                               
+  alarmObj.ValueSubType(istAlarm);                                                             
+  alarmObj.ValueName0("${sysVarAlarmZone1NotTriggered}");                                   
+  alarmObj.ValueName1("${sysVarAlarmZone1Triggered}");                                      
+  alarmObj.ValueUnit("");                                                                    
+  alarmObj.AlType(atSystem);                                                                   
+  alarmObj.AlArm(true);                                                                        
+  alarmObj.AlSetBinaryCondition();                                                             
+  alarmObj.State(false);                                                                       
+
+  svObjects.Add(alarmObj.ID());
+
+  dom.RTUpdate(true);                                                                          
+  
+  WriteLine("Alarm-Variable "#svAlarm#" angelegt.\n");                                                                                        
+}  else {
+  WriteLine("Alarm-Variable "#svAlarm#" existiert.\n");
+}
+
 !Systemvariable anlegen, falls sie nicht bereits existiert
-object  svObj     = dom.GetObject(svDevList);
-!dom.DeleteObject(svObj);
-!dom.RTUpdate(false);
+object svObj = dom.GetObject(ID_SYSTEM_VARIABLES).Get(svDevList);
 
 if (!svObj){
-  object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
-
   svObj = dom.CreateObject(OT_VARDP);
-
-  svObjects.Add(svObj.ID());
 
   svObj.Name(svDevList);
   svObj.ValueType(ivtString);
@@ -25,7 +48,9 @@ if (!svObj){
   svObj.Internal(false);
   svObj.Visible(false);
 
-  dom.RTUpdate(false);
+  svObjects.Add(svObj.ID());
+
+  dom.RTUpdate(true);
   WriteLine("Variable "#svDevList#" angelegt.\n");
 } else {
   WriteLine("Variable "#svDevList#" existiert.\n");
