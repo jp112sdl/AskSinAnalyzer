@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   filenameHashing: false,
 
@@ -19,6 +21,9 @@ module.exports = {
     config.plugins.delete('preload');
     config.plugins.delete('prefetch');
     config.optimization.delete('splitChunks');
+
+    config.resolve.alias
+      .set('@components', path.join(__dirname, 'src/components'));
 
     config.plugin('html')
       .tap(args => {
