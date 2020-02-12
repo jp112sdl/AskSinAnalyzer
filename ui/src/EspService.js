@@ -179,12 +179,14 @@ export default class EspService {
     telegram.fromNameResolved = fromResolved !== null;
     if (fromResolved) {
       telegram.fromName = fromResolved.name;
+      telegram.fromSerial = fromResolved.serial;
       telegram.fromIsIp = fromResolved.isIp;
     }
     const toResolved = this.resolveNameFromDevList(telegram.to);
     telegram.toNameResolved = toResolved !== null;
     if (toResolved) {
       telegram.toName = toResolved.name;
+      telegram.toSerial = toResolved.serial;
       telegram.toIsIp = toResolved.isIp;
     }
   }
