@@ -197,7 +197,7 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"netmask\":\"" + String(WiFi.subnetMask().toString()) + "\"";
   json += ",";
-  json += "\"gateway\":\"" + String(WiFi.gatewayIP().toString()) + "\"";
+  json += "\"gw\":\"" + String(WiFi.gatewayIP().toString()) + "\"";
   json += ",";
   json += "\"macaddress\":\"" + String(WiFi.macAddress()) + "\"";
   json += ",";
