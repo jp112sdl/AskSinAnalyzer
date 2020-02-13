@@ -40,7 +40,7 @@
             }
           },
           type: 'datetime',
-          ordinal: true,
+          ordinal: false,
         },
         time: { useUTC: false },
         rangeSelector: {
