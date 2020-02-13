@@ -4,16 +4,16 @@
       <div class="col-12 col-md-6">
         <q-card>
           <q-card-section>
-            <h3>UI-Einstellungen</h3>
-            <settings/>
+            <h3>ESP-Einstellungen</h3>
+            <esp-settings/>
           </q-card-section>
         </q-card>
       </div>
       <div class="col-12 col-md-6">
         <q-card>
           <q-card-section>
-            <h3>ESP-Einstellungen</h3>
-            <esp-settings/>
+            <h3>UI-Einstellungen</h3>
+            <settings/>
           </q-card-section>
         </q-card>
       </div>
