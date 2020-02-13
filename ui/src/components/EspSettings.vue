@@ -96,6 +96,9 @@
       },
       async handleSubmit() {
         this.loading = true;
+        if(!this.cfg.staticipconfig) {
+          this.cfg.ip = '0.0.0.0';
+        }
         const formData = new FormData();
         confProps.forEach(prop => formData.append(prop, this.cfg[prop]));
         await fetch(this.$espService.baseUrl + '/setConfig', {
