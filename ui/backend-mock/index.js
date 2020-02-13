@@ -35,7 +35,6 @@ function genTelegram() {
 }
 
 let data = [];
-
 setInterval(() => {
   const cnt = Math.random() * 3;
   for (let i = 0; i < cnt; i++) {
@@ -43,6 +42,16 @@ setInterval(() => {
   }
   data = data.slice(0, 200);
 }, 2000);
+
+let rssiLog = [];
+setInterval(() => {
+  rssiLog.unshift({
+    tstamp: Math.round(Date.now() / 1000),
+    type: 0,
+    rssi: Math.round(Math.random() * 50) - 120,
+  });
+  rssiLog = rssiLog.slice(0, 500);
+}, 750);
 
 
 function telegram2Csv(obj) {
@@ -97,6 +106,11 @@ const server = http.createServer(function(req, res) {
             "display": false,
           }, null, 2)
         );
+        res.end();
+        break;
+
+      case '/getRSSILog':
+        res.write(JSON.stringify(rssiLog, null, 2));
         res.end();
         break;
 

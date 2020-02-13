@@ -13,7 +13,11 @@
       data: {
         type: Array,
         required: true
-      }
+      },
+      rssiLog: {
+        type: Array,
+        required: true
+      },
     },
 
     watch: {
@@ -22,20 +26,25 @@
         handler() {
           this.updateData();
         }
-      }
+      },
+      rssiLog: {
+        immediate: false,
+        handler() {
+          this.updateRssiLog();
+        }
+      },
     },
 
     mounted() {
       const $vm = this;
       const setTimeFilterDebounced = $vm.$debounce((min, max) => {
-        $vm.$root.timefilter.start = Math.floor(min/1000);
-        $vm.$root.timefilter.stop = Math.ceil(max/1000);
+        $vm.$root.timefilter.start = Math.floor(min / 1000);
+        $vm.$root.timefilter.stop = Math.ceil(max / 1000);
       }, 500);
 
       this.hightchart = Highcharts.stockChart(this.$refs.chart, {
         chart: {
           zoomType: 'x',
-          animation: false
         },
         xAxis: {
           events: {
@@ -55,7 +64,7 @@
             text: '1m'
           }, {
             type: 'minute',
-            count:5,
+            count: 5,
             text: '5m'
           }, {
             type: 'minute',
@@ -76,7 +85,7 @@
         },
         plotOptions: {
           column: {
-            pointPlacement : 'on',
+            pointPlacement: 'on',
             groupPadding: 0.1,
             dataGrouping: {
               groupPixelWidth: 30
@@ -85,17 +94,26 @@
         },
         title: { text: 'Telegramme' },
         exporting: { enabled: false },
+        yAxis: [
+          {
+            opposite: false
+          },
+          {
+            opposite: true,
+            max: -40,
+            min: -120,
+          }
+        ],
         series: [{
-          name: 'Telegramme pro Zeiteinheit',
+          name: 'Telegramme',
           type: 'column',
           maxPointWidth: 15,
-          fillColor: {
-            linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-            stops: [
-              [0, Highcharts.getOptions().colors[0]],
-              [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0.2).get('rgba')]
-            ]
-          },
+        }, {
+          name: 'RSSI Noise',
+          type: 'line',
+          color: '#ff5200',
+          lineWidth: 1,
+          yAxis: 1
         }]
       });
       this.updateData();
@@ -107,7 +125,7 @@
 
     methods: {
       updateData() {
-        if(!this.data.length) return;
+        if (!this.data.length) return;
 
         let m = new Map();
         this.data.forEach(t => {
@@ -119,6 +137,11 @@
         m.forEach((v, k) => data.push([k * 1000, v]));
         data = data.sort((a, b) => a[0] - b[0]);
         this.hightchart.series[0].setData(data, false);
+        this.hightchart.redraw();
+      },
+      updateRssiLog() {
+        if (!this.rssiLog.length) return;
+        this.hightchart.series[1].setData(this.rssiLog, false);
         this.hightchart.redraw();
       }
     }

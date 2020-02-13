@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <q-card class="q-mb-lg">
-      <time-chart :data="$root.data.telegrams"/>
+      <time-chart :data="$root.data.telegrams" :rssiLog="$root.data.rssiLog"/>
     </q-card>
     <transition name="route" mode="out-in" :appear="true">
       <router-view/>
