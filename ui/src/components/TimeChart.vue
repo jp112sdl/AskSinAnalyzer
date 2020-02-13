@@ -38,7 +38,9 @@
             afterSetExtremes(ev) {
               setTimeFilterDebounced(ev.min, ev.max);
             }
-          }
+          },
+          type: 'datetime',
+          ordinal: true,
         },
         time: { useUTC: false },
         rangeSelector: {

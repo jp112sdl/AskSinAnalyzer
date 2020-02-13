@@ -36,6 +36,7 @@ function genTelegram() {
 
 let data = [];
 setInterval(() => {
+  if(Math.random() < 0.5) return;
   const cnt = Math.random() * 3;
   for (let i = 0; i < cnt; i++) {
     data.unshift(genTelegram());
