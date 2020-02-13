@@ -107,6 +107,12 @@ void setConfig(AsyncWebServerRequest *request) {
     }
   }
 
+  if (request->hasParam("backendurl", true)) {
+    AsyncWebParameter* p = request->getParam("backendurl", true);
+    p->value().toCharArray(HomeMaticConfig.backendUrl, VARIABLESIZE, 0);
+    DPRINT(F("  - backend url: ")); DPRINTLN(HomeMaticConfig.backendUrl);
+  }
+  
   if (request->hasParam("ntp", true)) {
     AsyncWebParameter* p = request->getParam("ntp", true);
     p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
@@ -198,6 +204,8 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "\"ccuip\":\"" + String(HomeMaticConfig.ccuIP) + "\"";
   json += ",";
   json += "\"backend\":" + String(HomeMaticConfig.backendType);
+  json += ",";
+  json += "\"backendurl\":" + String(HomeMaticConfig.backendUrl);
   json += ",";
   json += "\"resolve\":" + String(RESOLVE_ADDRESS);
   json += ",";
