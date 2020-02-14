@@ -72,7 +72,7 @@
   } from 'quasar';
 
   export default {
-    name: 'LayoutDefault',
+    name: 'App',
 
     components: {
       QHeader,

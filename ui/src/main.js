@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import './array-flat-polyfill'; // stupid M$ browser
 import { Quasar, Ripple, ClosePopup, Loading } from 'quasar';
 import lang from 'quasar/lang/de.js'
 import './styles/quasar.styl'
