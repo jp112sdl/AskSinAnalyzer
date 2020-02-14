@@ -107,6 +107,12 @@ void setConfig(AsyncWebServerRequest *request) {
     }
   }
 
+  if (request->hasParam("backendurl", true)) {
+    AsyncWebParameter* p = request->getParam("backendurl", true);
+    p->value().toCharArray(HomeMaticConfig.backendUrl, VARIABLESIZE, 0);
+    DPRINT(F("  - backend url: ")); DPRINTLN(HomeMaticConfig.backendUrl);
+  }
+  
   if (request->hasParam("ntp", true)) {
     AsyncWebParameter* p = request->getParam("ntp", true);
     p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
@@ -148,6 +154,24 @@ void setConfig(AsyncWebServerRequest *request) {
     }
   }
 
+  if (request->hasParam("rssi_alarmthreshold", true)) {
+    if (HomeMaticConfig.backendType == BT_CCU) {
+      AsyncWebParameter* p = request->getParam("rssi_alarmthreshold", true);
+      int8_t val = atoi(p->value().c_str());
+      RSSIConfig.alarmThreshold = val;
+      DPRINT(F("  - rssi_altrshld: ")); DPRINTLN(RSSIConfig.alarmThreshold);
+    }
+  }
+
+  if (request->hasParam("rssi_alarmcount", true)) {
+    if (HomeMaticConfig.backendType == BT_CCU) {
+      AsyncWebParameter* p = request->getParam("rssi_alarmcount", true);
+      uint8_t val = atoi(p->value().c_str());
+      RSSIConfig.alarmCount = val;
+      DPRINT(F("  - rssi_alcnt: ")); DPRINTLN(RSSIConfig.alarmCount);
+    }
+  }
+
   DPRINTLN(F("- setConfig END"));
 
   bool ok = saveSystemConfig();
@@ -173,13 +197,15 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"netmask\":\"" + String(WiFi.subnetMask().toString()) + "\"";
   json += ",";
-  json += "\"gateway\":\"" + String(WiFi.gatewayIP().toString()) + "\"";
+  json += "\"gw\":\"" + String(WiFi.gatewayIP().toString()) + "\"";
   json += ",";
   json += "\"macaddress\":\"" + String(WiFi.macAddress()) + "\"";
   json += ",";
   json += "\"ccuip\":\"" + String(HomeMaticConfig.ccuIP) + "\"";
   json += ",";
   json += "\"backend\":" + String(HomeMaticConfig.backendType);
+  json += ",";
+  json += "\"backendurl\":\"" + String(HomeMaticConfig.backendUrl)+"\"";
   json += ",";
   json += "\"resolve\":" + String(RESOLVE_ADDRESS);
   json += ",";
@@ -200,6 +226,10 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "\"display\":" + String(HAS_DISPLAY);
   json += ",";
   json += "\"rssi_hbw\":" + String(RSSIConfig.histogramBarWidth);
+  json += ",";
+  json += "\"rssi_alarmcount\":" + String(RSSIConfig.alarmCount);
+  json += ",";
+  json += "\"rssi_alarmthreshold\":" + String(RSSIConfig.alarmThreshold);
   json += ",";
   json += "\"version_upper\":" + String(VERSION_UPPER);
   json += ",";

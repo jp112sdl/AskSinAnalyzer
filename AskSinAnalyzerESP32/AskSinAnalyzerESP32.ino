@@ -7,7 +7,8 @@
 //- -----------------------------------------------------------------------------------------------------------------------
 
 #define USE_DISPLAY
-const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used system variable on the CCU containing the device list
+const String CCU_SV_DEVLIST = "AskSinAnalyzerDevList";  //name of the used system variable on the CCU containing the device list
+const String CCU_SV_ALARM   = "AskSinAnalyzerAlarm";  //name of the used system variable on the CCU for alarms
 // #define NDEBUG //No DEBUG -> no output
 #define VDEBUG //Verbose DEBUG -> more output
 
@@ -41,7 +42,7 @@ const String CCU_SV         = "AskSinAnalyzerDevList";  //name of the used syste
 #include "RingBuffer.h"
 
 #define VERSION_UPPER "3"
-#define VERSION_LOWER "2"
+#define VERSION_LOWER "3"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15 //LOW = on boot: start wifimanager, on run: switch between tft screens
@@ -102,6 +103,8 @@ struct _HomeMaticConfig {
 
 struct _RSSIConfig {
   uint8_t histogramBarWidth = 5;
+  int8_t  alarmThreshold    = 0;
+  uint8_t alarmCount        = 0;
 } RSSIConfig;
 
 #define MAX_LOG_ENTRIES      51
@@ -139,6 +142,7 @@ struct _RSSILogTable {
 };
 RingStack<_RSSILogTable,MAX_RSSILOG_ENTRIES> RSSILogTable;
 bool       rssiValueAdded                 = false;
+bool       rssiAlarmTriggered             = false;
 
 struct _SerialBuffer {
   String   Msg            = "";

@@ -16,6 +16,8 @@
 #define CONFIG_BACKEND_URL            "backendurl"
 #define CONFIG_BOOTCONFIGMODE         "bootConfigMode"
 #define CONFIG_RSSI_HISTOGRAMBARWIDTH "rssi_hbw"
+#define CONFIG_RSSI_ALARMTHRESHOLD    "rssi_altrshld"
+#define CONFIG_RSSI_ALARMCOUNT        "rssi_alcnt"
 
 void dumpSystemConfig() {
   DPRINTLN(F("- dump config:"));
@@ -28,6 +30,8 @@ void dumpSystemConfig() {
   DPRINT(F(" - Static Mask : ")); DPRINTLN(NetConfig.netmask);
   DPRINT(F(" - Static GW   : ")); DPRINTLN(NetConfig.gw);
   DPRINT(F(" - RSSI Hist.BW: ")); DPRINTLN(RSSIConfig.histogramBarWidth);
+  DPRINT(F(" - RSSI Al.Ths : ")); DPRINTLN(RSSIConfig.alarmThreshold);
+  DPRINT(F(" - RSSI Al.Cnt : ")); DPRINTLN(RSSIConfig.alarmCount);
 }
 
 bool loadSystemConfig() {
@@ -52,6 +56,8 @@ bool loadSystemConfig() {
   configPreferences.getString(CONFIG_GW, "0.0.0.0").toCharArray(NetConfig.gw, IPSIZE, 0);
 
   RSSIConfig.histogramBarWidth = configPreferences.getUChar(CONFIG_RSSI_HISTOGRAMBARWIDTH, 5);
+  RSSIConfig.alarmThreshold = configPreferences.getUChar(CONFIG_RSSI_ALARMTHRESHOLD, 0);
+  RSSIConfig.alarmCount = configPreferences.getUChar(CONFIG_RSSI_ALARMCOUNT, 0);
 
   configPreferences.end();
   dumpSystemConfig();
@@ -71,6 +77,8 @@ bool saveSystemConfig() {
   configPreferences.putString(CONFIG_BACKEND_URL, HomeMaticConfig.backendUrl);
   configPreferences.putUChar(CONFIG_BACKEND, HomeMaticConfig.backendType);
   configPreferences.putUChar(CONFIG_RSSI_HISTOGRAMBARWIDTH, RSSIConfig.histogramBarWidth);
+  configPreferences.putUChar(CONFIG_RSSI_ALARMTHRESHOLD, RSSIConfig.alarmThreshold);
+  configPreferences.putUChar(CONFIG_RSSI_ALARMCOUNT, RSSIConfig.alarmCount);
   delay(300);
   configPreferences.end();
   return true;
