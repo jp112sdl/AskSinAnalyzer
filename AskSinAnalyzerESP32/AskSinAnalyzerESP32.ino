@@ -42,7 +42,7 @@ const String CCU_SV_ALARM   = "AskSinAnalyzerAlarm";  //name of the used system 
 #include "RingBuffer.h"
 
 #define VERSION_UPPER "3"
-#define VERSION_LOWER "3"
+#define VERSION_LOWER "2"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15 //LOW = on boot: start wifimanager, on run: switch between tft screens
