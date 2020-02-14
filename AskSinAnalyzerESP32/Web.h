@@ -205,7 +205,7 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"backend\":" + String(HomeMaticConfig.backendType);
   json += ",";
-  json += "\"backendurl\":" + String(HomeMaticConfig.backendUrl);
+  json += "\"backendurl\":\"" + String(HomeMaticConfig.backendUrl)+"\"";
   json += ",";
   json += "\"resolve\":" + String(RESOLVE_ADDRESS);
   json += ",";
