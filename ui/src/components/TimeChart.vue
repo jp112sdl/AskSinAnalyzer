@@ -38,7 +38,9 @@
             afterSetExtremes(ev) {
               setTimeFilterDebounced(ev.min, ev.max);
             }
-          }
+          },
+          type: 'datetime',
+          ordinal: false,
         },
         time: { useUTC: false },
         rangeSelector: {
@@ -47,6 +49,10 @@
             type: 'minute',
             count: 1,
             text: '1m'
+          }, {
+            type: 'minute',
+            count: 5,
+            text: '5m'
           }, {
             type: 'minute',
             count: 10,
@@ -76,17 +82,20 @@
             min: -120,
           }
         ],
+        plotOptions: {
+          column: {
+            pointPlacement: 'on',
+            groupPadding: 0.1,
+            dataGrouping: {
+              groupPixelWidth: 30
+            }
+          }
+        },
         series: [
           {
-            name: 'Telegramme pro Sekunde',
-            type: 'area',
-            fillColor: {
-              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-              stops: [
-                [0, Highcharts.getOptions().colors[0]],
-                [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0.2).get('rgba')]
-              ]
-            },
+            name: 'Telegramme',
+            type: 'column',
+            maxPointWidth: 15,
           },
           {
             name: 'RSSI Noise',

@@ -36,6 +36,7 @@ function genTelegram() {
 
 let data = [];
 setInterval(() => {
+  if(Math.random() < 0.5) return;
   const cnt = Math.random() * 3;
   for (let i = 0; i < cnt; i++) {
     data.unshift(genTelegram());
@@ -94,6 +95,11 @@ const server = http.createServer(function(req, res) {
             "version_upper": 1,
             "version_lower": 3,
             "ccuip": "192.168.178.39",
+            "backendurl": "http://localhost",
+            "backend": 0,
+            "rssi_hbw": 30,
+            "rssi_alarmthreshold": -80,
+            "rssi_alarmcount": 5,
             "resolve": 1,
             "sdcardavailable": 1,
             "sdcardsizemb": 3780,

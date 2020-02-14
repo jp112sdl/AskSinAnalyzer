@@ -16,6 +16,25 @@
       </q-card-section>
     </q-card>
 
+    <div class="row q-col-gutter-md q-mt-sm">
+      <div class="col-12 col-md-6">
+        <q-card>
+          <q-card-section>
+            <h3>UI-Version</h3>
+            <ui-updater/>
+          </q-card-section>
+        </q-card>
+      </div>
+      <div class="col-12 col-md-6">
+        <q-card>
+          <q-card-section>
+            <h3>ESP-Version</h3>
+            <esp-updater/>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
+
     <h2 class="q-mt-xl">FAQ</h2>
 
     <q-card flat>
@@ -121,10 +140,12 @@
   import { QCard, QCardSection } from 'quasar';
   import FlagChip from '../components/FlagChip';
   import Changelog from '../components/Changelog';
+  import EspUpdater from '@/components/EspUpdater.vue';
+  import UiUpdater from '@/components/UiUpdater.vue';
 
   export default {
     name: 'InfoView',
-    components: { QCard, QCardSection, FlagChip, Changelog }
+    components: { QCard, QCardSection, FlagChip, Changelog, EspUpdater, UiUpdater }
   }
 </script>
 

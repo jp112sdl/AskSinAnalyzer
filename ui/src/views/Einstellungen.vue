@@ -4,22 +4,16 @@
       <div class="col-12 col-md-6">
         <q-card>
           <q-card-section>
-            <h2>Einstellungen</h2>
-            <settings/>
+            <h3>ESP-Einstellungen</h3>
+            <esp-settings/>
           </q-card-section>
         </q-card>
       </div>
       <div class="col-12 col-md-6">
         <q-card>
           <q-card-section>
-            <h2>ESP-Version</h2>
-            <esp-updater/>
-          </q-card-section>
-        </q-card>
-        <q-card class="q-mt-md">
-          <q-card-section>
-            <h2>UI-Version</h2>
-            <ui-updater/>
+            <h3>UI-Einstellungen</h3>
+            <settings/>
           </q-card-section>
         </q-card>
       </div>
@@ -31,14 +25,13 @@
   import { QCard, QCardSection } from 'quasar';
 
   import Settings from '@/components/Settings.vue';
-  import EspUpdater from '@/components/EspUpdater.vue';
-  import UiUpdater from '@/components/UiUpdater.vue';
+  import EspSettings from '@/components/EspSettings.vue';
 
   export default {
     name: 'EinstellungenView',
     components: {
       QCard, QCardSection,
-      Settings, EspUpdater, UiUpdater,
+      Settings, EspSettings,
     },
   }
 </script>
