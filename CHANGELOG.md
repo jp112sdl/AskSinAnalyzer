@@ -2,8 +2,8 @@
 - **ESP32:**
   - Umsetzung der Generierung eines Alarms in der CCU, wenn der RSSI-Grundpegel dauerhaft überschritten wird (siehe [Thread](https://homematic-forum.de/forum/viewtopic.php?f=76&t=56706&p=562997#p562997) im Homematic Forum)
 - **WebUI:** 
-  - Anpassung der Timeline #41
-  - Formular zur Änderung von Konfigurationsdaten hinzugefügt #39
+  - Anpassung der Timeline [#41](https://github.com/jp112sdl/AskSinAnalyzer/pull/41)
+  - Formular zur Änderung von Konfigurationsdaten hinzugefügt [#39](https://github.com/jp112sdl/AskSinAnalyzer/issues/39)
 
 ## Version 3.1
 - **AskSinSniffer328P:**<br/>
