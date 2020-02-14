@@ -27,7 +27,7 @@
       </tr>
       <tr>
         <th>Gateway:</th>
-        <td>{{ espConfig.gateway }}</td>
+        <td>{{ espConfig.gw }}</td>
       </tr>
       <tr>
         <th>NTP-Server:</th>
