@@ -45,6 +45,7 @@
             .map(line => {
               if(line.length < 5) return null;
               let [lognumber, datum, rssi, from, fromName, to, toName, len, cnt, typ, flags ] = line.split(';');
+              if(lognumber.startsWith("num")) return null;
               const datumParts = datum.match(/^(\d\d)\.(\d\d)\.(\d\d\d\d) (\d\d):(\d\d):(\d\d)/);
               const tstamp = Math.round(new Date(datumParts[3], datumParts[2]-1, datumParts[1], datumParts[4], datumParts[5], datumParts[6]).getTime() / 1000);
               lognumber = +lognumber;

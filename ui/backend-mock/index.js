@@ -89,7 +89,7 @@ const server = http.createServer(function(req, res) {
             "staticipconfig": 0,
             "ip": "192.168.1.191",
             "netmask": "255.255.255.0",
-            "gateway": "192.168.1.1",
+            "gw": "192.168.1.1",
             "macaddress": "30:AE:A4:38:88:6C",
             "hostname": "my.hostname.local",
             "version_upper": 1,
