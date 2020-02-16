@@ -33,6 +33,9 @@
         chart: {
           zoomType: 'x',
         },
+        tooltip: {
+          valueDecimals: 0
+        },
         xAxis: {
           events: {
             afterSetExtremes(ev) {
