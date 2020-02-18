@@ -81,7 +81,7 @@ uint16_t currentCircleColor = ILI9341_RED;
 
 #define IPSIZE                16
 #define VARIABLESIZE          255
-#define DEFAULT_NTP_SERVER    "0.de.pool.ntp.org"
+#define DEFAULT_NTP_SERVER    "pool.ntp.org"
 #define DEFAULT_HOSTNAME      "AskSinAnalyzer"
 
 #define RSSI_PEAK_HOLD_MILLIS 30000 //30 seconds peak hold on rssi text screen
