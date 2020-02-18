@@ -335,7 +335,7 @@ void writeLogEntryToSD(const _LogTable &lt) {
 
 String directoryContentFromSDAsJSON() {
   File dir = SD.open("/");
-  String json = "\"directory_content\": [";
+  String json = "\"sd_content\": [";
   while (true) {
     File entry =  dir.openNextFile();
     if (! entry) {
