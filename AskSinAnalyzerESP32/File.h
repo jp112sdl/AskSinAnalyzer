@@ -248,7 +248,7 @@ uint8_t deleteCSV(const char * fileName, bool createBackup) {
 
 void writeCSVtoSD(const char * fileName, String &csvLine) {
 #ifdef VDEBUG
-  DPRINTLN(F("- writing CSV file"));
+  DPRINT(F("- writing CSV file ")); DPRINTLN(fileName);
 #endif
   if (sdAvailable) {
     if (!SD.exists(fileName)) {

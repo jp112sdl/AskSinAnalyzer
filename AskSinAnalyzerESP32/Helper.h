@@ -258,7 +258,6 @@ String CSV_FILENAME() {
   String fname = "/";
   fname += timeOK ? getDateTimeForFilename(now()) : "log";
   fname +=".csv";
-  DPRINT("CSV_FILENAME is ");DPRINTLN(fname);
   return fname;
 }
 
