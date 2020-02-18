@@ -346,14 +346,14 @@ String directoryContentFromSDAsJSON() {
       }
 
       if (!entry.isDirectory()) {
-        json += "\"" + String(entry.name()) + "\", ";
+        json += "{\"name\":\"" + String(entry.name()) + "\", \"size\":"+String(entry.size(), DEC)+"},";
       }
 
       entry.close();
     }
   }
   json += "]";
-  json.replace(", ]", "]");
+  json.replace(",]", "]");
   return json;
 }
 #endif
