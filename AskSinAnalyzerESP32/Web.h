@@ -112,7 +112,7 @@ void setConfig(AsyncWebServerRequest *request) {
     p->value().toCharArray(HomeMaticConfig.backendUrl, VARIABLESIZE, 0);
     DPRINT(F("  - backend url: ")); DPRINTLN(HomeMaticConfig.backendUrl);
   }
-  
+
   if (request->hasParam("ntp", true)) {
     AsyncWebParameter* p = request->getParam("ntp", true);
     p->value().toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
@@ -183,6 +183,17 @@ void setConfig(AsyncWebServerRequest *request) {
   request->send(200, "text/plain", page);
 }
 
+void listSD (AsyncWebServerRequest *request) {
+  DPRINTLN(F("::: Web.h /listSD"));
+  String json = "{";
+  json += directoryContentFromSDAsJSON();
+  json += "}";
+  DPRINT(F("::: /listSD JSON: ")); DPRINTLN(json);
+  AsyncWebServerResponse *response = request->beginResponse(200);
+  response->addHeader("Content-Length", String(json.length()));
+  request->send(200, "application/json", json);
+}
+
 void getConfig (AsyncWebServerRequest *request) {
   DPRINTLN(F("::: Web.h /getConfig"));
   bool staticipconfig = String(NetConfig.ip) != "0.0.0.0";
@@ -205,7 +216,7 @@ void getConfig (AsyncWebServerRequest *request) {
   json += ",";
   json += "\"backend\":" + String(HomeMaticConfig.backendType);
   json += ",";
-  json += "\"backendurl\":\"" + String(HomeMaticConfig.backendUrl)+"\"";
+  json += "\"backendurl\":\"" + String(HomeMaticConfig.backendUrl) + "\"";
   json += ",";
   json += "\"resolve\":" + String(RESOLVE_ADDRESS);
   json += ",";
@@ -234,6 +245,8 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "\"version_upper\":" + String(VERSION_UPPER);
   json += ",";
   json += "\"version_lower\":" + String(VERSION_LOWER);
+  json += ",";
+  json += directoryContentFromSDAsJSON();
   json += "}";
   DPRINT(F("::: /getConfig JSON: ")); DPRINTLN(json);
   AsyncWebServerResponse *response = request->beginResponse(200);
@@ -424,6 +437,10 @@ void initWebServer() {
 
   webServer.on("/getConfig", HTTP_GET, [](AsyncWebServerRequest * request) {
     getConfig(request);
+  });
+
+  webServer.on("/listSD", HTTP_GET, [](AsyncWebServerRequest * request) {
+    listSD(request);
   });
 
   webServer.on("/setConfig", HTTP_POST, [](AsyncWebServerRequest * request) {

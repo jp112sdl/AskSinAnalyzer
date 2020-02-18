@@ -332,4 +332,25 @@ void writeLogEntryToSD(const _LogTable &lt) {
       DPRINTLN(F("writeLogEntryToCSV failed - not enough space"));
   }
 }
+
+String directoryContentFromSDAsJSON() {
+  File dir = SD.open("/");
+  String json = "\"sd_content\": [";
+  while (true) {
+    File entry =  dir.openNextFile();
+    if (! entry) {
+      // no more files
+      break;
+    }
+    
+    if (!entry.isDirectory()) {
+       json += "\""+String(entry.name())+"\", ";
+    }
+    
+    entry.close();
+  }
+  json += "]";
+  json.replace(", ]","]");
+  return json;
+}
 #endif
