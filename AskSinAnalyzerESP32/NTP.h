@@ -52,6 +52,13 @@ String getDatum(time_t t) {
   return Tag + "." + Monat + "." + Jahr;
 }
 
+String getDateTimeForFilename(time_t t) {
+  String Tag = (day(t) < 10) ? "0" + String(day(t)) : String(day(t));
+  String Monat = (month(t) < 10) ? "0" + String(month(t)) : String(month(t));
+  String Jahr = String(year(t));
+  return Jahr+Monat+Tag;
+}
+
 time_t getNtpTime() {
   IPAddress ntpServerIP;
   while (udp.parsePacket() > 0) ;

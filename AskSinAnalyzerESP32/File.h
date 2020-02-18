@@ -327,7 +327,7 @@ void writeLogEntryToSD(const _LogTable &lt) {
     String csvLine = createCSVFromLogTableEntry(lt, true);
 
     if (getSDCardTotalSpaceMB() - getSDCardUsedSpaceMB() > csvLine.length())
-      writeCSVtoSD(CSV_FILENAME, csvLine);
+      writeCSVtoSD(CSV_FILENAME().c_str(), csvLine);
     else
       DPRINTLN(F("writeLogEntryToCSV failed - not enough space"));
   }

@@ -42,7 +42,7 @@ const String CCU_SV_ALARM   = "AskSinAnalyzerAlarm";  //name of the used system 
 #include "RingBuffer.h"
 
 #define VERSION_UPPER "3"
-#define VERSION_LOWER "2"
+#define VERSION_LOWER "3"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15 //LOW = on boot: start wifimanager, on run: switch between tft screens
@@ -76,7 +76,6 @@ uint8_t currentScreen = TELEGRAM_LIST;
 uint16_t currentCircleColor = ILI9341_RED;
 #endif
 
-#define CSV_FILENAME                "/log.csv"
 #define CSV_HEADER                  "num;time;rssi;fromaddress;from;toaddress;to;len;cnt;typ;flags;msg;"
 
 #define IPSIZE                16

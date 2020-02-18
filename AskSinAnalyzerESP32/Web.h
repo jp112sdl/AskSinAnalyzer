@@ -460,20 +460,35 @@ void initWebServer() {
       AsyncWebParameter* p = request->getParam("backup");
       backup = (p->value() == "1");
     }
-    deleteCSV(CSV_FILENAME, backup);
+    deleteCSV(CSV_FILENAME().c_str(), backup);
     request->send(200, "text/plain", "csv deleted, " + (String)((backup == true) ? "with" : "without") + " backup");
   });
 
   webServer.on("/downloadcsv", HTTP_GET, [](AsyncWebServerRequest * request) {
     AsyncWebServerResponse *response;
-    if (sdAvailable && SD.exists(CSV_FILENAME)) {
+    if (sdAvailable && SD.exists(CSV_FILENAME())) {
       DPRINTLN(F("Downloading CSV from SD Card"));
-      response = request->beginResponse(SD, CSV_FILENAME, String());
+      response = request->beginResponse(SD, CSV_FILENAME().c_str(), String());
       response->addHeader("Server", "AskSinAnalyzer");
       request->send(response);
     } else {
       DPRINTLN(F("SD Card or CSV file not available"));
       request->send(204, "text/plain", "SD Card or CSV file not available");
+    }
+  });
+
+  webServer.on("/download", HTTP_GET, [](AsyncWebServerRequest * request) {
+    if (request->hasArg("filename")) {
+      String fileName =  request->arg("filename");
+      if (!fileName.startsWith("/"))
+        fileName = "/" + fileName;
+      if (SD.exists(fileName)) {
+        AsyncWebServerResponse *response = request->beginResponse(SD, fileName, String());
+        response->addHeader("Server", "AskSinAnalyzer");
+        request->send(response);
+      } else {
+        request->send(404, "text/plain", "file " + fileName + " not found");
+      }
     }
   });
 
