@@ -254,6 +254,13 @@ void addRssiValueToRSSILogTable(int8_t rssi, time_t ts, uint8_t type, const char
   }
 }
 
+String CSV_FILENAME() {
+  String fname = "/";
+  fname += timeOK ? getDateTimeForFilename(now()) : "log";
+  fname +=".csv";
+  return fname;
+}
+
 String createCSVFromLogTableEntry(_LogTable lt, bool lng) {
   String csvLine = "";
   String temp = "";

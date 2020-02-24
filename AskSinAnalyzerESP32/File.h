@@ -248,7 +248,7 @@ uint8_t deleteCSV(const char * fileName, bool createBackup) {
 
 void writeCSVtoSD(const char * fileName, String &csvLine) {
 #ifdef VDEBUG
-  DPRINTLN(F("- writing CSV file"));
+  DPRINT(F("- writing CSV file ")); DPRINTLN(fileName);
 #endif
   if (sdAvailable) {
     if (!SD.exists(fileName)) {
@@ -327,9 +327,33 @@ void writeLogEntryToSD(const _LogTable &lt) {
     String csvLine = createCSVFromLogTableEntry(lt, true);
 
     if (getSDCardTotalSpaceMB() - getSDCardUsedSpaceMB() > csvLine.length())
-      writeCSVtoSD(CSV_FILENAME, csvLine);
+      writeCSVtoSD(CSV_FILENAME().c_str(), csvLine);
     else
       DPRINTLN(F("writeLogEntryToCSV failed - not enough space"));
   }
+}
+
+String directoryContentFromSDAsJSON() {
+  String json = "\"sd_content\": [";
+  if (sdAvailable) {
+    File dir = SD.open("/");
+    while (true) {
+      File entry =  dir.openNextFile();
+      if (! entry) {
+        entry.close();
+        // no more files
+        break;
+      }
+
+      if (!entry.isDirectory()) {
+        json += "{\"name\":\"" + String(entry.name()) + "\", \"size\":"+String(entry.size(), DEC)+"},";
+      }
+
+      entry.close();
+    }
+  }
+  json += "]";
+  json.replace(",]", "]");
+  return json;
 }
 #endif
