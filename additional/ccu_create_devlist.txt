@@ -15,8 +15,8 @@ if(!alarmObj) {
   alarmObj.Name(svAlarm);                                                                     
   alarmObj.ValueType(ivtBinary);                                                               
   alarmObj.ValueSubType(istAlarm);                                                             
-  alarmObj.ValueName0("${sysVarAlarmZone1NotTriggered}");                                   
-  alarmObj.ValueName1("${sysVarAlarmZone1Triggered}");                                      
+  alarmObj.ValueName0("nicht ausgelöst");                                   
+  alarmObj.ValueName1("ausgelöst");                                      
   alarmObj.ValueUnit("");                                                                    
   alarmObj.AlType(atSystem);                                                                   
   alarmObj.AlArm(true);                                                                        
@@ -59,40 +59,10 @@ if (!svObj){
 !phys. Zentralen-Adresse HmIP auslesen
 string stdout;
 string stderr;
-system.Exec("grep Adapter.1.Address /etc/config/hmip_address.conf|awk -F'\=' {'print $2'}", &stdout, &stderr);
-!WriteLine(stdout);
+system.Exec("echo $((16#`grep Adapter.1.Address /etc/config/hmip_address.conf|awk -F'\=' {'print $2'}`))", &stdout, &stderr);
+WriteLine(stdout);
 
-!Hex-Ausgabe in Dezimal umwandeln
-string  inHex    = stdout.Trim();
-
-integer inLen    = inHex.Length();
-integer outDec   = 0;
-if (inLen == 6) {
-  integer hexBase = 16;
-  
-  string i;
-  foreach(i, system.GenerateEnum(0,inLen - 1))
-  {
-    integer idx = i.ToInteger();
-    var sChar = inHex.Substr(idx, 1).ToUpper();
-    integer sDec = 0;
-    if     (sChar == "A") { sDec = 10; }
-    elseif (sChar == "B") { sDec = 11; }
-    elseif (sChar == "C") { sDec = 12; }
-    elseif (sChar == "D") { sDec = 13; }
-    elseif (sChar == "E") { sDec = 14; }
-    elseif (sChar == "F") { sDec = 15; }
-    else   {sDec = sChar.ToInteger();  }
-
-    integer bytePos = idx % 2;
-    integer byteIdx  = ((inLen / 2) - 1) - idx / 2;
-
-    outDec = outDec + sDec * hexBase.Pow((byteIdx * 2)+(1-bytePos));
-  
-    !WriteLine(bytePos#" "#byteIdx# " "#sDec);
-  }
-}
-integer HmIPCentral = outDec;
+integer HmIPCentral = stdout.ToInteger();
 
 !alle Geräteadressen, Seriennummer und Namen erfassen
 integer tstamp = system.Date("%F %X").ToTime().ToInteger();
