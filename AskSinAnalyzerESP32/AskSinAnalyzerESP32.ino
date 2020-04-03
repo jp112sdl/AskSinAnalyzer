@@ -218,7 +218,7 @@ void setup() {
 
     startWifiManager |= (digitalRead(START_WIFIMANAGER_PIN) == LOW);
 
-    RESOLVE_ADDRESS = isNotEmpty(HomeMaticConfig.ccuIP);
+    RESOLVE_ADDRESS = (isNotEmpty(HomeMaticConfig.ccuIP) || isNotEmpty(HomeMaticConfig.backendUrl));
     DPRINT(F("- RESOLVE_ADDRESS is")); DPRINT(RESOLVE_ADDRESS ? " " : " NOT "); DPRINTLN(F("active!"));
 
     isOnline = doWifiConnect();
