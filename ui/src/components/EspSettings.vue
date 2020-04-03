@@ -64,7 +64,7 @@
       />
       <q-input
         v-if="cfg.backend"
-        v-model="cfg.backendUrl"
+        v-model="cfg.backendurl"
         outlined
         filled
         type="string"
