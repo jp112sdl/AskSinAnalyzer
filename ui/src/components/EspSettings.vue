@@ -34,13 +34,6 @@
         label="Gateway"
       />
       <q-input
-        v-model="cfg.ccuip"
-        outlined
-        filled
-        type="string"
-        label="CCU IP"
-      />
-      <q-input
         v-model="cfg.ntp"
         outlined
         filled
