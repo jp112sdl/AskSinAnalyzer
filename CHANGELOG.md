@@ -1,3 +1,8 @@
+## Version 3.3
+- **ESP32:**
+  - Bugfix: Geräte-Namensauflösung bei Backend "Other" funktionierte nicht
+  - es wird täglich eine neue CSV angelegt, so dass eine einzelne Datei nicht übermäßig anwächst
+  
 ## Version 3.2
 - **ESP32:**
   - Umsetzung der Generierung eines Alarms in der CCU, wenn der RSSI-Grundpegel dauerhaft überschritten wird (siehe [Thread](https://homematic-forum.de/forum/viewtopic.php?f=76&t=56706&p=562997#p562997) im Homematic Forum)
