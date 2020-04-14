@@ -112,9 +112,13 @@ void setAlarmOnCCU(bool alState, String alDescription) {
     drawStatusCircle(ILI9341_BLUE);
 #endif
     //set Alarm description
-    if (httpGet("http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + CCU_SV_ALARM + "%22).DPInfo(%22" + alDescription + "%22)") == true)
+    String URL_PREFIX = "http://" + String(HomeMaticConfig.ccuIP) + ":8181";
+    if (HomeMaticConfig.CCUuseHTTPS == true) 
+      URL_PREFIX = "https://" + String(HomeMaticConfig.ccuIP) + ":48181";
+    
+    if (httpGet(URL_PREFIX+"/a.exe?ret=dom.GetObject(%22" + CCU_SV_ALARM + "%22).DPInfo(%22" + alDescription + "%22)") == true)
       //set Alarm state
-      httpGet("http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(%22" + CCU_SV_ALARM + "%22).State(" + String(alState ? "true" : "false") + ")");
+      httpGet(URL_PREFIX+"/a.exe?ret=dom.GetObject(%22" + CCU_SV_ALARM + "%22).State(" + String(alState ? "true" : "false") + ")");
   }
 }
 
@@ -129,8 +133,12 @@ String fetchAskSinAnalyzerDevList() {
     String url = "";
     //http.setTimeout(HTTPTimeOut);
     switch (HomeMaticConfig.backendType) {
-      case BT_CCU:
-        url = "http://" + String(HomeMaticConfig.ccuIP) + ":8181/a.exe?ret=dom.GetObject(ID_SYSTEM_VARIABLES).Get(%22" + CCU_SV_DEVLIST + "%22).Value()";
+      case BT_CCU: {
+        String URL_PREFIX = "http://" + String(HomeMaticConfig.ccuIP) + ":8181";
+        if (HomeMaticConfig.CCUuseHTTPS == true) 
+          URL_PREFIX = "https://" + String(HomeMaticConfig.ccuIP) + ":48181";
+        url = URL_PREFIX+"/a.exe?ret=dom.GetObject(ID_SYSTEM_VARIABLES).Get(%22" + CCU_SV_DEVLIST + "%22).Value()";
+        }
         break;
 
       case BT_OTHER:

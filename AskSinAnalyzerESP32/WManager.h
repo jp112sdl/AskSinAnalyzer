@@ -101,6 +101,7 @@ bool doWifiConnect() {
     WiFiManagerParameter custom_hostname("custom_hostname", "Hostname (leave blank to reset to default)", NetConfig.hostname, VARIABLESIZE, 0, "pattern='[A-Za-z0-9_ -.]+'");
     WiFiManagerParameter custom_ntp("custom_ntp", "NTP-Server (leave blank to reset to default)", NetConfig.ntp, VARIABLESIZE, 0, "pattern='[A-Za-z0-9_ -.]+'");
     WiFiManagerParameter custom_ccuip("ccu", "CCU IP", HomeMaticConfig.ccuIP, IPSIZE, 0, "pattern='((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$'");
+    WiFiManagerParameter custom_ccuusehttps("ccuusehttps", "HTTPS verwenden: ", (HomeMaticConfig.CCUuseHTTPS) ? "1" : "0", 8, 1);
     WiFiManagerParameter custom_backendurl("backendurl", "Backend URL", HomeMaticConfig.backendUrl, VARIABLESIZE, 0, "");
 
     String backend = "";
@@ -125,6 +126,7 @@ bool doWifiConnect() {
 
     wifiManager.addParameter(&custom_backendtype);
     wifiManager.addParameter(&custom_ccuip);
+    wifiManager.addParameter(&custom_ccuusehttps);
     wifiManager.addParameter(&custom_backendurl);
     wifiManager.addParameter(&custom_ip);
     wifiManager.addParameter(&custom_netmask);
@@ -178,7 +180,8 @@ bool doWifiConnect() {
       strcpy(HomeMaticConfig.ccuIP, custom_ccuip.getValue());
       strcpy(HomeMaticConfig.backendUrl, custom_backendurl.getValue());
       HomeMaticConfig.backendType = (atoi(custom_backendtype.getValue()));
-
+      HomeMaticConfig.CCUuseHTTPS = (atoi(custom_ccuusehttps.getValue()) == 1);
+      
       saveSystemConfig();
       digitalWrite(AP_MODE_LED_PIN, LOW);
     }

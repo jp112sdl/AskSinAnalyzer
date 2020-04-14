@@ -20,7 +20,7 @@ const String CCU_SV_ALARM   = "AskSinAnalyzerAlarm";  //name of the used system 
 #include "Debug.h"
 #include <Preferences.h>
 #include "WM.h"
-#include <HTTPClient.h>
+#include <WiFiClientSecure.h>
 #include <ESPAsyncWebServer.h>
 #include <ESP32httpUpdate.h>
 #include <ESPmDNS.h>
@@ -42,7 +42,7 @@ const String CCU_SV_ALARM   = "AskSinAnalyzerAlarm";  //name of the used system 
 #include "RingBuffer.h"
 
 #define VERSION_UPPER "3"
-#define VERSION_LOWER "3"
+#define VERSION_LOWER "4"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15 //LOW = on boot: start wifimanager, on run: switch between tft screens
@@ -97,6 +97,7 @@ enum BackendTypes { BT_CCU, BT_OTHER };
 struct _HomeMaticConfig {
   char ccuIP[IPSIZE]            = "";
   uint8_t backendType           = BT_CCU;
+  bool CCUuseHTTPS              = false;
   char backendUrl[VARIABLESIZE] = "";
 } HomeMaticConfig;
 

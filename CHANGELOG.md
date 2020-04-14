@@ -1,6 +1,12 @@
+## Version 3.4
+- **ESP32:**
+  - Unterstützung von HTTPS bei der Verbindung zum Backend [#61](https://github.com/jp112sdl/AskSinAnalyzer/issues/61)
+    - **Backend CCU:**<br/> <img src="Images/apmode.png" width=200 />
+    - **Backend Other:** ab sofort können als Quell-URL `http` und `https` verwendet werden
+
 ## Version 3.3
 - **ESP32:**
-  - Bugfix: Geräte-Namensauflösung bei Backend "Other" funktionierte nicht
+  - Bugfix: Geräte-Namensauflösung bei Backend "Other" funktionierte nicht [`[11e21a8]`](https://github.com/jp112sdl/AskSinAnalyzer/commit/11e21a8355db6981e78230f4a0f137ae28a861b2)
   - es wird täglich eine neue CSV angelegt, so dass eine einzelne Datei nicht übermäßig anwächst
   
 ## Version 3.2
