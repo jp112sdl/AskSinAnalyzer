@@ -106,6 +106,17 @@ void setConfig(AsyncWebServerRequest *request) {
       DPRINT(F("  - backend OUT OF RANGE : ")); DDEC(val);
     }
   }
+ 
+  if (request->hasParam("ccuhttps", true)) {
+    AsyncWebParameter* p = request->getParam("ccuhttps", true);
+    uint8_t val = atoi(p->value().c_str());
+    if (val == 0 || val == 1) 
+      HomeMaticConfig.CCUuseHTTPS = val;
+    else
+      DPRINT(F("  - CCUuseHTTPS OUT OF RANGE : ")); DDEC(val);
+      
+    DPRINT(F("  - ccuhttps: ")); DPRINTLN(HomeMaticConfig.CCUuseHTTPS);
+  }
 
   if (request->hasParam("backendurl", true)) {
     AsyncWebParameter* p = request->getParam("backendurl", true);
@@ -213,6 +224,8 @@ void getConfig (AsyncWebServerRequest *request) {
   json += "\"macaddress\":\"" + String(WiFi.macAddress()) + "\"";
   json += ",";
   json += "\"ccuip\":\"" + String(HomeMaticConfig.ccuIP) + "\"";
+  json += ",";
+  json += "\"ccuhttps\":" + String(HomeMaticConfig.CCUuseHTTPS);
   json += ",";
   json += "\"backend\":" + String(HomeMaticConfig.backendType);
   json += ",";

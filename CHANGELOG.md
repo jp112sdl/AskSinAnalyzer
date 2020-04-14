@@ -1,3 +1,8 @@
+## Version 3.4
+- **ESP32:**
+  - Unterstützung von HTTPS bei der Verbindung zum Backend
+    - CCU-Benutzer
+
 ## Version 3.3
 - **ESP32:**
   - Bugfix: Geräte-Namensauflösung bei Backend "Other" funktionierte nicht

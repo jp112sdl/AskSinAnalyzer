@@ -13,6 +13,7 @@
 #define CONFIG_NTP                    "ntp"
 #define CONFIG_CCUIP                  "ccuip"
 #define CONFIG_BACKEND                "backend"
+#define CONFIG_BACKEND_HTTPS          "ccuhttps"
 #define CONFIG_BACKEND_URL            "backendurl"
 #define CONFIG_BOOTCONFIGMODE         "bootConfigMode"
 #define CONFIG_RSSI_HISTOGRAMBARWIDTH "rssi_hbw"
@@ -20,18 +21,19 @@
 #define CONFIG_RSSI_ALARMCOUNT        "rssi_alcnt"
 
 void dumpSystemConfig() {
-  DPRINTLN(F("- dump config:"));
-  DPRINT(F(" - Hostname    : ")); DPRINTLN(NetConfig.hostname);
-  DPRINT(F(" - BACKEND     : ")); DPRINTLN(HomeMaticConfig.backendType);
-  DPRINT(F(" - BACKEND URL : ")); DPRINTLN(HomeMaticConfig.backendUrl);
-  DPRINT(F(" - CCU IP      : ")); DPRINTLN(HomeMaticConfig.ccuIP);
-  DPRINT(F(" - NTP         : ")); DPRINTLN(NetConfig.ntp);
-  DPRINT(F(" - Static IP   : ")); DPRINTLN(NetConfig.ip);
-  DPRINT(F(" - Static Mask : ")); DPRINTLN(NetConfig.netmask);
-  DPRINT(F(" - Static GW   : ")); DPRINTLN(NetConfig.gw);
-  DPRINT(F(" - RSSI Hist.BW: ")); DPRINTLN(RSSIConfig.histogramBarWidth);
-  DPRINT(F(" - RSSI Al.Ths : ")); DPRINTLN(RSSIConfig.alarmThreshold);
-  DPRINT(F(" - RSSI Al.Cnt : ")); DPRINTLN(RSSIConfig.alarmCount);
+  DPRINTLN(F("- dump config  :"));
+  DPRINT(F(" - Hostname      : ")); DPRINTLN(NetConfig.hostname);
+  DPRINT(F(" - BACKEND       : ")); DPRINTLN(HomeMaticConfig.backendType);
+  DPRINT(F(" - BACKEND HTTPS : ")); DPRINTLN(HomeMaticConfig.CCUuseHTTPS);
+  DPRINT(F(" - BACKEND URL   : ")); DPRINTLN(HomeMaticConfig.backendUrl);
+  DPRINT(F(" - CCU IP        : ")); DPRINTLN(HomeMaticConfig.ccuIP);
+  DPRINT(F(" - NTP           : ")); DPRINTLN(NetConfig.ntp);
+  DPRINT(F(" - Static IP     : ")); DPRINTLN(NetConfig.ip);
+  DPRINT(F(" - Static Mask   : ")); DPRINTLN(NetConfig.netmask);
+  DPRINT(F(" - Static GW     : ")); DPRINTLN(NetConfig.gw);
+  DPRINT(F(" - RSSI Hist.BW  : ")); DPRINTLN(RSSIConfig.histogramBarWidth);
+  DPRINT(F(" - RSSI Al.Ths   : ")); DPRINTLN(RSSIConfig.alarmThreshold);
+  DPRINT(F(" - RSSI Al.Cnt   : ")); DPRINTLN(RSSIConfig.alarmCount);
 }
 
 bool loadSystemConfig() {
@@ -49,6 +51,7 @@ bool loadSystemConfig() {
   configPreferences.getString(CONFIG_NTP, DEFAULT_NTP_SERVER).toCharArray(NetConfig.ntp, VARIABLESIZE, 0);
   configPreferences.getString(CONFIG_CCUIP, "").toCharArray(HomeMaticConfig.ccuIP, IPSIZE, 0);
   HomeMaticConfig.backendType = configPreferences.getUChar(CONFIG_BACKEND, BT_CCU);
+  HomeMaticConfig.CCUuseHTTPS = configPreferences.getBool(CONFIG_BACKEND_HTTPS, false);
   configPreferences.getString(CONFIG_BACKEND_URL, "").toCharArray(HomeMaticConfig.backendUrl, VARIABLESIZE, 0);
 
   configPreferences.getString(CONFIG_IP, "0.0.0.0").toCharArray(NetConfig.ip, IPSIZE, 0);
@@ -76,6 +79,7 @@ bool saveSystemConfig() {
   configPreferences.putString(CONFIG_CCUIP, HomeMaticConfig.ccuIP);
   configPreferences.putString(CONFIG_BACKEND_URL, HomeMaticConfig.backendUrl);
   configPreferences.putUChar(CONFIG_BACKEND, HomeMaticConfig.backendType);
+  configPreferences.putBool(CONFIG_BACKEND_HTTPS, HomeMaticConfig.CCUuseHTTPS);
   configPreferences.putUChar(CONFIG_RSSI_HISTOGRAMBARWIDTH, RSSIConfig.histogramBarWidth);
   configPreferences.putUChar(CONFIG_RSSI_ALARMTHRESHOLD, RSSIConfig.alarmThreshold);
   configPreferences.putUChar(CONFIG_RSSI_ALARMCOUNT, RSSIConfig.alarmCount);
