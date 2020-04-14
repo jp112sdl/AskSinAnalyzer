@@ -62,6 +62,15 @@
         label="CCU Adresse"
         hint="IP oder Hostname der CCU zum Laden der Geräteliste"
       />
+      <div>
+        <q-toggle
+          label="CCU über HTTPS ansprechen"
+          v-if="!cfg.backend"
+          v-model="cfg.ccuhttps"
+          :true-value="1"
+          :false-value="0"
+        />
+      </div>
       <q-input
         v-if="cfg.backend"
         v-model="cfg.backendurl"
@@ -110,7 +119,7 @@
   import { QIcon, QForm, QInput, QBtn, QToggle } from 'quasar';
 
   const confProps = [
-    'staticipconfig', 'ip', 'netmask', 'gw', 'ccuip', 'ntp', 'hostname',
+    'staticipconfig', 'ip', 'netmask', 'gw', 'ccuip', 'ccuhttps', 'ntp', 'hostname',
     'backend', 'ccuip', 'backendurl', 'rssi_hbw', 'rssi_alarmthreshold', 'rssi_alarmcount'
   ];
 

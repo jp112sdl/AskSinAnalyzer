@@ -36,7 +36,7 @@ function genTelegram() {
 
 let data = [];
 setInterval(() => {
-  if(Math.random() < 0.5) return;
+  if (Math.random() < 0.5) return;
   const cnt = Math.random() * 3;
   for (let i = 0; i < cnt; i++) {
     data.unshift(genTelegram());
@@ -56,97 +56,102 @@ setInterval(() => {
 
 
 function telegram2Csv(obj) {
-  return `${obj.lognumber};${obj.tstamp};${ obj.rssi };${ obj.from };${ obj.to };${ obj.len };${ obj.cnt };${ obj.typ };${ obj.flags };`
+  return `${ obj.lognumber };${ obj.tstamp };${ obj.rssi };${ obj.from };${ obj.to };${ obj.len };${ obj.cnt };${ obj.typ };${ obj.flags };`
 }
 
 const server = http.createServer(function(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const url = parseUrl(req.url, true);
-  {
-    switch (url.pathname) {
+  switch (url.pathname) {
 
-      case '/getAskSinAnalyzerDevListJSON':
-        res.setHeader('Content-Type', 'application/json charset=iso-8859-1');
-        res.write(JSON.stringify(devlist, null,2));
-        res.end();
-        break;
+    case '/fhem':
+      res.setHeader('Content-Type', 'application/json charset=utf-8');
+      res.write(JSON.stringify(devlist, null, 2));
+      res.end();
+      break;
 
-      case '/getLogByLogNumber':
-        const offset = url.query && url.query.lognum;
-        const format = url.query && url.query.format;
-        let resData = data.filter(item => item.lognumber > offset).slice(-50);
-        if(offset === "-1") resData.reverse();
-        if(format === "csv") {
-          res.write(resData.map(item => telegram2Csv(item)).join("\n"));
-        } else {
-          res.write(JSON.stringify(resData, null, 2)); //write a response
-        }
-        res.end(); //end the response
-        break;
+    case '/getAskSinAnalyzerDevListJSON':
+      res.setHeader('Content-Type', 'application/json charset=iso-8859-1');
+      res.write(JSON.stringify(devlist, null, 2));
+      res.end();
+      break;
 
-      case '/getConfig':
-        res.write(JSON.stringify({
-            "staticipconfig": 0,
-            "ip": "192.168.1.191",
-            "netmask": "255.255.255.0",
-            "gw": "192.168.1.1",
-            "macaddress": "30:AE:A4:38:88:6C",
-            "hostname": "my.hostname.local",
-            "version_upper": 1,
-            "version_lower": 3,
-            "ccuip": "192.168.178.39",
-            "backendurl": "http://localhost",
-            "backend": 0,
-            "rssi_hbw": 30,
-            "rssi_alarmthreshold": -80,
-            "rssi_alarmcount": 5,
-            "resolve": 1,
-            "sdcardavailable": 1,
-            "sdcardsizemb": 3780,
-            "sdcardtotalspacemb": "2047",
-            "sdcardusedspacemb": "4",
-            "spiffssizekb": 1342,
-            "spiffsusedkb": 79,
-            "boottime": Math.floor(Date.now() / 1000),
-            "ntp": "0.de.pool.ntp.org",
-            "display": false,
-          }, null, 2)
-        );
-        res.end();
-        break;
+    case '/getLogByLogNumber':
+      const offset = url.query && url.query.lognum;
+      const format = url.query && url.query.format;
+      let resData = data.filter(item => item.lognumber > offset).slice(-50);
+      if (offset === "-1") resData.reverse();
+      if (format === "csv") {
+        res.write(resData.map(item => telegram2Csv(item)).join("\n"));
+      } else {
+        res.write(JSON.stringify(resData, null, 2)); //write a response
+      }
+      res.end(); //end the response
+      break;
 
-      case '/getRSSILog':
-        res.write(JSON.stringify(rssiLog, null, 2));
-        res.end();
-        break;
+    case '/getConfig':
+      res.write(JSON.stringify({
+          "staticipconfig": 0,
+          "ip": "192.168.1.191",
+          "netmask": "255.255.255.0",
+          "gw": "192.168.1.1",
+          "macaddress": "30:AE:A4:38:88:6C",
+          "hostname": "my.hostname.local",
+          "version_upper": 1,
+          "version_lower": 3,
+          "ccuip": "192.168.178.39",
+          "ccuhttps": 0,
+          "backendurl": "http://localhost",
+          "backend": 0,
+          "rssi_hbw": 30,
+          "rssi_alarmthreshold": -80,
+          "rssi_alarmcount": 5,
+          "resolve": 1,
+          "sdcardavailable": 1,
+          "sdcardsizemb": 3780,
+          "sdcardtotalspacemb": "2047",
+          "sdcardusedspacemb": "4",
+          "spiffssizekb": 1342,
+          "spiffsusedkb": 79,
+          "boottime": Math.floor(Date.now() / 1000),
+          "ntp": "0.de.pool.ntp.org",
+          "display": false,
+        }, null, 2)
+      );
+      res.end();
+      break;
 
-      case '/reboot':
-      case '/rebootInConfigMode':
-        console.log('Simulate ESP reboot, closing listener');
-        res.writeHead(200);
-        res.end();
-        setTimeout(() => server.close(), 1000);
-        setTimeout(() => server.listen(3000, () => console.log('Listener opened')), 10 * 1000);
-        break;
+    case '/getRSSILog':
+      res.write(JSON.stringify(rssiLog, null, 2));
+      res.end();
+      break;
 
-      case '/deletecsv':
-      case '/index.html':
-        res.write(':)');
-        res.end();
-        break;
+    case '/reboot':
+    case '/rebootInConfigMode':
+      console.log('Simulate ESP reboot, closing listener');
+      res.writeHead(200);
+      res.end();
+      setTimeout(() => server.close(), 1000);
+      setTimeout(() => server.listen(3000, () => console.log('Listener opened')), 10 * 1000);
+      break;
 
-      // case '/getDeviceNameBySerial':
-      //   const sn = url.query && url.query.Serial;
-      //   const name = devices[sn] || null;
-      //   res.write(JSON.stringify(name));
-      //   res.end();
-      //   break;
+    case '/deletecsv':
+    case '/index.html':
+      res.write(':)');
+      res.end();
+      break;
 
-      default:
-        res.writeHead(404);
-        res.write('Not found');
-        res.end();
-    }
+    // case '/getDeviceNameBySerial':
+    //   const sn = url.query && url.query.Serial;
+    //   const name = devices[sn] || null;
+    //   res.write(JSON.stringify(name));
+    //   res.end();
+    //   break;
+
+    default:
+      res.writeHead(404);
+      res.write('Not found');
+      res.end();
   }
 });
 
