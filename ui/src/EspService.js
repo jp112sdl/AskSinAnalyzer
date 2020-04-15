@@ -17,6 +17,7 @@ export default class EspService {
   refreshTimeout = null;
   resolveNames = true;
   rssiLogMap = new Map();
+  devicesSet = new Set(['==Unbekannt==']);
 
   constructor(baseUrl = '', maxTelegrams = 20000, refreshInterval = 2, resolveNames = true) {
     this.baseUrl = baseUrl;
@@ -37,14 +38,7 @@ export default class EspService {
       this.data.telegrams.splice(this.maxTelegrams, this.data.telegrams.length - this.maxTelegrams);
     }
 
-    // Generate unique devices list
-    let devices = new Set();
-    this.data.telegrams.forEach(({ fromName, toName }) => {
-      if (fromName && !devices.has(fromName)) devices.add(fromName);
-      if (toName && !devices.has(toName)) devices.add(toName);
-    });
-    devices = [...devices].sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-    this.data.devices.splice(0, this.data.devices.length, ...devices);
+    this.generateDeviceList(telegram);
   }
 
   async autorefresh() {
@@ -73,6 +67,37 @@ export default class EspService {
 
   stopAutorefresh() {
     clearTimeout(this.refreshTimeout);
+  }
+
+  // Generate unique devices list
+  generateDeviceList(telegram = null) {
+    let telegrams = [telegram];
+    if (telegram === null) {
+      this.devicesSet = new Set(['==Unbekannt==']);
+      telegrams = this.data.telegrams;
+    }
+    let newDeviceAdded = false;
+    telegrams.forEach(({ fromName, toName, toAddr, fromAddr }) => {
+      if (fromName && !this.devicesSet.has(fromName)) {
+        this.devicesSet.add(fromName);
+        newDeviceAdded = true;
+      } else if (!fromName && !this.devicesSet.has(fromAddr)) {
+        this.devicesSet.add(fromAddr);
+        newDeviceAdded = true;
+      }
+      if (toName && !this.devicesSet.has(toName)) {
+        this.devicesSet.add(toName);
+        newDeviceAdded = true;
+      } else if (!toName && !this.devicesSet.has(toAddr)) {
+        this.devicesSet.add(toAddr);
+        newDeviceAdded = true;
+      }
+    });
+    if (newDeviceAdded) {
+      const devices = Array.from(this.devicesSet);
+      devices.sort((a, b) => a.toString().toLowerCase().localeCompare(b.toString().toLowerCase()));
+      this.data.devices.splice(0, devices.length, ...devices);
+    }
   }
 
   async fetchLog(offset = 0) {
