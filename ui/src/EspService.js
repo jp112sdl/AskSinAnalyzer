@@ -77,19 +77,19 @@ export default class EspService {
       telegrams = this.data.telegrams;
     }
     let newDeviceAdded = false;
-    telegrams.forEach(({ fromName, toName, toAddr, fromAddr }) => {
+    telegrams.forEach(({ fromName, toName, to, from }) => {
       if (fromName && !this.devicesSet.has(fromName)) {
         this.devicesSet.add(fromName);
         newDeviceAdded = true;
-      } else if (!fromName && !this.devicesSet.has(fromAddr)) {
-        this.devicesSet.add(fromAddr);
+      } else if (!fromName && !this.devicesSet.has(from)) {
+        this.devicesSet.add(from);
         newDeviceAdded = true;
       }
       if (toName && !this.devicesSet.has(toName)) {
         this.devicesSet.add(toName);
         newDeviceAdded = true;
-      } else if (!toName && !this.devicesSet.has(toAddr)) {
-        this.devicesSet.add(toAddr);
+      } else if (!toName && !this.devicesSet.has(to)) {
+        this.devicesSet.add(to);
         newDeviceAdded = true;
       }
     });
