@@ -158,7 +158,7 @@
           result = result.filter(v => {
             return this.filter.fromName.includes(v.fromName)
               || this.filter.fromName.includes(v.from)
-              || this.filter.fromName.includes('==Unbekannt==') && v.fromName === '';
+              || this.filter.fromName.includes('==Unbekannt==') && !v.fromName;
           });
         }
         if (this.filter.fromToName.length) {
@@ -167,14 +167,14 @@
               || this.filter.fromToName.includes(v.toName)
               || this.filter.fromToName.includes(v.from)
               || this.filter.fromToName.includes(v.to)
-              || this.filter.fromToName.includes('==Unbekannt==') && (v.fromName === '' || v.toName === '');
+              || this.filter.fromToName.includes('==Unbekannt==') && (!v.fromName || !v.toName);
           });
         }
         if (this.filter.toName.length) {
           result = result.filter(v => {
             return this.filter.toName.includes(v.toName)
               || this.filter.toName.includes(v.to)
-              || this.filter.toName.includes('==Unbekannt==') && v.toName === '';
+              || this.filter.toName.includes('==Unbekannt==') && !v.toName;
           });
         }
         if (this.filter.rssi.length) {
