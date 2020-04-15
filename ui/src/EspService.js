@@ -38,7 +38,7 @@ export default class EspService {
       this.data.telegrams.splice(this.maxTelegrams, this.data.telegrams.length - this.maxTelegrams);
     }
 
-    this.generateDeviceList(telegram);
+    telegrams.forEach(telegram => this.generateDeviceList(telegram));
   }
 
   async autorefresh() {
