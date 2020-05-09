@@ -1,7 +1,7 @@
 ## Version 3.4
 - **ESP32:**
   - Unterstützung von HTTPS bei der Verbindung zum Backend [#61](https://github.com/jp112sdl/AskSinAnalyzer/issues/61)
-    - **Backend CCU:**<br/> <img src="Images/apmode.png" width=200 />
+    - **Backend CCU:**<br/> <img src="https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/Images/apmode.png" width=200 />
     - **Backend Other:** ab sofort können als Quell-URL `http` und `https` verwendet werden
 
 ## Version 3.3
