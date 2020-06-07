@@ -135,6 +135,8 @@ void showInfoDisplay(bool firstrun) {
     u8g.setForegroundColor(ILI9341_WHITE);
     u8g.setCursor(0, 40);
 
+    u8g.print(F("         Version: ")); u8g.println(VERSION_UPPER "." VERSION_LOWER " (" __DATE__ " " __TIME__ ")"); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
+    u8g.println();
     u8g.print(F("     Mac-Address: ")); u8g.println(WiFi.macAddress()); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
     u8g.print(F("            SSID: ")); u8g.println(WiFi.SSID()); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
     u8g.print(F("            RSSI: ")); u8g.print(WiFi.RSSI()); u8g.println(F(" dBm")); u8g.setFont(u8g2_font_7x13_mr); u8g.println(); u8g.setFont(u8g2_font_7x14_mr);
