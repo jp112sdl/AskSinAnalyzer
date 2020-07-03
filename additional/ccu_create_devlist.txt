@@ -59,7 +59,7 @@ if (!svObj){
 !phys. Zentralen-Adresse HmIP auslesen
 string stdout;
 string stderr;
-system.Exec("echo $((16#`grep Adapter.1.Address /etc/config/hmip_address.conf|awk -F'\=' {'print $2'}`))", &stdout, &stderr);
+system.Exec("echo $((0x`grep Adapter.1.Address /etc/config/hmip_address.conf|awk -F'\=' {'print $2'}`))", &stdout, &stderr);
 WriteLine(stdout);
 
 integer HmIPCentral = stdout.ToInteger();
