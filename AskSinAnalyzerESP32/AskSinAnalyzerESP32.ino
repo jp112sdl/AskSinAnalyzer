@@ -7,8 +7,6 @@
 //- -----------------------------------------------------------------------------------------------------------------------
 
 #define USE_DISPLAY
-const String CCU_SV_DEVLIST = "AskSinAnalyzerDevList";  //name of the used system variable on the CCU containing the device list
-const String CCU_SV_ALARM   = "AskSinAnalyzerAlarm";  //name of the used system variable on the CCU for alarms
 // #define NDEBUG //No DEBUG -> no output
 #define VDEBUG //Verbose DEBUG -> more output
 
@@ -40,6 +38,9 @@ const String CCU_SV_ALARM   = "AskSinAnalyzerAlarm";  //name of the used system 
 #define HAS_DISPLAY 0
 #endif
 #include "RingBuffer.h"
+
+const String CCU_SV_DEVLIST = "AskSinAnalyzerDevList";  //name of the used system variable on the CCU containing the device list
+const String CCU_SV_ALARM   = "AskSinAnalyzerAlarm";  //name of the used system variable on the CCU for alarms
 
 #define VERSION_UPPER "3"
 #define VERSION_LOWER "4"
