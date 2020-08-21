@@ -15,6 +15,15 @@
           Auflösen und Anzeige der ReGa-Namen anstelle der Seriennummer.
         </div>
       </div>
+      <div>
+        <q-toggle
+          label="Unbekannte Geräte ignorieren"
+          v-model="settings.ignoreUnknownDevices"
+        />
+        <div class="q-field__bottom">
+          Es werden alle Telegramme von Geräten ignoriert, die nicht durch die Device-List aufgelöst werden können.
+        </div>
+      </div>
       <q-input
         v-model="settings.maxTelegrams"
         outlined
