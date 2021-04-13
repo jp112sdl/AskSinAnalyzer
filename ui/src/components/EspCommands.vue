@@ -96,7 +96,7 @@
     methods: {
       async reloadDevlist() {
         Loading.show({
-          message: '<b>Der ESP wird neu gestartet ...</b>'
+          message: '<b>Die Device-List wird neu geladen...</b>'
         });
         await this.$espService.fetchDevList();
         Loading.hide();
@@ -104,7 +104,7 @@
 
       async reboot() {
         Loading.show({
-          message: '<b>Der ESP wird neu gestartet ...</b>'
+          message: '<b>Der ESP wird neu gestartet...</b>'
         });
         await this.$espService.postCommand('reboot');
         await wait(5*1000);

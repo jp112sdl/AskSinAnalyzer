@@ -25,7 +25,7 @@ if(!alarmObj) {
 
   svObjects.Add(alarmObj.ID());
 
-  dom.RTUpdate(true);                                                                          
+  dom.RTUpdate(0);                                                                          
   
   WriteLine("Alarm-Variable "#svAlarm#" angelegt.\n");                                                                                        
 }  else {
@@ -50,7 +50,7 @@ if (!svObj){
 
   svObjects.Add(svObj.ID());
 
-  dom.RTUpdate(true);
+  dom.RTUpdate(0);
   WriteLine("Variable "#svDevList#" angelegt.\n");
 } else {
   WriteLine("Variable "#svDevList#" existiert.\n");
@@ -59,7 +59,7 @@ if (!svObj){
 !phys. Zentralen-Adresse HmIP auslesen
 string stdout;
 string stderr;
-system.Exec("echo $((16#`grep Adapter.1.Address /etc/config/hmip_address.conf|awk -F'\=' {'print $2'}`))", &stdout, &stderr);
+system.Exec("echo $((0x`grep Adapter.1.Address /etc/config/hmip_address.conf|awk -F'\=' {'print $2'}`))", &stdout, &stderr);
 WriteLine(stdout);
 
 integer HmIPCentral = stdout.ToInteger();

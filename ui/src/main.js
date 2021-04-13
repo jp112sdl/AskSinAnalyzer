@@ -15,7 +15,8 @@ const defaultSettings = {
   maxTelegrams: 100000,
   refreshInterval: 1,
   espIp: '',
-  resolveNames: true
+  resolveNames: true,
+  ignoreUnknownDevices: false,
 };
 const storedSettings = JSON.parse(localStorage.getItem('AskSinAnalyzer_Settings'));
 const settings = { ...defaultSettings, ...storedSettings };
@@ -25,7 +26,8 @@ const espService = new EspService(
   settings.espIp ? `http://${ settings.espIp }` : '',
   settings.maxTelegrams,
   settings.refreshInterval,
-  settings.resolveNames
+  settings.resolveNames,
+  settings.ignoreUnknownDevices
 );
 Vue.prototype.$espService = espService;
 

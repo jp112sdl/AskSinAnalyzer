@@ -18,12 +18,15 @@ export default class EspService {
   resolveNames = true;
   rssiLogMap = new Map();
   devicesSet = new Set(['==Unbekannt==']);
+  ignoreUnknownDevices = false;
 
-  constructor(baseUrl = '', maxTelegrams = 20000, refreshInterval = 2, resolveNames = true) {
+
+  constructor(baseUrl = '', maxTelegrams = 20000, refreshInterval = 2, resolveNames = true, ignoreUnknownDevices = false) {
     this.baseUrl = baseUrl;
     this.maxTelegrams = maxTelegrams;
     this.refreshInterval = refreshInterval;
     this.resolveNames = resolveNames;
+    this.ignoreUnknownDevices = ignoreUnknownDevices;
     this.fetchRssiLog();
   }
 
@@ -103,13 +106,16 @@ export default class EspService {
   async fetchLog(offset = 0) {
     const res = await this._fetch(`${ this.baseUrl }/getLogByLogNumber?format=csv&lognum=${ offset }`);
     let text = await res.text();
-    const json = text
+    let json = text
       .split(/\r?\n/)
       .map(line => this.csvToObj(line))
       .filter(obj => obj !== null)
       .sort((a,b) => b.lognumber - a.lognumber);
     if (this.resolveNames) {
       json.forEach(t => this.addNameFromDevlist(t));
+    }
+    if(this.ignoreUnknownDevices) {
+      json = json.filter(telegram => telegram.fromNameResolved);
     }
     return json;
   }
