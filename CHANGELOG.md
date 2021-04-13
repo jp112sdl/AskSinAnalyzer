@@ -1,3 +1,7 @@
+## Version 3.5
+- **ESP32:**
+  - Sicheres Entfernen der SD Karte
+
 ## Version 3.4
 - **ESP32:**
   - Unterstützung von HTTPS bei der Verbindung zum Backend [#61](https://github.com/jp112sdl/AskSinAnalyzer/issues/61)

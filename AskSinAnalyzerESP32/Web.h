@@ -205,6 +205,18 @@ void listSD (AsyncWebServerRequest *request) {
   request->send(200, "application/json", json);
 }
 
+void ejectSD (AsyncWebServerRequest *request) {
+  DPRINTLN(F("::: Web.h /ejectSD"));
+  ejectSD();
+  request->send(200, "text/plain", "OK");
+}
+
+void insertSD (AsyncWebServerRequest *request) {
+  DPRINTLN(F("::: Web.h /insertSD"));
+  if (sdAvailable == false) initSD();
+  request->send(200, "text/plain", sdAvailable ? "OK":"ERROR");
+}
+
 void getConfig (AsyncWebServerRequest *request) {
   DPRINTLN(F("::: Web.h /getConfig"));
   bool staticipconfig = String(NetConfig.ip) != "0.0.0.0";
@@ -454,6 +466,14 @@ void initWebServer() {
 
   webServer.on("/listSD", HTTP_GET, [](AsyncWebServerRequest * request) {
     listSD(request);
+  });
+
+  webServer.on("/ejectSD", HTTP_GET, [](AsyncWebServerRequest * request) {
+    ejectSD(request);
+  });
+
+  webServer.on("/insertSD", HTTP_GET, [](AsyncWebServerRequest * request) {
+    insertSD(request);
   });
 
   webServer.on("/setConfig", HTTP_POST, [](AsyncWebServerRequest * request) {
