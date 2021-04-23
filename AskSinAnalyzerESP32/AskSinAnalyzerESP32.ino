@@ -44,7 +44,7 @@ const String CCU_SV_DEVLIST = "AskSinAnalyzerDevList";  //name of the used syste
 const String CCU_SV_ALARM   = "AskSinAnalyzerAlarm";  //name of the used system variable on the CCU for alarms
 
 #define VERSION_UPPER "3"
-#define VERSION_LOWER "6"
+#define VERSION_LOWER "7"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15 //LOW = on boot: start wifimanager, on run: switch between tft screens
