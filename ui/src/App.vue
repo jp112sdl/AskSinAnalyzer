@@ -42,8 +42,8 @@
           <span class="text-bold">
             Die ESP-Firmware ist veraltet! Der Analyzer funktioniert eventuell nicht korrekt.
           </span>
-          <template v-slot:action v-if="$route.path !== '/settings'">
-            <q-btn color="white" class="text-black" label="ESP Update" @click="$router.push('/settings')"/>
+          <template v-slot:action v-if="$route.path !== '/info'">
+            <q-btn color="white" class="text-black" label="ESP Update" @click="$router.push('/info')"/>
           </template>
         </q-banner>
       </div>
