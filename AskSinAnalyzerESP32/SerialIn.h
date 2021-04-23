@@ -8,8 +8,8 @@
 
 void receiveMessages() {
   static String inStr = "";
-  while (Serial1.available() > 0) {
-    char inChar = (char)Serial1.read();
+  while ( (Serial1.available() > 0) || (Serial.available() > 0) ) {
+    char inChar = Serial.available() ?  (char)Serial.read() : (char)Serial1.read();
     if (inChar != ';') {
       if (inChar != '\n' && inChar != '\r') {
         inStr += inChar;
