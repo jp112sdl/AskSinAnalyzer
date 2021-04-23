@@ -296,9 +296,9 @@ export default class EspService {
     if (!currentVersion) return false;
     const [bU, bL] = currentVersion.split('.');
     if (bU >= 3 && bL >=6) {
-      document.location.href = `${ this.baseUrl }/httpupdate?url=https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/${ file }`;
-    } else {
       document.location.href = `${ this.baseUrl }/update`;
+    } else {
+      document.location.href = `${ this.baseUrl }/httpupdate?url=https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/${ file }`;
     }
   }
 }
