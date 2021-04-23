@@ -6,7 +6,7 @@
     </div>
     <div v-else>
       <div class="text-blue text-bold q-mb-sm" v-if="$root.espConfig.updateAvailable">
-        <q-icon name="info"/> Es ist ein Update verfügbar. => https://github.com/jp112sdl/AskSinAnalyzer/releases
+        <q-icon name="info"/> Es ist ein Update verfügbar. Download: https://github.com/jp112sdl/AskSinAnalyzer/releases
       </div>
       <div class="text-blue text-bold q-mb-sm" v-else>
         <q-icon name="check"/>
