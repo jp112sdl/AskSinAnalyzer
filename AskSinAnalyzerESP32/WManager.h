@@ -73,6 +73,7 @@ bool doWifiConnect() {
 #endif
     WiFi.setHostname(NetConfig.hostname);     // <- better here?
     WiFi.begin(_ssid.c_str(), _psk.c_str());
+    WiFi.setSleep(false);
     WiFi.setHostname(NetConfig.hostname);     // <- or here ?
     uint8_t connect_count = 0;
     DPRINT(F(" - Connecting to WiFi"));
