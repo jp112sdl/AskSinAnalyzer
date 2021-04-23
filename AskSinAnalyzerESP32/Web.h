@@ -205,6 +205,18 @@ void listSD (AsyncWebServerRequest *request) {
   request->send(200, "application/json", json);
 }
 
+void ejectSD (AsyncWebServerRequest *request) {
+  DPRINTLN(F("::: Web.h /ejectSD"));
+  ejectSD();
+  request->send(200, "text/plain", "OK");
+}
+
+void insertSD (AsyncWebServerRequest *request) {
+  DPRINTLN(F("::: Web.h /insertSD"));
+  if (sdAvailable == false) initSD();
+  request->send(200, "text/plain", sdAvailable ? "OK":"ERROR");
+}
+
 void getConfig (AsyncWebServerRequest *request) {
   DPRINTLN(F("::: Web.h /getConfig"));
   bool staticipconfig = String(NetConfig.ip) != "0.0.0.0";
@@ -388,51 +400,6 @@ void setBootConfigMode(AsyncWebServerRequest * request) {
   ESP.restart();
 }
 
-void checkUpdate(String url) {
-  if (updating == true) {
-    updating = false;
-    DPRINTLN(F("Check for Updates..."));
-
-    digitalWrite(AP_MODE_LED_PIN, HIGH);
-    ESPhttpUpdate.rebootOnUpdate(false);
-    t_httpUpdate_return ret = ESPhttpUpdate.update(url);
-
-    switch (ret) {
-      case HTTP_UPDATE_FAILED:
-        DPRINT(F("HTTP_UPDATE_FAILED Error")); DDEC(ESPhttpUpdate.getLastError()); DPRINT(F(":")); DPRINTLN(ESPhttpUpdate.getLastErrorString());
-        DPRINTLN(F(""));
-        break;
-
-      case HTTP_UPDATE_NO_UPDATES:
-        DPRINTLN(F("HTTP_UPDATE_NO_UPDATES"));
-        break;
-
-      case HTTP_UPDATE_OK:
-        DPRINTLN(F("HTTP_UPDATE_OK. Rebooting..."));
-        delay(200);
-        ESP.restart();
-        break;
-    }
-    digitalWrite(AP_MODE_LED_PIN, LOW);
-
-  }
-}
-
-void httpUpdate(AsyncWebServerRequest * request) {
-  String url = "";
-  if (request->hasParam("url")) url = request->getParam("url")->value();
-
-  String page = "Processing update from " + url + "\nPlease be patient - ESP32 will reboot automatically";
-  AsyncWebServerResponse *response = request->beginResponse(200);
-  response->addHeader("Content-Length", String(page.length()));
-  request->send(200, "text/plain", page);
-
-  if (url.length() > 10) {
-    updateUrl = url;
-    updating = true;
-  }
-}
-
 void formatSPIFFS(AsyncWebServerRequest * request) {
   String text = F("Formatting SPIFFS. WiFi will be disconnected!\n");
   AsyncWebServerResponse *response = request->beginResponse(200);
@@ -454,6 +421,14 @@ void initWebServer() {
 
   webServer.on("/listSD", HTTP_GET, [](AsyncWebServerRequest * request) {
     listSD(request);
+  });
+
+  webServer.on("/ejectSD", HTTP_GET, [](AsyncWebServerRequest * request) {
+    ejectSD(request);
+  });
+
+  webServer.on("/insertSD", HTTP_GET, [](AsyncWebServerRequest * request) {
+    insertSD(request);
   });
 
   webServer.on("/setConfig", HTTP_POST, [](AsyncWebServerRequest * request) {
@@ -478,10 +453,6 @@ void initWebServer() {
 
   webServer.on("/getRSSILog", HTTP_GET, [](AsyncWebServerRequest * request) {
     getRSSILog(request);
-  });
-
-  webServer.on("/httpupdate", HTTP_GET, [](AsyncWebServerRequest * request) {
-    httpUpdate(request);
   });
 
   webServer.on("/deletecsv", HTTP_POST, [](AsyncWebServerRequest * request) {
@@ -529,6 +500,7 @@ void initWebServer() {
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
   ws.onEvent(onWsEvent);
   webServer.addHandler(&ws);
+  AsyncElegantOTA.begin(&webServer);
   webServer.begin();
   MDNS.addService("http", "tcp", 80);
 }

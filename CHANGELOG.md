@@ -1,3 +1,18 @@
+## Version 3.6
+- **ESP32:**
+  - aufgrund von Problemen mit der automatischen Firmware-Aktualisierung mittels HTTP-Update wird nun das Framework [AsyncElegantOTA](https://github.com/ayushsharma82/AsyncElegantOTA) verwendet
+  - künftig sind Firmware Updates aus den [Releases](https://github.com/jp112sdl/AskSinAnalyzer/releases) zu herunterzuladen
+    - `AskSinAnalyzerESP32.bin` für die Variante **mit** TFT Display
+    - `AskSinAnalyzerESP32-ND.bin` für die Variante **ohne** TFT Display
+  - das Einspielen des Updates erfolgt dann über den Aufruf `http://<AnalyzerIP>/update`
+    - <img width="300" alt="Bildschirmfoto 2021-04-23 um 07 05 53" src="https://user-images.githubusercontent.com/18190139/115821052-5b162580-a402-11eb-9864-ac5d24909f09.png"> 
+    - "Durchsuchen" klicken, Updatedatei auswählen -> Fertig.
+  - da der automatische Update-Mechanismus bereits in der Version 3.4 kaputt zu sein scheint, ist eine Aktualisierung auf die 3.6 nur über manuelles Flashen (selbst kompilieren oder .bin hochladen wie bei der Erstinbetriebnahme) möglich 
+
+## Version 3.5
+- **ESP32:**
+  - Sicheres Entfernen der SD Karte
+
 ## Version 3.4
 - **ESP32:**
   - Unterstützung von HTTPS bei der Verbindung zum Backend [#61](https://github.com/jp112sdl/AskSinAnalyzer/issues/61)

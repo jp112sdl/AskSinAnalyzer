@@ -20,7 +20,8 @@
 #include "WM.h"
 #include <WiFiClientSecure.h>
 #include <ESPAsyncWebServer.h>
-#include <ESP32httpUpdate.h>
+#include <HTTPClient.h>
+#include <AsyncElegantOTA.h>
 #include <ESPmDNS.h>
 #include <TimeLib.h>
 #include <ArduinoJson.h>
@@ -43,7 +44,7 @@ const String CCU_SV_DEVLIST = "AskSinAnalyzerDevList";  //name of the used syste
 const String CCU_SV_ALARM   = "AskSinAnalyzerAlarm";  //name of the used system variable on the CCU for alarms
 
 #define VERSION_UPPER "3"
-#define VERSION_LOWER "4"
+#define VERSION_LOWER "6"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15 //LOW = on boot: start wifimanager, on run: switch between tft screens
@@ -195,10 +196,10 @@ void setup() {
   ONLINE_MODE = digitalRead(ONLINE_MODE_PIN) == LOW;
   DPRINT(F("- INIT ONLINE_MODE (")); DPRINTLN(ONLINE_MODE == true ? "Enabled)" : "Disabled)");
 
-  sdAvailable = SdInit();
+  initSD();
   DPRINT(F("- INIT SD CARD DONE. SD CARD IS ")); DPRINTLN(sdAvailable ? "AVAILABLE" : "NOT AVAILABLE");
 
-  SPIFFSAvailable = initSPIFFS();
+  initSPIFFS();
   DPRINT(F("- INIT SPIFFS  DONE. SPIFFS  IS ")); DPRINTLN(SPIFFSAvailable ? "AVAILABLE" : "NOT AVAILABLE");
   initSessionLogOnSPIFFS();
 
@@ -251,7 +252,7 @@ void loop() {
 
   if (ONLINE_MODE) {
     checkWifi();
-    checkUpdate(updateUrl);
+    AsyncElegantOTA.loop();
   }
 
   if (msgBufferProcessing == true && updating == false) {

@@ -83,20 +83,30 @@ uint32_t getSDCardUsedSpaceMB() {
   return (uint32_t)SD.usedBytes() / (1024 * 1024UL);
 }
 
-bool SdInit() {
+void ejectSD() {
+  if (sdAvailable == true) {
+    SD.end();
+    sdAvailable = false;
+    DPRINTLN(F("- EJECT SD CARD"));
+  }
+}
+
+void initSD() {
   DPRINTLN(F("- INIT SD CARD"));
   if (!SD.begin(SD_CS)) {
     delay(250);
     if (!SD.begin(SD_CS)) {
       DPRINTLN(F(" - Card Mount Failed "));
-      return false;
+      sdAvailable = false;
+      return;
     }
   }
   uint8_t cardType = SD.cardType();
 
   if (cardType == CARD_NONE) {
     DPRINTLN(F(" - No SD card attached"));
-    return false;
+    sdAvailable = false;
+    return;
   }
 
   DPRINT(F(" - SD Card Type  : "));
@@ -117,7 +127,7 @@ bool SdInit() {
   DPRINT(F(" - Used space   MB: "));
   DPRINTLN(getSDCardUsedSpaceMB());
 
-  return true;
+  sdAvailable = true;
 }
 
 enum SPIFFS_ERRORS {
@@ -155,7 +165,7 @@ void initSessionLogOnSPIFFS() {
   }
 }
 
-bool initSPIFFS() {
+void initSPIFFS() {
   DPRINTLN(F("- INIT SPIFFS"));
   if (!SPIFFS.begin(true)) {
     DPRINTLN(F(" - SPIFFS: Mount Failed. Trying to format..."));
@@ -164,7 +174,8 @@ bool initSPIFFS() {
       DPRINTLN(F(" - SPIFFS: Now it is working! "));
     } else {
       DPRINTLN(F(" - SPIFFS: FATAL: SPIFFS NOT MOUNTABLE!"));
-      return false;
+      SPIFFSAvailable = false;
+      return;
     }
   }
   DPRINTLN(" - SPIFFS: Mount OK");
@@ -175,7 +186,7 @@ bool initSPIFFS() {
   DPRINT(F(" - SPIFFS: Free  kb: "));
   DPRINTLN(getSPIFFSSizeKB() - getSPIFFSUsedKB());
 
-  return true;
+  SPIFFSAvailable = true;
 }
 
 uint8_t deleteCSV(const char * fileName, bool createBackup) {
