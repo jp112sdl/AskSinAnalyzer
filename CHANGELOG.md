@@ -1,3 +1,7 @@
+## Version 3.7
+- **ESP32:**
+  - WDT Timeout Probleme behoben
+
 ## Version 3.6
 - **ESP32:**
   - aufgrund von Problemen mit der automatischen Firmware-Aktualisierung mittels HTTP-Update wird nun das Framework [AsyncElegantOTA](https://github.com/ayushsharma82/AsyncElegantOTA) verwendet
