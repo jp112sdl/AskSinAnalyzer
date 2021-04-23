@@ -338,6 +338,7 @@ void getLogByLogNumber (AsyncWebServerRequest * request) {
             file.close();
           }
           DPRINT("-");
+          yield();
         }
         temp.close();
 
