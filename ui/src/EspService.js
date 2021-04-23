@@ -292,6 +292,13 @@ export default class EspService {
 
   execUpdate() {
     const file = `AskSinAnalyzerESP32${ this.data.espConfig.display ? '' : '-ND' }.bin`;
-    document.location.href = `${ this.baseUrl }/httpupdate?url=https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/${ file }`;
+    const { latestVersion, currentVersion } = this.data.espConfig;
+    if (!currentVersion) return false;
+    const [bU, bL] = currentVersion.split('.');
+    if (bU >= 3 && bL >=6) {
+      document.location.href = `${ this.baseUrl }/httpupdate?url=https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/${ file }`;
+    } else {
+      document.location.href = `${ this.baseUrl }/update`;
+    }
   }
 }
