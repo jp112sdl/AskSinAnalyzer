@@ -400,51 +400,6 @@ void setBootConfigMode(AsyncWebServerRequest * request) {
   ESP.restart();
 }
 
-void checkUpdate(String url) {
-  if (updating == true) {
-    updating = false;
-    DPRINTLN(F("Check for Updates..."));
-
-    digitalWrite(AP_MODE_LED_PIN, HIGH);
-    ESPhttpUpdate.rebootOnUpdate(false);
-    t_httpUpdate_return ret = ESPhttpUpdate.update(url);
-
-    switch (ret) {
-      case HTTP_UPDATE_FAILED:
-        DPRINT(F("HTTP_UPDATE_FAILED Error")); DDEC(ESPhttpUpdate.getLastError()); DPRINT(F(":")); DPRINTLN(ESPhttpUpdate.getLastErrorString());
-        DPRINTLN(F(""));
-        break;
-
-      case HTTP_UPDATE_NO_UPDATES:
-        DPRINTLN(F("HTTP_UPDATE_NO_UPDATES"));
-        break;
-
-      case HTTP_UPDATE_OK:
-        DPRINTLN(F("HTTP_UPDATE_OK. Rebooting..."));
-        delay(200);
-        ESP.restart();
-        break;
-    }
-    digitalWrite(AP_MODE_LED_PIN, LOW);
-
-  }
-}
-
-void httpUpdate(AsyncWebServerRequest * request) {
-  String url = "";
-  if (request->hasParam("url")) url = request->getParam("url")->value();
-
-  String page = "Processing update from " + url + "\nPlease be patient - ESP32 will reboot automatically";
-  AsyncWebServerResponse *response = request->beginResponse(200);
-  response->addHeader("Content-Length", String(page.length()));
-  request->send(200, "text/plain", page);
-
-  if (url.length() > 10) {
-    updateUrl = url;
-    updating = true;
-  }
-}
-
 void formatSPIFFS(AsyncWebServerRequest * request) {
   String text = F("Formatting SPIFFS. WiFi will be disconnected!\n");
   AsyncWebServerResponse *response = request->beginResponse(200);
@@ -500,10 +455,6 @@ void initWebServer() {
     getRSSILog(request);
   });
 
-  webServer.on("/httpupdate", HTTP_GET, [](AsyncWebServerRequest * request) {
-    httpUpdate(request);
-  });
-
   webServer.on("/deletecsv", HTTP_POST, [](AsyncWebServerRequest * request) {
     bool backup = false;
     if (request->hasParam("backup")) {
@@ -549,6 +500,7 @@ void initWebServer() {
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
   ws.onEvent(onWsEvent);
   webServer.addHandler(&ws);
+  AsyncElegantOTA.begin(&webServer);
   webServer.begin();
   MDNS.addService("http", "tcp", 80);
 }

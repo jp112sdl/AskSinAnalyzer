@@ -20,7 +20,8 @@
 #include "WM.h"
 #include <WiFiClientSecure.h>
 #include <ESPAsyncWebServer.h>
-#include <ESP32httpUpdate.h>
+#include <HTTPClient.h>
+#include <AsyncElegantOTA.h>
 #include <ESPmDNS.h>
 #include <TimeLib.h>
 #include <ArduinoJson.h>
@@ -43,7 +44,7 @@ const String CCU_SV_DEVLIST = "AskSinAnalyzerDevList";  //name of the used syste
 const String CCU_SV_ALARM   = "AskSinAnalyzerAlarm";  //name of the used system variable on the CCU for alarms
 
 #define VERSION_UPPER "3"
-#define VERSION_LOWER "5"
+#define VERSION_LOWER "6"
 
 //Pin definitions for external switches
 #define START_WIFIMANAGER_PIN    15 //LOW = on boot: start wifimanager, on run: switch between tft screens
@@ -251,7 +252,7 @@ void loop() {
 
   if (ONLINE_MODE) {
     checkWifi();
-    checkUpdate(updateUrl);
+    AsyncElegantOTA.loop();
   }
 
   if (msgBufferProcessing == true && updating == false) {
