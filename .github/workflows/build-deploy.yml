@@ -20,10 +20,11 @@ jobs:
           node-version: '14'
 
       # Build
-      - run: cd ui
-      - run: npm ci
-      - run: npm run build
-      - run: echo $VUE_APP_COMMIT_HASH > dist/commit-hash.txt && cd .. && cp ota/version ui/dist/esp-version.txt
+      - run: |
+          cd ui
+          npm ci
+          npm run build
+          echo $VUE_APP_COMMIT_HASH > dist/commit-hash.txt && cd .. && cp ota/version ui/dist/esp-version.txt
 
       - name: Set branch name
         id: branch
