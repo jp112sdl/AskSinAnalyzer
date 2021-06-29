@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="text-red text-bold" v-if="!espConfig">
+    <div class="text-red text-bold" v-if="!$root.espConfig">
       <q-icon name="warning"/>
       Die Konfiguration konnte nicht geladen werden.
     </div>
@@ -11,44 +11,44 @@
       </tr>
       <tr>
         <th>Booted:</th>
-        <td>{{ new Date(espConfig.boottime * 1000).toLocaleString() }}</td>
+        <td>{{ new Date($root.espConfig.boottime * 1000).toLocaleString() }}</td>
       </tr>
       <tr>
-        <th>{{ espConfig.staticipconfig ? 'Statische' : 'DHCP' }} IP:</th>
-        <td>{{ espConfig.ip }}</td>
+        <th>{{ $root.espConfig.staticipconfig ? 'Statische' : 'DHCP' }} IP:</th>
+        <td>{{ $root.espConfig.ip }}</td>
       </tr>
       <tr>
         <th>Hostname:</th>
-        <td>{{ espConfig.hostname }}</td>
+        <td>{{ $root.espConfig.hostname }}</td>
       </tr>
       <tr>
         <th>Netmask:</th>
-        <td>{{ espConfig.netmask }}</td>
+        <td>{{ $root.espConfig.netmask }}</td>
       </tr>
       <tr>
         <th>Gateway:</th>
-        <td>{{ espConfig.gw }}</td>
+        <td>{{ $root.espConfig.gw }}</td>
       </tr>
       <tr>
         <th>NTP-Server:</th>
-        <td>{{ espConfig.ntp }}</td>
+        <td>{{ $root.espConfig.ntp }}</td>
       </tr>
       <tr>
         <th>CCU-IP:</th>
-        <td>{{ espConfig.ccuip }}</td>
+        <td>{{ $root.espConfig.ccuip }}</td>
       </tr>
       <tr>
         <th>SD-Card:</th>
         <td>
           <div v-if="espConfig.sdcardavailable">
-            {{ espConfig.sdcardusedspacemb }} MB belegt / {{ espConfig.sdcardtotalspacemb }} MB gesamt
+            {{ $root.espConfig.sdcardusedspacemb }} MB belegt / {{ $root.espConfig.sdcardtotalspacemb }} MB gesamt
           </div>
           <div v-else class="text-italic">Keine SD-Card</div>
         </td>
       </tr>
       <tr>
         <th>SPIFFS:</th>
-        <td>{{ espConfig.spiffsusedkb }} kB belegt / {{ espConfig.spiffssizekb }} kB gesamt</td>
+        <td>{{ $root.espConfig.spiffsusedkb }} kB belegt / {{ $root.espConfig.spiffssizekb }} kB gesamt</td>
       </tr>
     </table>
 <!--    <div class="q-mt-md">
@@ -65,14 +65,9 @@
   export default {
     name: "EspConfigInfo",
     components: { QIcon, QBtn },
-    props: {
-      espConfig: {
-        type: Object
-      }
-    },
     methods: {
       async reloadConfig() {
-        this.$root.espConfig = await this.$espService.fetchConfig();
+        await this.$espService.fetchConfig();
       }
     }
   }
