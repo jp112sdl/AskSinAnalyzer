@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="text-red text-bold" v-if="!$root.espConfig">
+    <div class="text-red text-bold" v-if="!$root.data.espConfig">
       <q-icon name="warning"/>
       Die Konfiguration konnte nicht geladen werden.
     </div>
@@ -11,44 +11,44 @@
       </tr>
       <tr>
         <th>Booted:</th>
-        <td>{{ new Date($root.espConfig.boottime * 1000).toLocaleString() }}</td>
+        <td>{{ new Date($root.data.espConfig.boottime * 1000).toLocaleString() }}</td>
       </tr>
       <tr>
-        <th>{{ $root.espConfig.staticipconfig ? 'Statische' : 'DHCP' }} IP:</th>
-        <td>{{ $root.espConfig.ip }}</td>
+        <th>{{ $root.data.espConfig.staticipconfig ? 'Statische' : 'DHCP' }} IP:</th>
+        <td>{{ $root.data.espConfig.ip }}</td>
       </tr>
       <tr>
         <th>Hostname:</th>
-        <td>{{ $root.espConfig.hostname }}</td>
+        <td>{{ $root.data.espConfig.hostname }}</td>
       </tr>
       <tr>
         <th>Netmask:</th>
-        <td>{{ $root.espConfig.netmask }}</td>
+        <td>{{ $root.data.espConfig.netmask }}</td>
       </tr>
       <tr>
         <th>Gateway:</th>
-        <td>{{ $root.espConfig.gw }}</td>
+        <td>{{ $root.data.espConfig.gw }}</td>
       </tr>
       <tr>
         <th>NTP-Server:</th>
-        <td>{{ $root.espConfig.ntp }}</td>
+        <td>{{ $root.data.espConfig.ntp }}</td>
       </tr>
       <tr>
         <th>CCU-IP:</th>
-        <td>{{ $root.espConfig.ccuip }}</td>
+        <td>{{ $root.data.espConfig.ccuip }}</td>
       </tr>
       <tr>
         <th>SD-Card:</th>
         <td>
-          <div v-if="espConfig.sdcardavailable">
-            {{ $root.espConfig.sdcardusedspacemb }} MB belegt / {{ $root.espConfig.sdcardtotalspacemb }} MB gesamt
+          <div v-if="$root.data.espConfig.sdcardavailable">
+            {{ $root.data.espConfig.sdcardusedspacemb }} MB belegt / {{ $root.data.espConfig.sdcardtotalspacemb }} MB gesamt
           </div>
           <div v-else class="text-italic">Keine SD-Card</div>
         </td>
       </tr>
       <tr>
         <th>SPIFFS:</th>
-        <td>{{ $root.espConfig.spiffsusedkb }} kB belegt / {{ $root.espConfig.spiffssizekb }} kB gesamt</td>
+        <td>{{ $root.data.espConfig.spiffsusedkb }} kB belegt / {{ $root.data.espConfig.spiffssizekb }} kB gesamt</td>
       </tr>
     </table>
 <!--    <div class="q-mt-md">
