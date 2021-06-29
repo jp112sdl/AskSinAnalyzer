@@ -35,5 +35,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: dist
-          destination_dir: ${( steps.branch.outputs.BRANCH_NAME }}
+          publish_dir: ui/dist
+          destination_dir: ${{ steps.branch.outputs.BRANCH_NAME }}
