@@ -24,7 +24,7 @@ jobs:
           export OWNER="$(echo $GITHUB_REPOSITORY | cut -d/ -f1)"
           export REPO="$(echo $GITHUB_REPOSITORY | cut -d/ -f2)"
           export VUE_APP_CDN_URL="https://$OWNER.github.io/$REPO/${GITHUB_REF##*/}"
-          export VUE_APP_COMMIT_HASH=${GITHUB_SHA:0:8}
+          export VUE_APP_COMMIT_HASH=${GITHUB_SHA:0:7}
           cd ui
           npm ci
           npm run build
