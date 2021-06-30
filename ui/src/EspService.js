@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 export default class EspService {
 
   data = {
@@ -147,6 +149,8 @@ export default class EspService {
         espConfig.currentVersion = '0.1';
       }
 
+      // Object.assign(this.data.espConfig, espConfig);
+      // Object.keys(espConfig).forEach(key => Vue.set(this.data.espConfig, key, espConfig[key]));
       this.data.espConfig = espConfig;
       return espConfig;
     }
@@ -300,5 +304,23 @@ export default class EspService {
     } else {
       document.location.href = `${ this.baseUrl }/httpupdate?url=https://raw.githubusercontent.com/jp112sdl/AskSinAnalyzer/master/ota/${ file }`;
     }
+  }
+
+  async insertSD() {
+    const res = await this._fetch(`${ this.baseUrl }/insertSD`);
+    const txt = await res.text();
+    if (txt !== 'OK') {
+      throw new Error(txt);
+    }
+    await this.fetchConfig()
+  }
+
+  async ejectSD() {
+    const res = await this._fetch(`${ this.baseUrl }/ejectSD`);
+    const txt = await res.text();
+    if (txt !== 'OK') {
+      throw new Error(txt);
+    }
+    await this.fetchConfig()
   }
 }

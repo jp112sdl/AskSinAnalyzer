@@ -55,6 +55,24 @@
           <q-item-label caption>Visualisiert CSV Daten in der WebUI.</q-item-label>
         </q-item-section>
       </q-item>
+      <q-item clickable v-ripple @click="ejectSD" v-if="sdcardavailable">
+        <q-item-section avatar>
+          <q-avatar rounded color="primary" text-color="white" icon="sd_card"/>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-bold">SD-Karte auswerfen</q-item-label>
+          <q-item-label caption>Führt einen unmount der SD-Karte aus.</q-item-label>
+        </q-item-section>
+      </q-item>
+      <q-item clickable v-ripple @click="insertSD" v-if="!sdcardavailable">
+        <q-item-section avatar>
+          <q-avatar rounded color="primary" text-color="white" icon="sd_card"/>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-bold">SD-Karte einbinden</q-item-label>
+          <q-item-label caption>Führt einen mount der SD-Karte aus.</q-item-label>
+        </q-item-section>
+      </q-item>
     </q-list>
     <q-dialog v-model="csvUploadModal">
       <csv-import @imported="csvUploadModal = false"/>
@@ -89,7 +107,7 @@
 
     computed: {
       sdcardavailable() {
-        return this.$root.espConfig && this.$root.espConfig.sdcardavailable;
+        return this.$root.data.espConfig && this.$root.data.espConfig.sdcardavailable;
       }
     },
 
@@ -149,6 +167,22 @@
           cnt++;
           await wait(500);
         }
+        Loading.hide();
+      },
+
+      async insertSD() {
+        Loading.show({
+          message: '<b>SD-Karte wird eingehängt...</b>'
+        });
+        await this.$espService.insertSD();
+        Loading.hide();
+      },
+
+      async ejectSD() {
+        Loading.show({
+          message: '<b>SD-Karte wird ausgeworfen...</b>'
+        });
+        await this.$espService.ejectSD();
         Loading.hide();
       }
     }

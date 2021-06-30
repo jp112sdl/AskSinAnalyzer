@@ -34,6 +34,34 @@ function genTelegram() {
   }
 }
 
+const espConfig = {
+  "staticipconfig": 0,
+  "ip": "192.168.1.191",
+  "netmask": "255.255.255.0",
+  "gw": "192.168.1.1",
+  "macaddress": "30:AE:A4:38:88:6C",
+  "hostname": "my.hostname.local",
+  "version_upper": 1,
+  "version_lower": 3,
+  "ccuip": "192.168.178.39",
+  "ccuhttps": 0,
+  "backendurl": "http://localhost",
+  "backend": 0,
+  "rssi_hbw": 30,
+  "rssi_alarmthreshold": -80,
+  "rssi_alarmcount": 5,
+  "resolve": 1,
+  "sdcardavailable": 1,
+  "sdcardsizemb": 3780,
+  "sdcardtotalspacemb": "2047",
+  "sdcardusedspacemb": "4",
+  "spiffssizekb": 1342,
+  "spiffsusedkb": 79,
+  "boottime": Math.floor(Date.now() / 1000),
+  "ntp": "0.de.pool.ntp.org",
+  "display": false,
+};
+
 let data = [];
 setInterval(() => {
   if (Math.random() < 0.5) return;
@@ -64,6 +92,17 @@ const server = http.createServer(function(req, res) {
   const url = parseUrl(req.url, true);
   switch (url.pathname) {
 
+    case '/insertSD':
+      espConfig.sdcardavailable = 1;
+      res.write('OK');
+      res.end();
+      break;
+    case '/ejectSD':
+      espConfig.sdcardavailable = 0;
+      res.write('OK');
+      res.end();
+      break;
+
     case '/fhem':
       res.setHeader('Content-Type', 'application/json charset=utf-8');
       res.write(JSON.stringify(devlist, null, 2));
@@ -90,33 +129,7 @@ const server = http.createServer(function(req, res) {
       break;
 
     case '/getConfig':
-      res.write(JSON.stringify({
-          "staticipconfig": 0,
-          "ip": "192.168.1.191",
-          "netmask": "255.255.255.0",
-          "gw": "192.168.1.1",
-          "macaddress": "30:AE:A4:38:88:6C",
-          "hostname": "my.hostname.local",
-          "version_upper": 1,
-          "version_lower": 3,
-          "ccuip": "192.168.178.39",
-          "ccuhttps": 0,
-          "backendurl": "http://localhost",
-          "backend": 0,
-          "rssi_hbw": 30,
-          "rssi_alarmthreshold": -80,
-          "rssi_alarmcount": 5,
-          "resolve": 1,
-          "sdcardavailable": 1,
-          "sdcardsizemb": 3780,
-          "sdcardtotalspacemb": "2047",
-          "sdcardusedspacemb": "4",
-          "spiffssizekb": 1342,
-          "spiffsusedkb": 79,
-          "boottime": Math.floor(Date.now() / 1000),
-          "ntp": "0.de.pool.ntp.org",
-          "display": false,
-        }, null, 2)
+      res.write(JSON.stringify(espConfig, null, 2)
       );
       res.end();
       break;

@@ -1,0 +1,43 @@
+on: push
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      # GIT Checkout
+      - uses: actions/checkout@v2
+
+      # Cache node_modules
+      - uses: actions/cache@v2.1.3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      # Setup Node.JS
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      # Build
+      - run: |
+          export OWNER="$(echo $GITHUB_REPOSITORY | cut -d/ -f1)"
+          export REPO="$(echo $GITHUB_REPOSITORY | cut -d/ -f2)"
+          export VUE_APP_CDN_URL="https://$OWNER.github.io/$REPO/${GITHUB_REF##*/}"
+          export VUE_APP_COMMIT_HASH=${GITHUB_SHA:0:7}
+          cd ui
+          npm ci
+          npm run build
+          echo $VUE_APP_COMMIT_HASH > dist/commit-hash.txt && cd .. && cp ota/version ui/dist/esp-version.txt
+
+      - name: Set branch name
+        id: branch
+        run: echo "::set-output name=BRANCH_NAME::${GITHUB_REF##*/}"
+
+      # Deploy
+      - name: Deploy 🚀
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ui/dist
+          destination_dir: ${{ steps.branch.outputs.BRANCH_NAME }}
