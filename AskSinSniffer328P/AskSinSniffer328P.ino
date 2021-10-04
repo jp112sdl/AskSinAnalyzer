@@ -4,6 +4,8 @@
 // 2019-05-24 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 //- -----------------------------------------------------------------------------------------------------------------------
 
+#define MaxDataLen   60 //to receive hmip messages that can have a bigger payload than bidcos messages 
+
 #include <SPI.h>
 #define EI_NOTEXTERNAL
 #include <EnableInterrupt.h>
