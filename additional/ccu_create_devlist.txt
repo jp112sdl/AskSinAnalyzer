@@ -1,8 +1,15 @@
 string svDevList = "AskSinAnalyzerDevList";
 string svAlarm   = "AskSinAnalyzerAlarm";
 
-string HmIPBroadcastName = "HmIP Broadcast";
-string HmRFBroadcastName = "HMRF Broadcast";
+string HmIPBroadcastName           = "HmIP Broadcast";
+string HmIPRoutersName             = "HmIP Routers";
+string HmIPAccessControllersName   = "HmIP AccessControllers";
+string HmIPThermostatsName         = "HmIP Thermostats";
+string HmIPSmokeSensorsName        = "HmIP Smoke Sensors";
+string HmIPPermanentListenerName   = "HmIP Permanent Listener";
+string HmIPBurstListenerName       = "HmIP Burst Listener";
+string HmIPTripleBurstListenerName = "HmIP Triple Burst Listener";
+string HmRFBroadcastName           = "HMRF Broadcast";
 
 object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
 
@@ -69,7 +76,16 @@ integer tstamp = system.Date("%F %X").ToTime().ToInteger();
 string sDevId;
 string data;
 string metaData;
-string result = "{\"created_at\":"#tstamp#",\"devices\":[{\"address\":15728641,\"serial\":\"00000000000000\",\"name\":\""#HmIPBroadcastName#"\"},{\"address\":0,\"serial\":\"0000000000\",\"name\":\""#HmRFBroadcastName#"\"},";
+string result = "{\"created_at\":"#tstamp#",\"devices\":["#
+     "{\"address\":15728641,\"serial\":\"00000000000000\",\"name\":\""#HmIPBroadcastName#"\"},"#
+     "{\"address\":15728642,\"serial\":\"00000000000000\",\"name\":\""#HmIPRoutersName#"\"},"#
+     "{\"address\":15728643,\"serial\":\"00000000000000\",\"name\":\""#HmIPAccessControllersName#"\"},"#
+     "{\"address\":15728644,\"serial\":\"00000000000000\",\"name\":\""#HmIPThermostatsName#"\"},"#
+     "{\"address\":15728645,\"serial\":\"00000000000000\",\"name\":\""#HmIPSmokeSensorsName#"\"},"#
+     "{\"address\":15728769,\"serial\":\"00000000000000\",\"name\":\""#HmIPPermanentListenerName#"\"},"#
+     "{\"address\":15728770,\"serial\":\"00000000000000\",\"name\":\""#HmIPBurstListenerName#"\"},"#
+     "{\"address\":15728771,\"serial\":\"00000000000000\",\"name\":\""#HmRFBroadcastName#"\"},"#
+     "{\"address\":0,\"serial\":\"0000000000\",\"name\":\""#HmRFBroadcastName#"\"},";
 
 foreach(sDevId, root.Devices().EnumUsedIDs())
 {
