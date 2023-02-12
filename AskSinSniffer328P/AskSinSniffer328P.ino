@@ -3,6 +3,7 @@
 // 2016-10-31 papa Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 // 2019-05-24 jp112sdl Creative Commons - http://creativecommons.org/licenses/by-nc-sa/3.0/de/
 //- -----------------------------------------------------------------------------------------------------------------------
+// ci-test=yes board=328p aes=no
 
 #define MaxDataLen   60 //to receive hmip messages that can have a bigger payload than bidcos messages 
 
