@@ -1,14 +1,14 @@
 string svDevList = "AskSinAnalyzerDevList";
 string svAlarm   = "AskSinAnalyzerAlarm";
 
-string HmIPBroadcastName           = "HmIP Broadcast";
-string HmIPRoutersName             = "HmIP Routers";
-string HmIPAccessControllersName   = "HmIP AccessControllers";
-string HmIPThermostatsName         = "HmIP Thermostats";
-string HmIPSmokeSensorsName        = "HmIP Smoke Sensors";
-string HmIPPermanentListenerName   = "HmIP Permanent Listener";
-string HmIPBurstListenerName       = "HmIP Burst Listener";
-string HmIPTripleBurstListenerName = "HmIP Triple Burst Listener";
+string HmIPBroadcastName           = "HmIP Multicast All Devices";
+string HmIPRoutersName             = "HmIP Multicast All Routers";
+string HmIPAccessControllersName   = "HmIP Multicast All AccessControllers";
+string HmIPThermostatsName         = "HmIP Multicast All Thermostats";
+string HmIPSmokeSensorsName        = "HmIP Multicast All Smoke Sensors";
+string HmIPPermanentListenerName   = "HmIP Multicast All Permanent Listener";
+string HmIPBurstListenerName       = "HmIP Multicast All Burst Listener";
+string HmIPTripleBurstListenerName = "HmIP Multicast All Triple Burst Listener";
 string HmRFBroadcastName           = "HMRF Broadcast";
 
 object svObjects = dom.GetObject(ID_SYSTEM_VARIABLES);
